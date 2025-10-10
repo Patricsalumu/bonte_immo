@@ -31,23 +31,24 @@ class LocataireController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:locataires,email',
+            'date_naissance' => 'nullable|date',
             'telephone' => 'required|string|max:20',
-            'adresse' => 'required|string',
-            'date_naissance' => 'required|date',
+            'email' => 'nullable|email|unique:locataires,email',
+            'adresse' => 'nullable|string',
             'profession' => 'nullable|string|max:255',
-            'salaire' => 'nullable|numeric|min:0',
-            'appartement_id' => 'required|exists:appartements,id',
-            'date_entree' => 'required|date',
-            'garantie' => 'required|numeric|min:0',
-            'observations' => 'nullable|string',
+            'employeur' => 'nullable|string|max:255',
+            'revenu_mensuel' => 'nullable|numeric|min:0',
+            'numero_carte_identite' => 'nullable|string|max:255',
+            'contact_urgence_nom' => 'nullable|string|max:255',
+            'contact_urgence_telephone' => 'nullable|string|max:20',
+            'notes' => 'nullable|string',
+            'actif' => 'boolean',
         ]);
 
-        $locataire = Locataire::create($validated);
+        // Définir actif à true par défaut si non fourni
+        $validated['actif'] = $request->has('actif') ? 1 : 0;
 
-        // Associer le locataire à l'appartement
-        $appartement = Appartement::find($validated['appartement_id']);
-        $appartement->update(['locataire_id' => $locataire->id]);
+        $locataire = Locataire::create($validated);
 
         return redirect()->route('locataires.index')
                         ->with('success', 'Locataire créé avec succès.');

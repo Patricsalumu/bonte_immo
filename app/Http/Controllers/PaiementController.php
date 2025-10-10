@@ -18,7 +18,8 @@ class PaiementController extends Controller
     public function index()
     {
         $paiements = Paiement::with(['loyer.appartement', 'loyer.locataire', 'utilisateur'])->orderBy('date_paiement', 'desc')->get();
-        return view('paiements.index', compact('paiements'));
+        $loyers = Loyer::with(['appartement', 'locataire'])->get();
+        return view('paiements.index', compact('paiements', 'loyers'));
     }
 
     public function create()

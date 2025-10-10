@@ -23,8 +23,9 @@ class LoyerController extends Controller
 
     public function create()
     {
-        $appartements = Appartement::whereNotNull('locataire_id')->with('locataire')->get();
-        return view('loyers.create', compact('appartements'));
+        $appartements = Appartement::with('immeuble')->get();
+        $locataires = Locataire::where('actif', 1)->get();
+        return view('loyers.create', compact('appartements', 'locataires'));
     }
 
     public function store(Request $request)
@@ -38,6 +39,12 @@ class LoyerController extends Controller
             'date_echeance' => 'required|date',
             'garantie_restante' => 'nullable|numeric|min:0',
         ]);
+
+        // Associer le locataire à l'appartement s'il ne l'est pas déjà
+        $appartement = Appartement::find($validated['appartement_id']);
+        if (!$appartement->locataire_id) {
+            $appartement->update(['locataire_id' => $validated['locataire_id']]);
+        }
 
         Loyer::create($validated);
 
