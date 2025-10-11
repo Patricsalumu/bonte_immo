@@ -171,16 +171,24 @@
                             </td>
                             <td>
                                 <div>
-                                    <strong><?php echo e($facture->locataire->nom); ?> <?php echo e($facture->locataire->prenom); ?></strong>
-                                    <br>
-                                    <small class="text-muted"><?php echo e($facture->locataire->telephone); ?></small>
+                                    <?php if($facture->locataire): ?>
+                                        <strong><?php echo e($facture->locataire->nom); ?> <?php echo e($facture->locataire->prenom); ?></strong>
+                                        <br>
+                                        <small class="text-muted"><?php echo e($facture->locataire->telephone); ?></small>
+                                    <?php else: ?>
+                                        <span class="text-muted">Locataire non trouvé</span>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <strong><?php echo e($facture->loyer->appartement->immeuble->nom); ?></strong>
-                                    <br>
-                                    <small class="text-muted">Apt <?php echo e($facture->loyer->appartement->numero); ?></small>
+                                    <?php if($facture->loyer && $facture->loyer->appartement && $facture->loyer->appartement->immeuble): ?>
+                                        <strong><?php echo e($facture->loyer->appartement->immeuble->nom); ?></strong>
+                                        <br>
+                                        <small class="text-muted">Apt <?php echo e($facture->loyer->appartement->numero); ?></small>
+                                    <?php else: ?>
+                                        <span class="text-muted">Appartement non trouvé</span>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                             <td>
@@ -219,7 +227,14 @@
                                     <?php if($facture->locataire && $facture->locataire->telephone): ?>
                                     <button type="button" 
                                             class="btn btn-outline-success btn-sm" 
-                                            onclick="partagerWhatsApp('<?php echo e($facture->locataire->telephone); ?>', '<?php echo e($facture->locataire->prenom ?? ''); ?>', '<?php echo e($facture->locataire->nom); ?>', '<?php echo e($facture->numero_facture); ?>', '<?php echo e(number_format($facture->montant, 0, ',', ' ')); ?>', '<?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?>', '<?php echo e($facture->date_echeance->format('d/m/Y')); ?>')">
+                                            data-telephone="<?php echo e($facture->locataire->telephone); ?>"
+                                            data-prenom="<?php echo e($facture->locataire->prenom ?? ''); ?>"
+                                            data-nom="<?php echo e($facture->locataire->nom); ?>"
+                                            data-numero="<?php echo e($facture->numero_facture); ?>"
+                                            data-montant="<?php echo e(number_format($facture->montant, 0, ' ', ' ')); ?>"
+                                            data-mois="<?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?>"
+                                            data-echeance="<?php echo e($facture->date_echeance->format('d/m/Y')); ?>"
+                                            onclick="partagerWhatsAppData(this)">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
                                     <?php endif; ?>
@@ -493,6 +508,19 @@ La Bonte Immo`;
         
         const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
         window.open(urlWhatsApp, '_blank');
+    };
+
+    // === NOUVELLE FONCTION WHATSAPP AVEC DATA ATTRIBUTES ===
+    window.partagerWhatsAppData = function(button) {
+        const telephone = button.dataset.telephone;
+        const prenom = button.dataset.prenom;
+        const nom = button.dataset.nom;
+        const numeroFacture = button.dataset.numero;
+        const montant = button.dataset.montant;
+        const mois = button.dataset.mois;
+        const echeance = button.dataset.echeance;
+        
+        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance);
     };
 
     // === FONCTIONS DE DEBUG ===

@@ -53,38 +53,59 @@ class Appartement extends Model
         return $this->hasMany(Loyer::class);
     }
 
+    /**
+     * Vérifie si l'appartement est actuellement disponible (sans contrat actif)
+     */
+    public function estDisponible()
+    {
+        return !$this->loyers()->enCours()->exists();
+    }
+
+    /**
+     * Récupère le contrat de loyer actuel s'il existe
+     */
+    public function contratActuel()
+    {
+        return $this->loyers()->enCours()->first();
+    }
+
     public function liberer()
     {
         $this->update(['statut' => 'libre']);
-        $this->locataire?->update(['date_sortie' => now()]);
+        // Désactiver le contrat actuel s'il existe
+        $contratActuel = $this->contratActuel();
+        if ($contratActuel) {
+            $contratActuel->desactiver('Appartement libéré');
+        }
     }
 
-    public function occuper($locataireId)
+    public function occuper($locataireId, $montantLoyer = null, $dateDebut = null)
     {
         $this->update(['statut' => 'occupe']);
-        // Génération automatique du loyer du mois courant
-        $this->genererLoyerMoisCourant($locataireId);
-    }
-
-    private function genererLoyerMoisCourant($locataireId)
-    {
-        $mois = now()->month;
-        $annee = now()->year;
-
-        Loyer::firstOrCreate([
+        
+        // Créer un nouveau contrat de loyer
+        return Loyer::create([
             'appartement_id' => $this->id,
-            'mois' => $mois,
-            'annee' => $annee,
-        ], [
             'locataire_id' => $locataireId,
-            'montant' => $this->loyer_mensuel,
-            'date_echeance' => now()->endOfMonth(),
-            'garantie_restante' => Locataire::find($locataireId)->garantie_initiale ?? 0,
+            'montant' => $montantLoyer ?? $this->loyer_mensuel,
+            'date_debut' => $dateDebut ?? now(),
+            'garantie_locative' => $this->garantie_locative,
+            'statut' => 'actif'
         ]);
     }
 
     public function revenuGenere()
     {
-        return $this->loyers()->where('statut', 'paye')->sum('montant');
+        return $this->loyers()->sum('montant');
+    }
+
+    /**
+     * Scope pour les appartements disponibles
+     */
+    public function scopeDisponibles($query)
+    {
+        return $query->whereDoesntHave('loyers', function($q) {
+            $q->enCours();
+        });
     }
 }

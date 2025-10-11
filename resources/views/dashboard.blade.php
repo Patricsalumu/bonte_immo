@@ -63,6 +63,33 @@
     </div>
 </div>
 
+<!-- Contrats de loyer -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="stats-card p-4 text-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-success mb-1">{{ $contratsActifs }}</h3>
+                    <p class="text-muted mb-0">Contrats Actifs</p>
+                </div>
+                <i class="fas fa-file-contract text-success" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="stats-card p-4 text-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-secondary mb-1">{{ $contratsInactifs }}</h3>
+                    <p class="text-muted mb-0">Contrats Inactifs</p>
+                </div>
+                <i class="fas fa-file-contract text-secondary" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Factures impayées et Paiements récents -->
 <div class="row mb-4">
     <!-- Factures impayées -->
@@ -154,18 +181,18 @@
                 </h5>
             </div>
             <div class="card-body">
-                @if($locatairesAvecGarantie->count() > 0)
+                @if($contratsAvecGarantie->count() > 0)
                     <div class="list-group list-group-flush">
-                        @foreach($locatairesAvecGarantie->take(5) as $locataire)
+                        @foreach($contratsAvecGarantie->take(5) as $contrat)
                         <div class="list-group-item border-0 px-0">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="mb-1">{{ $locataire['nom'] }}</h6>
-                                    <small class="text-muted">Apt. {{ $locataire['appartement'] }}</small>
+                                    <h6 class="mb-1">{{ $contrat['nom'] }}</h6>
+                                    <small class="text-muted">Apt. {{ $contrat['appartement'] }}</small>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary">
-                                        {{ number_format($locataire['garantie_restante'], 0, ',', ' ') }} CDF
+                                        {{ number_format($contrat['garantie_restante'], 0, ',', ' ') }} CDF
                                     </span>
                                 </div>
                             </div>

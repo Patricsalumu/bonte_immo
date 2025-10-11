@@ -9,7 +9,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">Gestion des Loyers</h1>
                 <a href="<?php echo e(route('loyers.create')); ?>" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Nouveau Loyer
+                    <i class="fas fa-plus"></i> Nouveau Contrat
                 </a>
             </div>
 
@@ -23,7 +23,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Liste des Loyers</h5>
+                    <h5 class="card-title mb-0">Liste des Contrats de Loyer</h5>
                 </div>
                 <div class="card-body">
                     <?php if($loyers->count() > 0): ?>
@@ -31,11 +31,11 @@
                             <table class="table table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>Période</th>
+                                        <th>ID</th>
                                         <th>Locataire</th>
                                         <th>Appartement</th>
                                         <th>Montant</th>
-                                        <th>Échéance</th>
+                                        <th>Période</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
@@ -44,7 +44,7 @@
                                     <?php $__currentLoopData = $loyers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loyer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <tr>
                                             <td>
-                                                <strong><?php echo e(str_pad($loyer->mois, 2, '0', STR_PAD_LEFT)); ?>/<?php echo e($loyer->annee); ?></strong>
+                                                <strong>#<?php echo e($loyer->id); ?></strong>
                                             </td>
                                             <td>
                                                 <?php if($loyer->locataire): ?>
@@ -63,37 +63,43 @@
                                                     <span class="text-muted">N/A</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> FC</td>
-                                            <td><?php echo e(\Carbon\Carbon::parse($loyer->date_echeance)->format('d/m/Y')); ?></td>
+                                            <td><?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> CDF</td>
                                             <td>
-                                                <?php switch($loyer->statut):
-                                                    case ('paye'): ?>
-                                                        <span class="badge bg-success">Payé</span>
-                                                        <?php break; ?>
-                                                    <?php case ('partiel'): ?>
-                                                        <span class="badge bg-warning">Partiel</span>
-                                                        <?php break; ?>
-                                                    <?php default: ?>
-                                                        <span class="badge bg-danger">Impayé</span>
-                                                <?php endswitch; ?>
+                                                <div>
+                                                    <small class="text-muted">Du:</small> <?php echo e($loyer->date_debut->format('d/m/Y')); ?><br>
+                                                    <?php if($loyer->date_fin): ?>
+                                                        <small class="text-muted">Au:</small> <?php echo e($loyer->date_fin->format('d/m/Y')); ?>
+
+                                                    <?php else: ?>
+                                                        <small class="text-muted">Durée indéterminée</small>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php if($loyer->statut === 'actif'): ?>
+                                                    <span class="badge bg-success">Actif</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                <?php endif; ?>
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="<?php echo e(route('loyers.show', $loyer)); ?>" class="btn btn-sm btn-outline-info">
-                                                        <i class="bi bi-eye"></i>
+                                                        <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <?php if($loyer->statut !== 'paye'): ?>
-                                                        <form action="<?php echo e(route('loyers.marquer-paye', $loyer)); ?>" method="POST" class="d-inline">
+                                                    <a href="<?php echo e(route('loyers.edit', $loyer)); ?>" class="btn btn-sm btn-outline-warning">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <?php if($loyer->statut === 'actif'): ?>
+                                                        <form action="<?php echo e(route('loyers.desactiver', $loyer)); ?>" method="POST" class="d-inline">
                                                             <?php echo csrf_field(); ?>
-                                                            <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                                    onclick="return confirm('Marquer ce loyer comme payé ?')">
-                                                                <i class="bi bi-check-circle"></i>
+                                                            <?php echo method_field('PATCH'); ?>
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                    onclick="return confirm('Désactiver ce contrat ?')">
+                                                                <i class="fas fa-times-circle"></i>
                                                             </button>
                                                         </form>
                                                     <?php endif; ?>
-                                                    <a href="<?php echo e(route('loyers.edit', $loyer)); ?>" class="btn btn-sm btn-outline-warning">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -103,10 +109,10 @@
                         </div>
                     <?php else: ?>
                         <div class="text-center py-4">
-                            <i class="bi bi-calendar-check display-1 text-muted"></i>
-                            <p class="text-muted mt-3">Aucun loyer enregistré</p>
+                            <i class="fas fa-file-contract display-1 text-muted"></i>
+                            <p class="text-muted mt-3">Aucun contrat de loyer enregistré</p>
                             <a href="<?php echo e(route('loyers.create')); ?>" class="btn btn-primary">
-                                Créer le premier loyer
+                                Créer le premier contrat
                             </a>
                         </div>
                     <?php endif; ?>

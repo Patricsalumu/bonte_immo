@@ -80,8 +80,42 @@ class Locataire extends Model
             ->get();
     }
 
+    /**
+     * Vérifie si le locataire a un contrat de loyer actif
+     */
+    public function aContratActif()
+    {
+        return $this->loyers()->enCours()->exists();
+    }
+
+    /**
+     * Récupère le contrat de loyer actuel s'il existe
+     */
+    public function contratActuel()
+    {
+        return $this->loyers()->enCours()->first();
+    }
+
+    /**
+     * Vérifie si le locataire est disponible (sans contrat actif)
+     */
+    public function estDisponible()
+    {
+        return !$this->aContratActif();
+    }
+
     public function estActif()
     {
         return is_null($this->date_sortie) || $this->date_sortie->isFuture();
+    }
+
+    /**
+     * Scope pour les locataires disponibles (sans contrat actif)
+     */
+    public function scopeDisponibles($query)
+    {
+        return $query->whereDoesntHave('loyers', function($q) {
+            $q->enCours();
+        });
     }
 }

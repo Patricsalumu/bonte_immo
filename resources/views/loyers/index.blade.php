@@ -9,7 +9,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="h3 mb-0">Gestion des Loyers</h1>
                 <a href="{{ route('loyers.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Nouveau Loyer
+                    <i class="fas fa-plus"></i> Nouveau Contrat
                 </a>
             </div>
 
@@ -22,7 +22,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Liste des Loyers</h5>
+                    <h5 class="card-title mb-0">Liste des Contrats de Loyer</h5>
                 </div>
                 <div class="card-body">
                     @if($loyers->count() > 0)
@@ -30,11 +30,11 @@
                             <table class="table table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
-                                        <th>Période</th>
+                                        <th>ID</th>
                                         <th>Locataire</th>
                                         <th>Appartement</th>
                                         <th>Montant</th>
-                                        <th>Échéance</th>
+                                        <th>Période</th>
                                         <th>Statut</th>
                                         <th>Actions</th>
                                     </tr>
@@ -43,7 +43,7 @@
                                     @foreach($loyers as $loyer)
                                         <tr>
                                             <td>
-                                                <strong>{{ str_pad($loyer->mois, 2, '0', STR_PAD_LEFT) }}/{{ $loyer->annee }}</strong>
+                                                <strong>#{{ $loyer->id }}</strong>
                                             </td>
                                             <td>
                                                 @if($loyer->locataire)
@@ -60,37 +60,42 @@
                                                     <span class="text-muted">N/A</span>
                                                 @endif
                                             </td>
-                                            <td>{{ number_format($loyer->montant, 0, ',', ' ') }} FC</td>
-                                            <td>{{ \Carbon\Carbon::parse($loyer->date_echeance)->format('d/m/Y') }}</td>
+                                            <td>{{ number_format($loyer->montant, 0, ',', ' ') }} CDF</td>
                                             <td>
-                                                @switch($loyer->statut)
-                                                    @case('paye')
-                                                        <span class="badge bg-success">Payé</span>
-                                                        @break
-                                                    @case('partiel')
-                                                        <span class="badge bg-warning">Partiel</span>
-                                                        @break
-                                                    @default
-                                                        <span class="badge bg-danger">Impayé</span>
-                                                @endswitch
+                                                <div>
+                                                    <small class="text-muted">Du:</small> {{ $loyer->date_debut->format('d/m/Y') }}<br>
+                                                    @if($loyer->date_fin)
+                                                        <small class="text-muted">Au:</small> {{ $loyer->date_fin->format('d/m/Y') }}
+                                                    @else
+                                                        <small class="text-muted">Durée indéterminée</small>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if($loyer->statut === 'actif')
+                                                    <span class="badge bg-success">Actif</span>
+                                                @else
+                                                    <span class="badge bg-secondary">Inactif</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ route('loyers.show', $loyer) }}" class="btn btn-sm btn-outline-info">
-                                                        <i class="bi bi-eye"></i>
+                                                        <i class="fas fa-eye"></i>
                                                     </a>
-                                                    @if($loyer->statut !== 'paye')
-                                                        <form action="{{ route('loyers.marquer-paye', $loyer) }}" method="POST" class="d-inline">
+                                                    <a href="{{ route('loyers.edit', $loyer) }}" class="btn btn-sm btn-outline-warning">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    @if($loyer->statut === 'actif')
+                                                        <form action="{{ route('loyers.desactiver', $loyer) }}" method="POST" class="d-inline">
                                                             @csrf
-                                                            <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                                    onclick="return confirm('Marquer ce loyer comme payé ?')">
-                                                                <i class="bi bi-check-circle"></i>
+                                                            @method('PATCH')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                    onclick="return confirm('Désactiver ce contrat ?')">
+                                                                <i class="fas fa-times-circle"></i>
                                                             </button>
                                                         </form>
                                                     @endif
-                                                    <a href="{{ route('loyers.edit', $loyer) }}" class="btn btn-sm btn-outline-warning">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -100,10 +105,10 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <i class="bi bi-calendar-check display-1 text-muted"></i>
-                            <p class="text-muted mt-3">Aucun loyer enregistré</p>
+                            <i class="fas fa-file-contract display-1 text-muted"></i>
+                            <p class="text-muted mt-3">Aucun contrat de loyer enregistré</p>
                             <a href="{{ route('loyers.create') }}" class="btn btn-primary">
-                                Créer le premier loyer
+                                Créer le premier contrat
                             </a>
                         </div>
                     @endif

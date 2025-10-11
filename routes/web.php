@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Routes spéciales pour loyers
         Route::post('loyers/{loyer}/marquer-paye', [LoyerController::class, 'marquerPaye'])->name('loyers.marquer-paye');
+        Route::patch('loyers/{loyer}/desactiver', [LoyerController::class, 'desactiver'])->name('loyers.desactiver');
         
         // Caisse (consultation)
         Route::get('caisse', [CaisseController::class, 'index'])->name('caisse.index');

@@ -169,16 +169,24 @@
                             </td>
                             <td>
                                 <div>
-                                    <strong>{{ $facture->locataire->nom }} {{ $facture->locataire->prenom }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ $facture->locataire->telephone }}</small>
+                                    @if($facture->locataire)
+                                        <strong>{{ $facture->locataire->nom }} {{ $facture->locataire->prenom }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ $facture->locataire->telephone }}</small>
+                                    @else
+                                        <span class="text-muted">Locataire non trouvé</span>
+                                    @endif
                                 </div>
                             </td>
                             <td>
                                 <div>
-                                    <strong>{{ $facture->loyer->appartement->immeuble->nom }}</strong>
-                                    <br>
-                                    <small class="text-muted">Apt {{ $facture->loyer->appartement->numero }}</small>
+                                    @if($facture->loyer && $facture->loyer->appartement && $facture->loyer->appartement->immeuble)
+                                        <strong>{{ $facture->loyer->appartement->immeuble->nom }}</strong>
+                                        <br>
+                                        <small class="text-muted">Apt {{ $facture->loyer->appartement->numero }}</small>
+                                    @else
+                                        <span class="text-muted">Appartement non trouvé</span>
+                                    @endif
                                 </div>
                             </td>
                             <td>
@@ -217,7 +225,14 @@
                                     @if($facture->locataire && $facture->locataire->telephone)
                                     <button type="button" 
                                             class="btn btn-outline-success btn-sm" 
-                                            onclick="partagerWhatsApp('{{ $facture->locataire->telephone }}', '{{ $facture->locataire->prenom ?? '' }}', '{{ $facture->locataire->nom }}', '{{ $facture->numero_facture }}', '{{ number_format($facture->montant, 0, ',', ' ') }}', '{{ $facture->getMoisNom() }} {{ $facture->annee }}', '{{ $facture->date_echeance->format('d/m/Y') }}')">
+                                            data-telephone="{{ $facture->locataire->telephone }}"
+                                            data-prenom="{{ $facture->locataire->prenom ?? '' }}"
+                                            data-nom="{{ $facture->locataire->nom }}"
+                                            data-numero="{{ $facture->numero_facture }}"
+                                            data-montant="{{ number_format($facture->montant, 0, ' ', ' ') }}"
+                                            data-mois="{{ $facture->getMoisNom() }} {{ $facture->annee }}"
+                                            data-echeance="{{ $facture->date_echeance->format('d/m/Y') }}"
+                                            onclick="partagerWhatsAppData(this)">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
                                     @endif
@@ -490,6 +505,19 @@ La Bonte Immo`;
         
         const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
         window.open(urlWhatsApp, '_blank');
+    };
+
+    // === NOUVELLE FONCTION WHATSAPP AVEC DATA ATTRIBUTES ===
+    window.partagerWhatsAppData = function(button) {
+        const telephone = button.dataset.telephone;
+        const prenom = button.dataset.prenom;
+        const nom = button.dataset.nom;
+        const numeroFacture = button.dataset.numero;
+        const montant = button.dataset.montant;
+        const mois = button.dataset.mois;
+        const echeance = button.dataset.echeance;
+        
+        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance);
     };
 
     // === FONCTIONS DE DEBUG ===

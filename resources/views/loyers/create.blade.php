@@ -10,6 +10,19 @@
     </a>
 </div>
 
+@if(count($appartements) == 0)
+    <div class="alert alert-warning">
+        <h5><i class="fas fa-exclamation-triangle"></i> Aucun appartement disponible</h5>
+        <p>Tous les appartements ont déjà un contrat actif. Vous devez d'abord libérer un appartement pour créer un nouveau contrat.</p>
+        <a href="{{ route('appartements.index') }}" class="btn btn-primary">Voir les appartements</a>
+    </div>
+@elseif(count($locataires) == 0)
+    <div class="alert alert-warning">
+        <h5><i class="fas fa-exclamation-triangle"></i> Aucun locataire disponible</h5>
+        <p>Tous les locataires ont déjà un contrat actif. Vous devez d'abord ajouter un nouveau locataire ou libérer un contrat existant.</p>
+        <a href="{{ route('locataires.create') }}" class="btn btn-primary">Ajouter un locataire</a>
+    </div>
+@else
 <div class="row">
     <div class="col-md-8">
         <div class="card">
@@ -21,7 +34,7 @@
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="locataire_id" class="form-label">Locataire <span class="text-danger">*</span></label>
+                            <label for="locataire_id" class="form-label">Locataire disponible <span class="text-danger">*</span></label>
                             <select class="form-select @error('locataire_id') is-invalid @enderror" 
                                     id="locataire_id" 
                                     name="locataire_id" 
@@ -36,10 +49,11 @@
                             @error('locataire_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="form-text text-muted">Seuls les locataires sans contrat actif sont affichés</small>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="appartement_id" class="form-label">Appartement <span class="text-danger">*</span></label>
+                            <label for="appartement_id" class="form-label">Appartement disponible <span class="text-danger">*</span></label>
                             <select class="form-select @error('appartement_id') is-invalid @enderror" 
                                     id="appartement_id" 
                                     name="appartement_id" 
@@ -51,17 +65,19 @@
                                             data-garantie="{{ $appartement->garantie_locative }}"
                                             {{ old('appartement_id') == $appartement->id ? 'selected' : '' }}>
                                         {{ $appartement->immeuble->nom }} - Apt {{ $appartement->numero }} ({{ $appartement->type }})
+                                        - {{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} CDF/mois
                                     </option>
                                 @endforeach
                             </select>
                             @error('appartement_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="form-text text-muted">Seuls les appartements sans contrat actif sont affichés</small>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-6 mb-3">
                             <label for="date_debut" class="form-label">Date de début <span class="text-danger">*</span></label>
                             <input type="date" 
                                    class="form-control @error('date_debut') is-invalid @enderror" 
@@ -74,8 +90,8 @@
                             @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
-                            <label for="date_fin" class="form-label">Date de fin</label>
+                        <div class="col-md-6 mb-3">
+                            <label for="date_fin" class="form-label">Date de fin (optionnel)</label>
                             <input type="date" 
                                    class="form-control @error('date_fin') is-invalid @enderror" 
                                    id="date_fin" 
@@ -84,109 +100,54 @@
                             @error('date_fin')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label for="duree_mois" class="form-label">Durée (mois)</label>
-                            <input type="number" 
-                                   class="form-control @error('duree_mois') is-invalid @enderror" 
-                                   id="duree_mois" 
-                                   name="duree_mois" 
-                                   value="{{ old('duree_mois', 12) }}" 
-                                   min="1">
-                            @error('duree_mois')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <small class="form-text text-muted">Laisser vide pour un contrat à durée indéterminée</small>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="montant_loyer" class="form-label">Montant du loyer (CDF) <span class="text-danger">*</span></label>
+                        <div class="col-md-6 mb-3">
+                            <label for="montant" class="form-label">Montant du loyer (CDF) <span class="text-danger">*</span></label>
                             <input type="number" 
-                                   class="form-control @error('montant_loyer') is-invalid @enderror" 
-                                   id="montant_loyer" 
-                                   name="montant_loyer" 
-                                   value="{{ old('montant_loyer') }}" 
+                                   class="form-control @error('montant') is-invalid @enderror" 
+                                   id="montant" 
+                                   name="montant" 
+                                   value="{{ old('montant') }}" 
                                    min="0" 
+                                   step="0.01"
                                    required>
-                            @error('montant_loyer')
+                            @error('montant')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="col-md-4 mb-3">
-                            <label for="garantie_versee" class="form-label">Garantie versée (CDF)</label>
+                        <div class="col-md-6 mb-3">
+                            <label for="garantie_locative" class="form-label">Garantie locative (CDF)</label>
                             <input type="number" 
-                                   class="form-control @error('garantie_versee') is-invalid @enderror" 
-                                   id="garantie_versee" 
-                                   name="garantie_versee" 
-                                   value="{{ old('garantie_versee') }}" 
-                                   min="0">
-                            @error('garantie_versee')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label for="jour_echeance" class="form-label">Jour d'échéance</label>
-                            <select class="form-select @error('jour_echeance') is-invalid @enderror" 
-                                    id="jour_echeance" 
-                                    name="jour_echeance">
-                                @for($i = 1; $i <= 31; $i++)
-                                    <option value="{{ $i }}" {{ old('jour_echeance', 1) == $i ? 'selected' : '' }}>
-                                        {{ $i }}
-                                    </option>
-                                @endfor
-                            </select>
-                            @error('jour_echeance')
+                                   class="form-control @error('garantie_locative') is-invalid @enderror" 
+                                   id="garantie_locative" 
+                                   name="garantie_locative" 
+                                   value="{{ old('garantie_locative') }}" 
+                                   min="0" 
+                                   step="0.01">
+                            @error('garantie_locative')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="conditions_particulieres" class="form-label">Conditions particulières</label>
-                        <textarea class="form-control @error('conditions_particulieres') is-invalid @enderror" 
-                                  id="conditions_particulieres" 
-                                  name="conditions_particulieres" 
-                                  rows="3">{{ old('conditions_particulieres') }}</textarea>
-                        @error('conditions_particulieres')
+                        <label for="notes" class="form-label">Notes / Conditions particulières</label>
+                        <textarea class="form-control @error('notes') is-invalid @enderror" 
+                                  id="notes" 
+                                  name="notes" 
+                                  rows="3" 
+                                  placeholder="Conditions spéciales, remarques...">{{ old('notes') }}</textarea>
+                        @error('notes')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="charges_incluses" 
-                                       name="charges_incluses" 
-                                       value="1" 
-                                       {{ old('charges_incluses') ? 'checked' : '' }}>
-                                <label class="form-check-label" for="charges_incluses">
-                                    Charges incluses dans le loyer
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" 
-                                       type="checkbox" 
-                                       id="actif" 
-                                       name="actif" 
-                                       value="1" 
-                                       {{ old('actif', true) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="actif">
-                                    Contrat actif
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
+                    <div class="d-flex justify-content-between">
                         <a href="{{ route('loyers.index') }}" class="btn btn-secondary">Annuler</a>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Créer le contrat
@@ -198,54 +159,62 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card bg-light">
+        <div class="card">
             <div class="card-body">
-                <h6 class="card-title">
-                    <i class="fas fa-info-circle"></i> Informations
-                </h6>
-                <ul class="small text-muted mb-0">
-                    <li>Les champs marqués d'un <span class="text-danger">*</span> sont obligatoires</li>
-                    <li>Seuls les appartements disponibles sont proposés</li>
-                    <li>Le montant du loyer se remplit automatiquement</li>
-                    <li>La garantie recommandée est de 2-3 mois de loyer</li>
-                    <li>Le jour d'échéance détermine la date de paiement mensuel</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card bg-info text-white mt-3">
-            <div class="card-body">
-                <h6 class="card-title">
-                    <i class="fas fa-lightbulb"></i> Suggestion
-                </h6>
-                <p class="small mb-0">
-                    Une fois le contrat créé, les factures de loyer seront générées automatiquement selon la périodicité définie.
-                </p>
+                <h5 class="card-title">Informations</h5>
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle"></i> Contrat de loyer</h6>
+                    <ul class="mb-0">
+                        <li>Seuls les appartements et locataires <strong>disponibles</strong> sont affichés</li>
+                        <li>La date de fin est optionnelle (contrat à durée indéterminée)</li>
+                        <li>La garantie locative peut être saisie séparément</li>
+                        <li>Le contrat sera automatiquement marqué comme <strong>actif</strong></li>
+                    </ul>
+                </div>
+                
+                <div id="apartment-details" class="mt-3" style="display: none;">
+                    <h6>Détails de l'appartement</h6>
+                    <div id="apartment-info"></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+@endif
 
 <script>
-document.getElementById('appartement_id').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const loyerMensuel = selectedOption.getAttribute('data-loyer');
-    const garantie = selectedOption.getAttribute('data-garantie');
-    
-    if (loyerMensuel) {
-        document.getElementById('montant_loyer').value = loyerMensuel;
-    }
-    if (garantie) {
-        document.getElementById('garantie_versee').value = garantie;
-    }
-});
+document.addEventListener('DOMContentLoaded', function() {
+    const appartementSelect = document.getElementById('appartement_id');
+    const montantInput = document.getElementById('montant');
+    const garantieInput = document.getElementById('garantie_locative');
+    const apartmentDetails = document.getElementById('apartment-details');
+    const apartmentInfo = document.getElementById('apartment-info');
 
-document.getElementById('duree_mois').addEventListener('change', function() {
-    const dateDebut = document.getElementById('date_debut').value;
-    if (dateDebut && this.value) {
-        const debut = new Date(dateDebut);
-        debut.setMonth(debut.getMonth() + parseInt(this.value));
-        document.getElementById('date_fin').value = debut.toISOString().split('T')[0];
+    if (appartementSelect) {
+        appartementSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+                const loyer = selectedOption.dataset.loyer;
+                const garantie = selectedOption.dataset.garantie;
+                
+                if (loyer) {
+                    montantInput.value = loyer;
+                }
+                if (garantie) {
+                    garantieInput.value = garantie;
+                }
+                
+                apartmentInfo.innerHTML = `
+                    <p><strong>Loyer suggéré:</strong> ${Number(loyer).toLocaleString()} CDF</p>
+                    <p><strong>Garantie suggérée:</strong> ${Number(garantie).toLocaleString()} CDF</p>
+                `;
+                apartmentDetails.style.display = 'block';
+            } else {
+                apartmentDetails.style.display = 'none';
+                montantInput.value = '';
+                garantieInput.value = '';
+            }
+        });
     }
 });
 </script>

@@ -63,6 +63,33 @@
     </div>
 </div>
 
+<!-- Contrats de loyer -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="stats-card p-4 text-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-success mb-1"><?php echo e($contratsActifs); ?></h3>
+                    <p class="text-muted mb-0">Contrats Actifs</p>
+                </div>
+                <i class="fas fa-file-contract text-success" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="stats-card p-4 text-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="text-secondary mb-1"><?php echo e($contratsInactifs); ?></h3>
+                    <p class="text-muted mb-0">Contrats Inactifs</p>
+                </div>
+                <i class="fas fa-file-contract text-secondary" style="font-size: 2.5rem;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Factures impayées et Paiements récents -->
 <div class="row mb-4">
     <!-- Factures impayées -->
@@ -154,18 +181,18 @@
                 </h5>
             </div>
             <div class="card-body">
-                <?php if($locatairesAvecGarantie->count() > 0): ?>
+                <?php if($contratsAvecGarantie->count() > 0): ?>
                     <div class="list-group list-group-flush">
-                        <?php $__currentLoopData = $locatairesAvecGarantie->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $locataire): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <?php $__currentLoopData = $contratsAvecGarantie->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $contrat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="list-group-item border-0 px-0">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h6 class="mb-1"><?php echo e($locataire['nom']); ?></h6>
-                                    <small class="text-muted">Apt. <?php echo e($locataire['appartement']); ?></small>
+                                    <h6 class="mb-1"><?php echo e($contrat['nom']); ?></h6>
+                                    <small class="text-muted">Apt. <?php echo e($contrat['appartement']); ?></small>
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary">
-                                        <?php echo e(number_format($locataire['garantie_restante'], 0, ',', ' ')); ?> CDF
+                                        <?php echo e(number_format($contrat['garantie_restante'], 0, ',', ' ')); ?> CDF
                                     </span>
                                 </div>
                             </div>
