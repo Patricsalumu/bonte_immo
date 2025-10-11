@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Facture;
 use App\Models\Loyer;
 use App\Models\Locataire;
 use App\Models\Immeuble;
 use App\Models\Paiement;
-use App\Models\CompteCaisse;
+use App\Models\CompteFinancier;
+use App\Models\MouvementCaisse;
 use Carbon\Carbon;
 
 class FactureController extends Controller
@@ -199,46 +202,130 @@ class FactureController extends Controller
      */
     public function marquerPayee(Request $request, Facture $facture)
     {
-        $request->validate([
-            'montant_paye' => 'required|numeric|min:0|max:' . $facture->montant,
-            'date_paiement' => 'required|date',
-            'compte_id' => 'required|exists:comptes_caisses,id',
-            'mode_paiement' => 'required|in:especes,cheque,virement,mobile_money',
-            'reference' => 'nullable|string',
-            'notes' => 'nullable|string'
+        // Log pour débogage
+        Log::info('marquerPayee appelée', [
+            'facture_id' => $facture->id,
+            'request_data' => $request->all()
         ]);
 
+        $validated = $request->validate([
+            'montant' => 'required|numeric|min:0.01|max:' . ($facture->montant - $facture->montantPaye()),
+            'mode_paiement' => 'required|in:cash,virement,mobile_money,garantie_locative',
+            'reference' => 'nullable|string|max:255',
+        ]);
+
+        Log::info('Validation réussie', ['validated' => $validated]);
+
         try {
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
-            // Marquer la facture comme payée
-            $facture->marquerCommePayee($request->montant_paye, $request->date_paiement);
+            $montantPaye = $validated['montant'];
+            $montantRestant = $facture->montant - $facture->montantPaye();
 
-            // Créer l'écriture de paiement
+            // Créer le paiement
+            $notes = 'Paiement facture ' . $facture->numero_facture;
+            if (!empty($validated['reference'])) {
+                $notes .= ' - Référence: ' . $validated['reference'];
+            }
+            
             $paiement = Paiement::create([
                 'facture_id' => $facture->id,
-                'locataire_id' => $facture->locataire_id,
                 'loyer_id' => $facture->loyer_id,
-                'compte_id' => $request->compte_id,
-                'montant' => $request->montant_paye,
-                'date_paiement' => $request->date_paiement,
-                'mode_paiement' => $request->mode_paiement,
-                'reference_paiement' => $request->reference,
-                'notes' => $request->notes
+                'locataire_id' => $facture->locataire_id,
+                'montant' => $montantPaye,
+                'date_paiement' => now(),
+                'mode_paiement' => $validated['mode_paiement'],
+                'utilisateur_id' => auth()->id(),
+                'est_annule' => false,
+                'note' => $notes,
             ]);
 
-            // Créditer le compte caisse
-            $compte = CompteCaisse::findOrFail($request->compte_id);
-            $compte->increment('solde', $request->montant_paye);
+            // Déterminer le nouveau statut de la facture
+            $nouveauMontantPaye = $facture->montantPaye() + $montantPaye;
+            
+            if ($nouveauMontantPaye >= $facture->montant) {
+                // Facture entièrement payée - vérifier si en retard
+                $dateEcheance = Carbon::parse($facture->date_echeance);
+                $aujourdhui = Carbon::now();
+                
+                if ($aujourdhui->gt($dateEcheance)) {
+                    $nouveauStatut = 'paye_en_retard';
+                } else {
+                    $nouveauStatut = 'paye';
+                }
+            } else {
+                // Facture partiellement payée - garder le statut actuel si c'était déjà paye_en_retard
+                // sinon, on garde 'non_paye' car ce n'est que partiel
+                $nouveauStatut = 'non_paye';
+            }
 
-            \DB::commit();
+            // Mettre à jour le statut de la facture
+            $facture->update(['statut' => $nouveauStatut]);
 
-            return redirect()->route('factures.show', $facture)
-                           ->with('success', 'Paiement enregistré avec succès.');
+            // Récupérer le compte du gestionnaire connecté
+            $gestionnaire = auth()->user();
+            $compteGestionnaire = CompteFinancier::where('type_compte', 'caisse')
+                                                ->where('nom_compte', 'LIKE', '%' . $gestionnaire->name . '%')
+                                                ->first();
+
+            // Si pas de compte spécifique, utiliser le compte caisse principal
+            if (!$compteGestionnaire) {
+                $compteGestionnaire = CompteFinancier::where('type_compte', 'caisse')->first();
+                
+                // Si aucun compte caisse n'existe, en créer un
+                if (!$compteGestionnaire) {
+                    $compteGestionnaire = CompteFinancier::create([
+                        'nom_compte' => 'Caisse Principale',
+                        'type_compte' => 'caisse',
+                        'solde_actuel' => 0,
+                        'description' => 'Compte caisse principal créé automatiquement'
+                    ]);
+                }
+            }
+
+            // Mettre à jour le solde du compte
+            $compteGestionnaire->increment('solde_actuel', $montantPaye);
+
+            // Créer le mouvement financier
+            MouvementCaisse::create([
+                'compte_destination_id' => $compteGestionnaire->id,
+                'type_mouvement' => 'entree',
+                'montant' => $montantPaye,
+                'mode_paiement' => $validated['mode_paiement'],
+                'description' => 'Paiement facture ' . $facture->numero_facture . ' - ' . $facture->locataire->nom . ' ' . $facture->locataire->prenom,
+                'categorie' => 'paiement_facture',
+                'utilisateur_id' => auth()->id(),
+                'date_operation' => now(),
+                'est_annule' => false,
+            ]);
+
+            DB::commit();
+            
+            Log::info('Paiement créé avec succès', [
+                'paiement_id' => $paiement->id,
+                'nouveau_statut' => $nouveauStatut,
+                'compte_id' => $compteGestionnaire->id
+            ]);
+
+            return redirect()->back()->with('success', 
+                'Paiement de ' . number_format($montantPaye, 0, ',', ' ') . ' CDF enregistré avec succès. ' .
+                'Facture ' . ($nouveauStatut === 'paye' || $nouveauStatut === 'paye_en_retard' ? 
+                    'entièrement payée' . ($nouveauStatut === 'paye_en_retard' ? ' (en retard)' : '') : 
+                    'partiellement payée') . '.'
+            );
 
         } catch (\Exception $e) {
-            \DB::rollback();
-            return back()->withErrors(['error' => 'Erreur lors de l\'enregistrement du paiement.']);
+            DB::rollback();
+            
+            Log::error('Erreur lors du paiement', [
+                'facture_id' => $facture->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()->withErrors([
+                'error' => 'Erreur lors de l\'enregistrement du paiement : ' . $e->getMessage()
+            ]);
         }
     }
 

@@ -269,20 +269,21 @@
                                                     <div class="mb-3">
                                                         <label class="form-label">Montant à payer</label>
                                                         <input type="number" class="form-control" name="montant"
-                                                               value="<?php echo e($facture->montant - $facture->montant_paye); ?>" 
-                                                               min="1" max="<?php echo e($facture->montant - $facture->montant_paye); ?>" required>
+                                                               value="<?php echo e($facture->montant - $facture->montantPaye()); ?>" 
+                                                               min="1" max="<?php echo e($facture->montant - $facture->montantPaye()); ?>" 
+                                                               step="0.01" required>
                                                         <div class="form-text">
-                                                            Montant restant: <?php echo e(number_format($facture->montant - $facture->montant_paye, 0, ',', ' ')); ?> CDF
+                                                            Montant restant: <?php echo e(number_format($facture->montant - $facture->montantPaye(), 0, ',', ' ')); ?> CDF
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="form-label">Mode de paiement *</label>
                                                         <select name="mode_paiement" class="form-select" required>
                                                             <option value="">Sélectionner...</option>
-                                                            <option value="especes">Espèces</option>
+                                                            <option value="cash">Espèces</option>
                                                             <option value="virement">Virement bancaire</option>
                                                             <option value="mobile_money">Mobile Money</option>
-                                                            <option value="garantie">Garantie locative</option>
+                                                            <option value="garantie_locative">Garantie locative</option>
                                                         </select>
                                                     </div>
                                                     <div class="mb-3">

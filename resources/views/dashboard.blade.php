@@ -104,7 +104,7 @@
             <div class="card-body">
                 @if($facturesImpayees > 0)
                     <p class="text-warning mb-3">{{ $facturesImpayees }} facture(s) non payée(s) ce mois.</p>
-                    <a href="{{ route('factures.impayees') }}" class="btn btn-warning btn-custom">
+                    <a href="{{ route('factures.index', ['statut' => 'impayee']) }}" class="btn btn-warning btn-custom">
                         <i class="bi bi-eye"></i> Voir les détails
                     </a>
                 @else

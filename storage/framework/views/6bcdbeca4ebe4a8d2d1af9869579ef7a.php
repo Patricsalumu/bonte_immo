@@ -104,7 +104,7 @@
             <div class="card-body">
                 <?php if($facturesImpayees > 0): ?>
                     <p class="text-warning mb-3"><?php echo e($facturesImpayees); ?> facture(s) non payée(s) ce mois.</p>
-                    <a href="<?php echo e(route('factures.impayees')); ?>" class="btn btn-warning btn-custom">
+                    <a href="<?php echo e(route('factures.index', ['statut' => 'impayee'])); ?>" class="btn btn-warning btn-custom">
                         <i class="bi bi-eye"></i> Voir les détails
                     </a>
                 <?php else: ?>

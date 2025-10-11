@@ -103,6 +103,16 @@ class Facture extends Model
         return $this->montant - $this->montant_paye;
     }
 
+    /**
+     * Calculer le montant total payé via les paiements
+     */
+    public function montantPaye()
+    {
+        return $this->paiements()
+                    ->where('est_annule', false)
+                    ->sum('montant');
+    }
+
     public function getEstPayeeAttribute()
     {
         return in_array($this->statut_paiement, ['paye', 'paye_en_retard']);
