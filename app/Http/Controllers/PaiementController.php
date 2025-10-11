@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Paiement;
 use App\Models\Loyer;
+use App\Models\Facture;
 use App\Models\CompteFinancier;
 use Illuminate\Http\Request;
 
@@ -17,9 +18,11 @@ class PaiementController extends Controller
 
     public function index()
     {
-        $paiements = Paiement::with(['loyer.appartement', 'loyer.locataire', 'utilisateur'])->orderBy('date_paiement', 'desc')->get();
-        $loyers = Loyer::with(['appartement', 'locataire'])->get();
-        return view('paiements.index', compact('paiements', 'loyers'));
+        $factures = Facture::with(['loyer.appartement.immeuble', 'loyer.locataire', 'paiements'])
+            ->orderBy('date_echeance', 'desc')
+            ->get();
+        
+        return view('paiements.index', compact('factures'));
     }
 
     public function create()

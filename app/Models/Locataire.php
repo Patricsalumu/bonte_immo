@@ -52,6 +52,11 @@ class Locataire extends Model
         return $this->hasMany(Paiement::class);
     }
 
+    public function factures()
+    {
+        return $this->hasMany(Facture::class);
+    }
+
     public function garantieRestante()
     {
         $utilisationGarantie = $this->paiements()

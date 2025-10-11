@@ -12,18 +12,19 @@ class Loyer extends Model
     protected $fillable = [
         'appartement_id',
         'locataire_id',
-        'mois',
-        'annee',
         'montant',
-        'statut',
-        'date_echeance',
-        'garantie_restante',
+        'date_debut',
+        'date_fin',
+        'statut', // 'actif' ou 'inactif'
+        'garantie_locative',
+        'notes'
     ];
 
     protected $casts = [
         'montant' => 'decimal:2',
-        'date_echeance' => 'date',
-        'garantie_restante' => 'decimal:2',
+        'date_debut' => 'date',
+        'date_fin' => 'date',
+        'garantie_locative' => 'decimal:2',
     ];
 
     public function appartement()
@@ -41,6 +42,11 @@ class Loyer extends Model
         return $this->hasMany(Paiement::class);
     }
 
+    public function factures()
+    {
+        return $this->hasMany(Facture::class);
+    }
+
     public function montantPaye()
     {
         return $this->paiements()
@@ -53,49 +59,73 @@ class Loyer extends Model
         return $this->montant - $this->montantPaye();
     }
 
-    public function estPaye()
+    public function estActif()
     {
-        return $this->statut === 'paye';
+        return $this->statut === 'actif';
     }
 
-    public function estImpaye()
+    public function estInactif()
     {
-        return $this->statut === 'impaye';
+        return $this->statut === 'inactif';
     }
 
-    public function estPartiel()
+    public function estEnCours()
     {
-        return $this->statut === 'partiel';
+        $maintenant = now();
+        return $this->estActif() && 
+               (!$this->date_fin || $this->date_fin->isFuture()) &&
+               $this->date_debut->isPast();
     }
 
-    public function mettreAJourStatut()
+    public function desactiver($motif = null)
     {
-        $montantPaye = $this->montantPaye();
-        
-        if ($montantPaye == 0) {
-            $this->statut = 'impaye';
-        } elseif ($montantPaye >= $this->montant) {
-            $this->statut = 'paye';
-        } else {
-            $this->statut = 'partiel';
+        $this->statut = 'inactif';
+        if ($motif) {
+            $this->notes = ($this->notes ? $this->notes . "\n" : '') . "Désactivé: " . $motif;
         }
-
         $this->save();
     }
 
-    public function estEnRetard()
+    public function activer()
     {
-        return $this->date_echeance->isPast() && !$this->estPaye();
+        $this->statut = 'actif';
+        $this->save();
     }
 
-    public function getPeriodeAttribute()
+    public function getDureeAttribute()
     {
-        $moisFr = [
-            1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
-            5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
-            9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
-        ];
+        if (!$this->date_debut || !$this->date_fin) {
+            return 'Durée indéterminée';
+        }
+        
+        $duree = $this->date_debut->diffInMonths($this->date_fin);
+        return $duree . ' mois';
+    }
 
-        return $moisFr[$this->mois] . ' ' . $this->annee;
+    public function getStatutTextAttribute()
+    {
+        return $this->statut === 'actif' ? 'Contrat actif' : 'Contrat inactif';
+    }
+
+    // Scopes
+    public function scopeActifs($query)
+    {
+        return $query->where('statut', 'actif');
+    }
+
+    public function scopeInactifs($query)
+    {
+        return $query->where('statut', 'inactif');
+    }
+
+    public function scopeEnCours($query)
+    {
+        $maintenant = now();
+        return $query->where('statut', 'actif')
+                    ->where('date_debut', '<=', $maintenant)
+                    ->where(function($q) use ($maintenant) {
+                        $q->whereNull('date_fin')
+                          ->orWhere('date_fin', '>', $maintenant);
+                    });
     }
 }

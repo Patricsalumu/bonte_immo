@@ -13,12 +13,15 @@ class Paiement extends Model
     protected $fillable = [
         'loyer_id',
         'locataire_id',
+        'facture_id',
+        'compte_id',
         'montant',
         'date_paiement',
         'mode_paiement',
+        'reference_paiement',
         'utilisateur_id',
         'est_annule',
-        'note',
+        'notes',
     ];
 
     protected $casts = [
@@ -35,6 +38,16 @@ class Paiement extends Model
     public function locataire()
     {
         return $this->belongsTo(Locataire::class);
+    }
+
+    public function facture()
+    {
+        return $this->belongsTo(Facture::class);
+    }
+
+    public function compte()
+    {
+        return $this->belongsTo(CompteCaisse::class, 'compte_id');
     }
 
     public function utilisateur()

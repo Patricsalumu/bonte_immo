@@ -33,12 +33,39 @@ class LoyerController extends Controller
         $validated = $request->validate([
             'appartement_id' => 'required|exists:appartements,id',
             'locataire_id' => 'required|exists:locataires,id',
-            'mois' => 'required|integer|between:1,12',
-            'annee' => 'required|integer|min:2020',
-            'montant' => 'required|numeric|min:0',
-            'date_echeance' => 'required|date',
-            'garantie_restante' => 'nullable|numeric|min:0',
+            'date_debut' => 'required|date',
+            'date_fin' => 'nullable|date|after:date_debut',
+            'duree_mois' => 'nullable|integer|min:1',
+            'montant_loyer' => 'required|numeric|min:0',
+            'garantie_versee' => 'nullable|numeric|min:0',
+            'jour_echeance' => 'nullable|integer|between:1,31',
+            'conditions_particulieres' => 'nullable|string',
+            'charges_incluses' => 'boolean',
+            'actif' => 'boolean',
         ]);
+
+        // Convertir les données du formulaire vers la structure de la base
+        $dateDebut = new \DateTime($validated['date_debut']);
+        $jourEcheance = $validated['jour_echeance'] ?? 1;
+        
+        // Calculer la date d'échéance du premier loyer
+        $dateEcheance = clone $dateDebut;
+        $dateEcheance->setDate($dateDebut->format('Y'), $dateDebut->format('m'), $jourEcheance);
+        
+        // Si le jour d'échéance est déjà passé ce mois-ci, prendre le mois suivant
+        if ($dateEcheance < $dateDebut) {
+            $dateEcheance->modify('+1 month');
+        }
+
+        $loyerData = [
+            'appartement_id' => $validated['appartement_id'],
+            'locataire_id' => $validated['locataire_id'],
+            'mois' => (int)$dateEcheance->format('n'),
+            'annee' => (int)$dateEcheance->format('Y'),
+            'montant' => $validated['montant_loyer'],
+            'date_echeance' => $dateEcheance->format('Y-m-d'),
+            'garantie_restante' => $validated['garantie_versee'] ?? 0,
+        ];
 
         // Associer le locataire à l'appartement s'il ne l'est pas déjà
         $appartement = Appartement::find($validated['appartement_id']);
@@ -46,7 +73,7 @@ class LoyerController extends Controller
             $appartement->update(['locataire_id' => $validated['locataire_id']]);
         }
 
-        Loyer::create($validated);
+        Loyer::create($loyerData);
 
         return redirect()->route('loyers.index')
                         ->with('success', 'Loyer créé avec succès.');

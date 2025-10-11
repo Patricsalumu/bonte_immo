@@ -31,7 +31,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h3 class="text-success mb-1">{{ $appartementsOccupes }}</h3>
-                    <p class="text-muted mb-0">Appartements Occupés</p>
+                    <p class="text-muted mb-0">Occupés</p>
                 </div>
                 <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
             </div>
@@ -43,7 +43,7 @@
             <div class="d-flex align-items-center justify-content-between">
                 <div>
                     <h3 class="text-info mb-1">{{ $appartementsLibres }}</h3>
-                    <p class="text-muted mb-0">Appartements Libres</p>
+                    <p class="text-muted mb-0">Libres</p>
                 </div>
                 <i class="bi bi-door-open text-info" style="font-size: 2.5rem;"></i>
             </div>

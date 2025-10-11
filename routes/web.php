@@ -8,6 +8,7 @@ use App\Http\Controllers\AppartementController;
 use App\Http\Controllers\LocataireController;
 use App\Http\Controllers\LoyerController;
 use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\FactureController;
 use App\Http\Controllers\CaisseController;
 use App\Http\Controllers\CompteFinancierController;
 use App\Http\Controllers\NotificationController;
@@ -42,6 +43,14 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('locataires', LocataireController::class)->except(['destroy']);
         Route::resource('loyers', LoyerController::class)->except(['destroy']);
         Route::resource('paiements', PaiementController::class)->except(['destroy']);
+        Route::resource('factures', FactureController::class);
+        
+        // Routes spéciales pour factures
+        Route::post('factures/{facture}/marquer-payee', [FactureController::class, 'marquerPayee'])->name('factures.marquer-payee');
+        Route::post('factures/generer-mois', [FactureController::class, 'genererFacturesMois'])->name('factures.generer-mois');
+        Route::post('factures/verifier-doublons', [FactureController::class, 'verifierDoublons'])->name('factures.verifier-doublons');
+        Route::get('factures/{facture}/pdf', [FactureController::class, 'exportPdf'])->name('factures.export-pdf');
+        Route::get('factures-dashboard', [FactureController::class, 'dashboard'])->name('factures.dashboard');
         
         // Routes spéciales pour loyers
         Route::post('loyers/{loyer}/marquer-paye', [LoyerController::class, 'marquerPaye'])->name('loyers.marquer-paye');
