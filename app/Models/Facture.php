@@ -118,6 +118,23 @@ class Facture extends Model
         return in_array($this->statut_paiement, ['paye', 'paye_en_retard']);
     }
 
+    /**
+     * Vérifier si la facture peut encore recevoir des paiements
+     */
+    public function peutRecevoirPaiement()
+    {
+        // Une facture peut recevoir des paiements si elle n'est pas complètement payée
+        return $this->montantPaye() < $this->montant;
+    }
+
+    /**
+     * Obtenir le montant restant à payer
+     */
+    public function montantRestant()
+    {
+        return max(0, $this->montant - $this->montantPaye());
+    }
+
     // Méthodes utilitaires
     public static function genererNumeroFacture()
     {

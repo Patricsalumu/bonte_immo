@@ -221,11 +221,46 @@ class FactureController extends Controller
 
             $montantPaye = $validated['montant'];
             $montantRestant = $facture->montant - $facture->montantPaye();
+            
+            // Logique spéciale pour la garantie locative
+            if ($validated['mode_paiement'] === 'garantie_locative') {
+                $loyer = $facture->loyer;
+                
+                Log::info('Paiement par garantie locative', [
+                    'garantie_disponible' => $loyer->garantie_locative,
+                    'montant_demande' => $montantPaye,
+                    'montant_facture' => $facture->montant
+                ]);
+                
+                // Vérifier si la garantie locative est suffisante
+                if ($loyer->garantie_locative < $montantPaye) {
+                    DB::rollback();
+                    return redirect()->back()->withErrors([
+                        'error' => 'Garantie locative insuffisante. Disponible : ' . 
+                                 number_format($loyer->garantie_locative, 0, ',', ' ') . ' CDF, ' .
+                                 'Demandé : ' . number_format($montantPaye, 0, ',', ' ') . ' CDF'
+                    ]);
+                }
+                
+                // Déduire le montant de la garantie locative
+                $loyer->update([
+                    'garantie_locative' => $loyer->garantie_locative - $montantPaye
+                ]);
+                
+                Log::info('Garantie locative mise à jour', [
+                    'ancienne_garantie' => $loyer->garantie_locative + $montantPaye,
+                    'nouvelle_garantie' => $loyer->garantie_locative,
+                    'montant_deduit' => $montantPaye
+                ]);
+            }
 
             // Créer le paiement
             $notes = 'Paiement facture ' . $facture->numero_facture;
             if (!empty($validated['reference'])) {
                 $notes .= ' - Référence: ' . $validated['reference'];
+            }
+            if ($validated['mode_paiement'] === 'garantie_locative') {
+                $notes .= ' - Prélevé sur garantie locative';
             }
             
             $paiement = Paiement::create([
@@ -235,13 +270,24 @@ class FactureController extends Controller
                 'montant' => $montantPaye,
                 'date_paiement' => now(),
                 'mode_paiement' => $validated['mode_paiement'],
+                'reference_paiement' => $validated['reference'] ?? null,
                 'utilisateur_id' => auth()->id(),
                 'est_annule' => false,
-                'note' => $notes,
+                'notes' => $notes,
             ]);
 
             // Déterminer le nouveau statut de la facture
-            $nouveauMontantPaye = $facture->montantPaye() + $montantPaye;
+            $montantActuelPaye = $facture->montantPaye();
+            $nouveauMontantPaye = $montantActuelPaye + $montantPaye;
+            
+            Log::info('Calcul statut paiement', [
+                'facture_id' => $facture->id,
+                'montant_facture' => $facture->montant,
+                'montant_actuel_paye' => $montantActuelPaye,
+                'nouveau_paiement' => $montantPaye,
+                'nouveau_total_paye' => $nouveauMontantPaye,
+                'comparaison' => $nouveauMontantPaye >= $facture->montant ? 'COMPLET' : 'PARTIEL'
+            ]);
             
             if ($nouveauMontantPaye >= $facture->montant) {
                 // Facture entièrement payée - vérifier si en retard
@@ -254,13 +300,12 @@ class FactureController extends Controller
                     $nouveauStatut = 'paye';
                 }
             } else {
-                // Facture partiellement payée - garder le statut actuel si c'était déjà paye_en_retard
-                // sinon, on garde 'non_paye' car ce n'est que partiel
+                // Facture partiellement payée - rester en 'non_paye'
                 $nouveauStatut = 'non_paye';
             }
 
             // Mettre à jour le statut de la facture
-            $facture->update(['statut' => $nouveauStatut]);
+            $facture->update(['statut_paiement' => $nouveauStatut]);
 
             // Récupérer le compte du gestionnaire connecté
             $gestionnaire = auth()->user();
@@ -301,18 +346,49 @@ class FactureController extends Controller
 
             DB::commit();
             
+            // Recalculer les montants après commit
+            $facture->refresh();
+            $montantTotalPaye = $facture->montantPaye();
+            $resteAPayer = $facture->montant - $montantTotalPaye;
+            
+            // Créer le message WhatsApp personnalisé
+            $utilisateur = auth()->user();
+            $dateFormatee = now()->format('d/m/Y');
+            $moisFacture = $facture->mois . ' ' . $facture->annee;
+            
+            $messageWhatsApp = "Bonjour Mr/Mme {$facture->locataire->nom},\n\n";
+            $messageWhatsApp .= "Nous vous confirmons un paiement de " . number_format($montantPaye, 0, ',', ' ') . " CDF ";
+            $messageWhatsApp .= "qui a été enregistré le {$dateFormatee} par {$utilisateur->name} ";
+            $messageWhatsApp .= "pour le compte de la facture n°{$facture->numero_facture} - {$moisFacture}.\n\n";
+            $messageWhatsApp .= "Numéro facture : {$facture->numero_facture}\n";
+            $messageWhatsApp .= "Reste à payer : " . number_format($resteAPayer, 0, ',', ' ') . " CDF\n\n";
+            
+            if ($resteAPayer <= 0) {
+                $messageWhatsApp .= "Votre facture a été complètement réglée. ✅\n\n";
+            } else {
+                $messageWhatsApp .= "Votre facture est partiellement réglée.\n\n";
+            }
+            
+            $messageWhatsApp .= "Cordialement,\nÉquipe La Bonte Immo";
+            
+            // Encoder le message pour WhatsApp
+            $messageEncoded = urlencode($messageWhatsApp);
+            $numeroWhatsapp = $facture->locataire->telephone ?? '';
+            $whatsappUrl = "https://wa.me/{$numeroWhatsapp}?text={$messageEncoded}";
+            
             Log::info('Paiement créé avec succès', [
                 'paiement_id' => $paiement->id,
                 'nouveau_statut' => $nouveauStatut,
-                'compte_id' => $compteGestionnaire->id
+                'compte_id' => $compteGestionnaire->id,
+                'reste_a_payer' => $resteAPayer
             ]);
 
-            return redirect()->back()->with('success', 
-                'Paiement de ' . number_format($montantPaye, 0, ',', ' ') . ' CDF enregistré avec succès. ' .
-                'Facture ' . ($nouveauStatut === 'paye' || $nouveauStatut === 'paye_en_retard' ? 
-                    'entièrement payée' . ($nouveauStatut === 'paye_en_retard' ? ' (en retard)' : '') : 
-                    'partiellement payée') . '.'
-            );
+            return redirect()->back()->with([
+                'success' => 'Paiement de ' . number_format($montantPaye, 0, ',', ' ') . ' CDF enregistré avec succès. ' .
+                    ($resteAPayer <= 0 ? 'Facture entièrement payée' : 'Reste à payer : ' . number_format($resteAPayer, 0, ',', ' ') . ' CDF'),
+                'whatsapp_url' => $whatsappUrl,
+                'whatsapp_message' => $messageWhatsApp
+            ]);
 
         } catch (\Exception $e) {
             DB::rollback();

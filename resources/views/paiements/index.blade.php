@@ -30,6 +30,27 @@
     </div>
 @endif
 
+@if(session('whatsapp_url'))
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fab fa-whatsapp me-2"></i>
+                <strong>Message WhatsApp prêt !</strong>
+                <p class="mb-0 mt-2">Cliquez sur le bouton ci-dessous pour envoyer la confirmation de paiement au locataire :</p>
+            </div>
+            <div>
+                <a href="{{ session('whatsapp_url') }}" target="_blank" class="btn btn-success btn-sm me-2">
+                    <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                </a>
+                <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappMessageModal">
+                    <i class="fas fa-eye"></i> Voir le message
+                </button>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
+
 <!-- Statistiques rapides -->
 <div class="row mb-3">
     <div class="col-md-4">
@@ -237,12 +258,15 @@
                                     </button>
                                     @endif
                                     
-                                    @if(!$facture->estPayee())
+                                    @if($facture->peutRecevoirPaiement())
                                         <button type="button" 
                                                 class="btn btn-success btn-sm" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#modalPaiement{{ $facture->id }}">
                                             <i class="fas fa-credit-card"></i> Payer
+                                            @if($facture->montantPaye() > 0)
+                                                <small>({{ number_format($facture->montantRestant(), 0, ',', ' ') }} CDF restant)</small>
+                                            @endif
                                         </button>
                                     @endif
                                     
@@ -253,7 +277,7 @@
                                 </div>
 
                                 <!-- Modal de paiement -->
-                                @if(!$facture->estPayee())
+                                @if($facture->peutRecevoirPaiement())
                                 <div class="modal fade" id="modalPaiement{{ $facture->id }}" tabindex="-1">
                                     <div class="modal-dialog">
                                         <div class="modal-content">
@@ -268,7 +292,9 @@
                                                         <label class="form-label">Montant à payer</label>
                                                         <input type="number" class="form-control" name="montant"
                                                                value="{{ $facture->montant - $facture->montantPaye() }}" 
-                                                               min="1" max="{{ $facture->montant - $facture->montantPaye() }}" 
+                                                               min="1" 
+                                                               max="{{ $facture->montant - $facture->montantPaye() }}" 
+                                                               data-montant-restant="{{ $facture->montant - $facture->montantPaye() }}"
                                                                step="0.01" required>
                                                         <div class="form-text">
                                                             Montant restant: {{ number_format($facture->montant - $facture->montantPaye(), 0, ',', ' ') }} CDF
@@ -281,8 +307,14 @@
                                                             <option value="cash">Espèces</option>
                                                             <option value="virement">Virement bancaire</option>
                                                             <option value="mobile_money">Mobile Money</option>
-                                                            <option value="garantie_locative">Garantie locative</option>
+                                                            <option value="garantie_locative">
+                                                                Garantie locative ({{ number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ') }} CDF disponible)
+                                                            </option>
                                                         </select>
+                                                        <div class="form-text" id="garantie-info-{{ $facture->id }}" style="display: none;">
+                                                            <i class="fas fa-info-circle text-info"></i>
+                                                            Garantie locative disponible : <strong>{{ number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ') }} CDF</strong>
+                                                        </div>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label class="form-label">Référence</label>
@@ -542,8 +574,87 @@ La Bonte Immo`;
             });
         });
     };
+    
+    // Gestion des modes de paiement
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pour tous les modals de paiement
+        document.querySelectorAll('[id^="modalPaiement"]').forEach(modal => {
+            const factureId = modal.id.replace('modalPaiement', '');
+            const selectMode = modal.querySelector('select[name="mode_paiement"]');
+            const inputMontant = modal.querySelector('input[name="montant"]');
+            const garantieInfo = modal.querySelector(`#garantie-info-${factureId}`);
+            
+            if (selectMode && inputMontant) {
+                selectMode.addEventListener('change', function() {
+                    if (this.value === 'garantie_locative') {
+                        // Afficher l'info de garantie
+                        if (garantieInfo) {
+                            garantieInfo.style.display = 'block';
+                        }
+                        
+                        // Extraire le montant de garantie disponible depuis le texte de l'option
+                        const optionText = this.selectedOptions[0].textContent;
+                        const garantieMatch = optionText.match(/\(([0-9\s,]+)\s+CDF/);
+                        
+                        if (garantieMatch) {
+                            const garantieDisponible = parseFloat(garantieMatch[1].replace(/[\s,]/g, ''));
+                            const montantRestant = parseFloat(inputMontant.getAttribute('data-montant-restant'));
+                            const montantMax = Math.min(montantRestant, garantieDisponible);
+                            
+                            inputMontant.setAttribute('max', montantMax);
+                            
+                            // Si le montant actuel dépasse la garantie, l'ajuster
+                            if (parseFloat(inputMontant.value) > montantMax) {
+                                inputMontant.value = montantMax;
+                            }
+                        }
+                    } else {
+                        // Masquer l'info de garantie
+                        if (garantieInfo) {
+                            garantieInfo.style.display = 'none';
+                        }
+                        
+                        // Remettre le montant max original
+                        const montantRestant = inputMontant.getAttribute('data-montant-restant');
+                        inputMontant.setAttribute('max', montantRestant);
+                    }
+                });
+            }
+        });
+    });
 });
 </script>
+
+<!-- Modal pour afficher le message WhatsApp complet -->
+@if(session('whatsapp_message'))
+<div class="modal fade" id="whatsappMessageModal" tabindex="-1" aria-labelledby="whatsappMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="whatsappMessageModalLabel">
+                    <i class="fab fa-whatsapp text-success"></i> Message WhatsApp
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> 
+                    Ce message sera envoyé au locataire pour confirmer le paiement
+                </div>
+                <div class="bg-light p-3 rounded">
+                    <pre class="mb-0">{{ session('whatsapp_message') }}</pre>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <a href="{{ session('whatsapp_url') }}" target="_blank" class="btn btn-success">
+                    <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 @endsection
 
