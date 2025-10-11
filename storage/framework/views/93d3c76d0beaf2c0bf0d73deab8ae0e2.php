@@ -302,5 +302,6 @@
     </script>
     
     <?php echo $__env->yieldContent('scripts'); ?>
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html><?php /**PATH C:\xampp\htdocs\immo\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -31,55 +31,84 @@
 @endif
 
 <!-- Statistiques rapides -->
-<div class="row mb-4">
-    <div class="col-md-3">
+<div class="row mb-3">
+    <div class="col-md-4">
         <div class="card bg-warning text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Non payées</h6>
-                        <h4>{{ $factures->where('statut_paiement', 'non_paye')->count() }}</h4>
+                        <h4 id="stat-non-payees">{{ $factures->where('statut_paiement', 'non_paye')->count() }}</h4>
                     </div>
                     <i class="fas fa-clock fa-2x"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-danger text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">En retard</h6>
-                        <h4>{{ $factures->filter(function($f) { return $f->estEnRetard(); })->count() }}</h4>
+                        <h4 id="stat-en-retard">{{ $factures->filter(function($f) { return $f->estEnRetard(); })->count() }}</h4>
                     </div>
                     <i class="fas fa-exclamation-triangle fa-2x"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-4">
         <div class="card bg-success text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Payées</h6>
-                        <h4>{{ $factures->filter(function($f) { return $f->estPayee(); })->count() }}</h4>
+                        <h4 id="stat-payees">{{ $factures->filter(function($f) { return $f->estPayee(); })->count() }}</h4>
                     </div>
                     <i class="fas fa-check-circle fa-2x"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
         <div class="card bg-info text-white">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant total</h6>
-                        <h4>{{ number_format($factures->sum('montant'), 0, ',', ' ') }} CDF</h4>
+                        <h4 id="stat-montant-total">{{ number_format($factures->sum('montant'), 0, ',', ' ') }} CDF</h4>
                     </div>
                     <i class="fas fa-dollar-sign fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Montant payé</h6>
+                        <h4 id="stat-montant-paye">{{ number_format($factures->filter(function($f) { return $f->estPayee(); })->sum('montant'), 0, ',', ' ') }} CDF</h4>
+                    </div>
+                    <i class="fas fa-money-bill-wave fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h6 class="card-title">Montant non payé</h6>
+                        <h4 id="stat-montant-non-paye">{{ number_format($factures->where('statut_paiement', 'non_paye')->sum('montant'), 0, ',', ' ') }} CDF</h4>
+                    </div>
+                    <i class="fas fa-money-bill-alt fa-2x"></i>
                 </div>
             </div>
         </div>
@@ -103,24 +132,6 @@
                     <option value="non_paye">Non payées</option>
                     <option value="paye">Payées</option>
                     <option value="en_retard">En retard</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label">Filtrer par mois</label>
-                <select id="filtreMois" class="form-select">
-                    <option value="">Tous les mois</option>
-                    <option value="1">Janvier</option>
-                    <option value="2">Février</option>
-                    <option value="3">Mars</option>
-                    <option value="4">Avril</option>
-                    <option value="5">Mai</option>
-                    <option value="6">Juin</option>
-                    <option value="7">Juillet</option>
-                    <option value="8">Août</option>
-                    <option value="9">Septembre</option>
-                    <option value="10">Octobre</option>
-                    <option value="11">Novembre</option>
-                    <option value="12">Décembre</option>
                 </select>
             </div>
             <div class="col-md-6">
@@ -367,6 +378,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("✅ Script principal chargé avec succès");
+    
+    // === CODE POUR LE MODAL DE GÉNÉRATION DES FACTURES ===
     const moisSelect = document.getElementById('mois');
     const anneeSelect = document.getElementById('annee');
     const verifierBtn = document.getElementById('verifierBtn');
@@ -390,78 +404,73 @@ document.addEventListener('DOMContentLoaded', function() {
         verificationResultat.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Vérification en cours...';
         genererBtn.disabled = true;
 
-        // Appel AJAX pour vérifier
-        fetch('{{ route("factures.verifier-doublons") }}', {
+        // Requête AJAX pour vérifier
+        fetch('/factures/verifier-doublons', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({ mois: parseInt(mois), annee: parseInt(annee) })
+            body: JSON.stringify({ mois: mois, annee: annee })
         })
         .then(response => response.json())
         .then(data => {
-            if (data.peut_generer) {
-                verificationResultat.className = 'alert alert-success d-block';
-                verificationResultat.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    <strong>Prêt à générer !</strong><br>
-                    • Période : ${data.periode}<br>
-                    • Loyers actifs : ${data.loyers_actifs}<br>
-                    • Factures existantes : ${data.factures_existantes}<br>
-                    • Factures à créer : <strong>${data.factures_a_creer}</strong>
-                `;
-                genererBtn.disabled = false;
-            } else {
+            if (data.doublons > 0) {
                 verificationResultat.className = 'alert alert-warning d-block';
                 verificationResultat.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <strong>Aucune facture à créer</strong><br>
-                    • Période : ${data.periode}<br>
-                    • Loyers actifs : ${data.loyers_actifs}<br>
-                    • Factures existantes : ${data.factures_existantes}<br>
-                    Toutes les factures ont déjà été générées pour cette période.
+                    <i class="fas fa-exclamation-triangle"></i> 
+                    ${data.doublons} facture(s) existent déjà pour ${data.mois_nom} ${annee}. 
+                    <strong>Êtes-vous sûr de vouloir continuer ?</strong>
                 `;
-                genererBtn.disabled = true;
+                genererBtn.disabled = false;
+                genererBtn.textContent = 'Continuer quand même';
+                genererBtn.className = 'btn btn-warning';
+            } else {
+                verificationResultat.className = 'alert alert-success d-block';
+                verificationResultat.innerHTML = `
+                    <i class="fas fa-check-circle"></i> 
+                    Aucune facture trouvée pour ${data.mois_nom} ${annee}. 
+                    Prêt à générer ${data.loyers_actifs} facture(s).
+                `;
+                genererBtn.disabled = false;
+                genererBtn.textContent = 'Générer les factures';
+                genererBtn.className = 'btn btn-success';
             }
         })
         .catch(error => {
             verificationResultat.className = 'alert alert-danger d-block';
-            verificationResultat.innerHTML = '<i class="fas fa-times-circle"></i> Erreur lors de la vérification.';
+            verificationResultat.innerHTML = '<i class="fas fa-exclamation-circle"></i> Erreur lors de la vérification.';
             genererBtn.disabled = true;
         });
     }
 
-    // Event listeners
-    verifierBtn.addEventListener('click', verifierDoublons);
-    
-    // Auto-vérification quand les valeurs changent
-    moisSelect.addEventListener('change', () => {
-        verificationResultat.classList.add('d-none');
-        genererBtn.disabled = true;
-    });
-    
-    anneeSelect.addEventListener('change', () => {
-        verificationResultat.classList.add('d-none');
-        genererBtn.disabled = true;
-    });
-
-    // Suggestion du mois précédent au chargement
-    const moisCourant = new Date().getMonth() + 1;
-    const moisPrecedent = moisCourant === 1 ? 12 : moisCourant - 1;
-    
-    if (!moisSelect.value) {
-        moisSelect.value = moisPrecedent;
+    // Event listeners pour le modal
+    if (verifierBtn) {
+        verifierBtn.addEventListener('click', verifierDoublons);
     }
 
-    // === NOUVELLES FONCTIONNALITÉS ===
-    
-    // Fonction pour partager via WhatsApp
-    function partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance) {
-        // Nettoyer le numéro de téléphone
-        const numeroClean = telephone.replace(/[^\d+]/g, '');
+    if (moisSelect && anneeSelect) {
+        moisSelect.addEventListener('change', () => {
+            verificationResultat.classList.add('d-none');
+            genererBtn.disabled = true;
+        });
         
-        // Préparer le message avec les détails de la facture
+        anneeSelect.addEventListener('change', () => {
+            verificationResultat.classList.add('d-none');
+            genererBtn.disabled = true;
+        });
+
+        // Suggestion du mois précédent au chargement
+        if (!moisSelect.value) {
+            const moisCourant = new Date().getMonth() + 1;
+            const moisPrecedent = moisCourant === 1 ? 12 : moisCourant - 1;
+            moisSelect.value = moisPrecedent;
+        }
+    }
+
+    // === FONCTION WHATSAPP ===
+    window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance) {
+        const numeroClean = telephone.replace(/[^\d+]/g, '');
         const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
         const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
         
@@ -479,95 +488,36 @@ Merci de procéder au règlement avant la date d'échéance. La facture PDF sera
 Cordialement,
 La Bonte Immo`;
         
-        // Ouvrir WhatsApp avec le message prérempli
         const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
         window.open(urlWhatsApp, '_blank');
-    }
-    
-    // Fonction de filtrage des factures
-    function filtrerFactures() {
-        const filtreStatut = document.getElementById('filtreStatut').value.toLowerCase();
-        const filtreMois = document.getElementById('filtreMois').value;
-        const rechercheText = document.getElementById('rechercheFacture').value.toLowerCase();
-        
-        const lignes = document.querySelectorAll('tbody tr');
-        let compteurVisible = 0;
-        
-        lignes.forEach(ligne => {
-            let afficher = true;
-            
-            // Filtre par statut
-            if (filtreStatut !== '') {
-                const statutClasse = ligne.className;
-                if (filtreStatut === 'en_retard' && !statutClasse.includes('table-danger')) {
-                    afficher = false;
-                } else if (filtreStatut === 'paye' && !statutClasse.includes('table-success')) {
-                    afficher = false;
-                } else if (filtreStatut === 'non_paye' && (statutClasse.includes('table-success') || statutClasse.includes('table-danger'))) {
-                    afficher = false;
-                }
-            }
-            
-            // Filtre par mois
-            if (filtreMois !== '' && afficher) {
-                const cellulePeriode = ligne.querySelector('td:nth-child(4)');
-                if (cellulePeriode) {
-                    const periode = cellulePeriode.textContent;
-                    const moisTexte = periode.split(' ')[0];
-                    const moisNumerique = {
-                        'janvier': '1', 'février': '2', 'mars': '3', 'avril': '4',
-                        'mai': '5', 'juin': '6', 'juillet': '7', 'août': '8',
-                        'septembre': '9', 'octobre': '10', 'novembre': '11', 'décembre': '12'
-                    };
-                    if (moisNumerique[moisTexte.toLowerCase()] !== filtreMois) {
-                        afficher = false;
-                    }
-                }
-            }
-            
-            // Recherche textuelle
-            if (rechercheText !== '' && afficher) {
-                const texte = ligne.textContent.toLowerCase();
-                if (!texte.includes(rechercheText)) {
-                    afficher = false;
-                }
-            }
-            
-            // Afficher ou masquer la ligne
-            ligne.style.display = afficher ? '' : 'none';
-            if (afficher) compteurVisible++;
-        });
-        
-        // Afficher un message si aucun résultat
-        let messageNoResult = document.getElementById('messageNoResult');
-        if (compteurVisible === 0) {
-            if (!messageNoResult) {
-                messageNoResult = document.createElement('tr');
-                messageNoResult.id = 'messageNoResult';
-                messageNoResult.innerHTML = '<td colspan="7" class="text-center py-4"><i class="fas fa-search fa-2x text-muted mb-2"></i><br>Aucune facture ne correspond à vos critères de recherche.</td>';
-                document.querySelector('tbody').appendChild(messageNoResult);
-            }
-        } else if (messageNoResult) {
-            messageNoResult.remove();
+    };
+
+    // === FONCTIONS DE DEBUG ===
+    window.testFiltrage = function() {
+        if (window.debugFiltres) {
+            window.debugFiltres.test();
+        } else {
+            console.error("Le système de filtrage n'est pas chargé");
         }
-    }
-    
-    // Event listeners pour les filtres
-    document.getElementById('filtreStatut').addEventListener('change', filtrerFactures);
-    document.getElementById('filtreMois').addEventListener('change', filtrerFactures);
-    document.getElementById('rechercheFacture').addEventListener('input', filtrerFactures);
-    
-    // Bouton pour vider la recherche
-    document.getElementById('btnClearSearch').addEventListener('click', () => {
-        document.getElementById('rechercheFacture').value = '';
-        document.getElementById('filtreStatut').value = '';
-        document.getElementById('filtreMois').value = '';
-        filtrerFactures();
-    });
-    
-    // Rendre la fonction partagerWhatsApp globale
-    window.partagerWhatsApp = partagerWhatsApp;
+    };
+
+    window.testElements = function() {
+        console.log("=== TEST ÉLÉMENTS ===");
+        const lignes = document.querySelectorAll('tbody tr:not(#messageNoResult)');
+        console.log("Nombre de lignes:", lignes.length);
+        
+        lignes.forEach((ligne, index) => {
+            console.log(`Ligne ${index + 1}:`, {
+                classe: ligne.className,
+                visible: ligne.style.display !== 'none'
+            });
+        });
+    };
 });
 </script>
 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/filtres-factures.js') }}"></script>
+@endpush

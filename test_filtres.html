@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JavaScript</title>
+</head>
+<body>
+    <h3>Test des fonctionnalités de filtrage</h3>
+    
+    <div>
+        <label>Filtrer par statut:</label>
+        <select id="filtreStatut">
+            <option value="">Tous les statuts</option>
+            <option value="non_paye">Non payées</option>
+            <option value="paye">Payées</option>
+            <option value="en_retard">En retard</option>
+        </select>
+    </div>
+    
+    <div>
+        <label>Rechercher:</label>
+        <input type="text" id="rechercheFacture" placeholder="Recherche...">
+        <button id="btnClearSearch">Clear</button>
+    </div>
+    
+    <div>
+        <h4>Statistiques:</h4>
+        <p>Non payées: <span id="stat-non-payees">0</span></p>
+        <p>En retard: <span id="stat-en-retard">0</span></p>
+        <p>Payées: <span id="stat-payees">0</span></p>
+        <p>Montant total: <span id="stat-montant-total">0 CDF</span></p>
+        <p>Montant payé: <span id="stat-montant-paye">0 CDF</span></p>
+        <p>Montant non payé: <span id="stat-montant-non-paye">0 CDF</span></p>
+    </div>
+    
+    <table>
+        <tbody>
+            <tr class="table-success">
+                <td>FAC00001</td><td>Client A</td><td>Tel A</td><td>Période A</td><td>100 000</td><td>Status</td><td>Actions</td>
+            </tr>
+            <tr class="table-danger">
+                <td>FAC00002</td><td>Client B</td><td>Tel B</td><td>Période B</td><td>150 000</td><td>Status</td><td>Actions</td>
+            </tr>
+            <tr class="">
+                <td>FAC00003</td><td>Client C</td><td>Tel C</td><td>Période C</td><td>120 000</td><td>Status</td><td>Actions</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+    console.log('Début du test JavaScript');
+    
+    function filtrerFactures() {
+        console.log('Fonction filtrerFactures appelée');
+        
+        try {
+            const filtreStatut = document.getElementById('filtreStatut').value.toLowerCase();
+            const rechercheText = document.getElementById('rechercheFacture').value.toLowerCase();
+            
+            console.log('Filtre statut:', filtreStatut);
+            console.log('Recherche:', rechercheText);
+            
+            const lignes = document.querySelectorAll('tbody tr');
+            console.log('Nombre de lignes trouvées:', lignes.length);
+            
+            let compteurVisible = 0;
+            
+            // Variables pour les statistiques dynamiques
+            let statNonPayees = 0;
+            let statEnRetard = 0;
+            let statPayees = 0;
+            let statMontantTotal = 0;
+            let statMontantPaye = 0;
+            let statMontantNonPaye = 0;
+            
+            lignes.forEach((ligne, index) => {
+                console.log(`Traitement ligne ${index}:`, ligne.className);
+                let afficher = true;
+                
+                // Filtre par statut
+                if (filtreStatut !== '') {
+                    const statutClasse = ligne.className;
+                    if (filtreStatut === 'en_retard' && !statutClasse.includes('table-danger')) {
+                        afficher = false;
+                    } else if (filtreStatut === 'paye' && !statutClasse.includes('table-success')) {
+                        afficher = false;
+                    } else if (filtreStatut === 'non_paye' && (statutClasse.includes('table-success') || statutClasse.includes('table-danger'))) {
+                        afficher = false;
+                    }
+                }
+                
+                // Recherche textuelle
+                if (rechercheText !== '' && afficher) {
+                    const texte = ligne.textContent.toLowerCase();
+                    if (!texte.includes(rechercheText)) {
+                        afficher = false;
+                    }
+                }
+                
+                // Afficher ou masquer la ligne
+                ligne.style.display = afficher ? '' : 'none';
+                if (afficher) {
+                    compteurVisible++;
+                    
+                    // Calculer les statistiques pour les lignes visibles
+                    const statutClasse = ligne.className;
+                    const celluleMontant = ligne.querySelector('td:nth-child(5)');
+                    const montantText = celluleMontant ? celluleMontant.textContent.replace(/[^0-9]/g, '') : '0';
+                    const montant = parseInt(montantText) || 0;
+                    
+                    statMontantTotal += montant;
+                    
+                    if (statutClasse.includes('table-success')) {
+                        statPayees++;
+                        statMontantPaye += montant;
+                    } else if (statutClasse.includes('table-danger')) {
+                        statEnRetard++;
+                        statMontantNonPaye += montant;
+                    } else {
+                        statNonPayees++;
+                        statMontantNonPaye += montant;
+                    }
+                }
+                
+                console.log(`Ligne ${index} - Afficher: ${afficher}, Classe: ${ligne.className}`);
+            });
+            
+            console.log('Statistiques calculées:', {
+                statNonPayees, statEnRetard, statPayees, 
+                statMontantTotal, statMontantPaye, statMontantNonPaye
+            });
+            
+            // Mettre à jour les statistiques affichées
+            document.getElementById('stat-non-payees').textContent = statNonPayees;
+            document.getElementById('stat-en-retard').textContent = statEnRetard;
+            document.getElementById('stat-payees').textContent = statPayees;
+            document.getElementById('stat-montant-total').textContent = new Intl.NumberFormat('fr-FR').format(statMontantTotal) + ' CDF';
+            document.getElementById('stat-montant-paye').textContent = new Intl.NumberFormat('fr-FR').format(statMontantPaye) + ' CDF';
+            document.getElementById('stat-montant-non-paye').textContent = new Intl.NumberFormat('fr-FR').format(statMontantNonPaye) + ' CDF';
+            
+            console.log('Statistiques mises à jour avec succès');
+            
+        } catch (error) {
+            console.error('Erreur dans filtrerFactures:', error);
+        }
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM Content Loaded');
+        
+        document.getElementById('filtreStatut').addEventListener('change', () => {
+            console.log('Changement de filtre statut');
+            filtrerFactures();
+        });
+        
+        document.getElementById('rechercheFacture').addEventListener('input', () => {
+            console.log('Changement de recherche');
+            filtrerFactures();
+        });
+        
+        document.getElementById('btnClearSearch').addEventListener('click', () => {
+            console.log('Clear search clicked');
+            document.getElementById('rechercheFacture').value = '';
+            document.getElementById('filtreStatut').value = '';
+            filtrerFactures();
+        });
+        
+        // Test initial
+        filtrerFactures();
+        console.log('Initialisation terminée');
+    });
+    </script>
+</body>
+</html>
