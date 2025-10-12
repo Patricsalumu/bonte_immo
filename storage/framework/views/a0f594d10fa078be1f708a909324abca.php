@@ -162,41 +162,40 @@
                 <?php endif; ?>
             </div>
             <div class="card-body">
-                <?php if($appartement->loyers && $appartement->loyers->count() > 0): ?>
+                <?php
+                    $factures = $appartement->loyers->flatMap->factures->sortByDesc('created_at');
+                ?>
+                <?php if($factures->count() > 0): ?>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
+                                    <th>Date</th>
                                     <th>Période</th>
                                     <th>Montant</th>
-                                    <th>Échéance</th>
                                     <th>Statut</th>
+                                    <th>Montant Payé</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php $__currentLoopData = $appartement->loyers->take(10); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loyer): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $factures->take(10); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $facture): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td><?php echo e(str_pad($loyer->mois, 2, '0', STR_PAD_LEFT)); ?>/<?php echo e($loyer->annee); ?></td>
-                                    <td><?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> CDF</td>
-                                    <td><?php echo e($loyer->date_echeance ? $loyer->date_echeance->format('d/m/Y') : '-'); ?></td>
+                                    <td><?php echo e($facture->created_at->format('d/m/Y')); ?></td>
+                                    <td><?php echo e(str_pad($facture->mois, 2, '0', STR_PAD_LEFT)); ?>/<?php echo e($facture->annee); ?></td>
+                                    <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> FC</td>
                                     <td>
-                                        <?php switch($loyer->statut):
-                                            case ('paye'): ?>
-                                                <span class="badge bg-success">Payé</span>
-                                                <?php break; ?>
-                                            <?php case ('impaye'): ?>
-                                                <span class="badge bg-danger">Impayé</span>
-                                                <?php break; ?>
-                                            <?php case ('partiel'): ?>
-                                                <span class="badge bg-warning">Partiel</span>
-                                                <?php break; ?>
-                                            <?php default: ?>
-                                                <span class="badge bg-secondary"><?php echo e(ucfirst($loyer->statut)); ?></span>
-                                        <?php endswitch; ?>
+                                        <?php if($facture->statut_paiement === 'payee'): ?>
+                                            <span class="badge bg-success">Payée</span>
+                                        <?php elseif($facture->statut_paiement === 'partielle'): ?>
+                                            <span class="badge bg-warning">Partielle</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Non payée</span>
+                                        <?php endif; ?>
                                     </td>
+                                    <td><?php echo e(number_format($facture->paiements->sum('montant'), 0, ',', ' ')); ?> FC</td>
                                     <td>
-                                        <a href="<?php echo e(route('loyers.show', $loyer)); ?>" class="btn btn-sm btn-outline-info">
+                                        <a href="<?php echo e(route('factures.show', $facture)); ?>" class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
@@ -234,29 +233,23 @@
                 <h6 class="mb-0">Résumé financier</h6>
             </div>
             <div class="card-body">
-                <?php
-                    $totalLoyers = $appartement->loyers ? $appartement->loyers->sum('montant') : 0;
-                    $loyersPayes = $appartement->loyers ? $appartement->loyers->where('statut', 'paye')->sum('montant') : 0;
-                    $loyersImpayes = $appartement->loyers ? $appartement->loyers->where('statut', 'impaye')->sum('montant') : 0;
-                ?>
-                
                 <div class="row text-center">
                     <div class="col-12 mb-3">
                         <div class="border rounded p-3 bg-light">
                             <h4 class="text-success mb-0"><?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?></h4>
-                            <small class="text-muted">CDF/mois</small>
+                            <small class="text-muted">FC/mois</small>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <div class="border rounded p-3">
-                            <h5 class="text-primary mb-0"><?php echo e(number_format($loyersPayes, 0, ',', ' ')); ?></h5>
-                            <small class="text-muted">Payés</small>
+                            <h5 class="text-primary mb-0"><?php echo e(number_format($montantTotalPaye ?? 0, 0, ',', ' ')); ?></h5>
+                            <small class="text-muted">Total Payé</small>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <div class="border rounded p-3">
-                            <h5 class="text-danger mb-0"><?php echo e(number_format($loyersImpayes, 0, ',', ' ')); ?></h5>
-                            <small class="text-muted">Impayés</small>
+                            <h5 class="text-danger mb-0"><?php echo e(number_format($montantTotalDu ?? 0, 0, ',', ' ')); ?></h5>
+                            <small class="text-muted">Total Dû</small>
                         </div>
                     </div>
                 </div>

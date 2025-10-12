@@ -33,14 +33,6 @@
                                 <td><strong>Adresse :</strong></td>
                                 <td><?php echo e($immeuble->adresse); ?></td>
                             </tr>
-                            <tr>
-                                <td><strong>Quartier :</strong></td>
-                                <td><?php echo e($immeuble->quartier); ?></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Commune :</strong></td>
-                                <td><?php echo e($immeuble->commune); ?></td>
-                            </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -202,11 +194,6 @@
                     <a href="<?php echo e(route('immeubles.edit', $immeuble)); ?>" class="btn btn-outline-warning">
                         <i class="fas fa-edit"></i> Modifier l'immeuble
                     </a>
-                    <?php if($immeuble->appartements->count() > 0): ?>
-                    <a href="<?php echo e(route('rapports.immeuble', $immeuble)); ?>" class="btn btn-outline-info">
-                        <i class="fas fa-chart-bar"></i> Rapport détaillé
-                    </a>
-                    <?php endif; ?>
                 </div>
             </div>
         </div>

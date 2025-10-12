@@ -12,15 +12,25 @@ class CompteFinancier extends Model
     protected $table = 'comptes_financiers';
 
     protected $fillable = [
-        'nom_compte',
-        'type_compte',
-        'solde_actuel',
+        'nom',
+        'type', 
+        'solde',
+        'gestionnaire_id',
         'description',
+        'actif',
+        'autoriser_decouvert',
     ];
 
     protected $casts = [
-        'solde_actuel' => 'decimal:2',
+        'solde' => 'decimal:2',
+        'actif' => 'boolean',
+        'autoriser_decouvert' => 'boolean',
     ];
+
+    public function gestionnaire()
+    {
+        return $this->belongsTo(User::class, 'gestionnaire_id');
+    }
 
     public function mouvementsSource()
     {

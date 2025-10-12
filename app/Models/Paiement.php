@@ -47,7 +47,7 @@ class Paiement extends Model
 
     public function compte()
     {
-        return $this->belongsTo(CompteCaisse::class, 'compte_id');
+        return $this->belongsTo(CompteFinancier::class, 'compte_id');
     }
 
     public function utilisateur()

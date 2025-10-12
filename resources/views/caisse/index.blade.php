@@ -4,28 +4,40 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Navigation par onglets -->
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="h3 mb-0">Gestion de la Caisse</h1>
-                @can('admin')
-                <div class="btn-group">
-                    <a href="{{ route('mouvements-caisse.create') }}" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Nouveau Mouvement
-                    </a>
-                    <a href="{{ route('mouvements-caisse.transfert') }}" class="btn btn-outline-primary">
-                        <i class="bi bi-arrow-left-right"></i> Transfert
-                    </a>
-                </div>
-                @endcan
             </div>
+            
+            <!-- Onglets de navigation -->
+            <ul class="nav nav-tabs mb-4" id="caisseTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" href="{{ route('caisse.index') }}">
+                        <i class="bi bi-speedometer2"></i> Tableau de Bord
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" href="{{ route('comptes-financiers.index') }}">
+                        <i class="bi bi-bank"></i> Comptes Financiers
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" href="{{ route('caisse.journal') }}">
+                        <i class="bi bi-journal-text"></i> Journal de Caisse
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
             <!-- Résumé des comptes -->
             <div class="row mb-4">
@@ -208,7 +220,7 @@
                                     </table>
                                 </div>
                                 <div class="text-center mt-3">
-                                    <a href="{{ route('mouvements-caisse.index') }}" class="btn btn-outline-primary">
+                                    <a href="{{ route('caisse.journal') }}" class="btn btn-outline-primary">
                                         Voir tous les mouvements
                                     </a>
                                 </div>

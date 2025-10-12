@@ -49,14 +49,32 @@ class AppartementController extends Controller
 
     public function show(Appartement $appartement)
     {
-        $appartement->load(['immeuble', 'locataire', 'loyers']);
-        return view('appartements.show', compact('appartement'));
+        $appartement->load([
+            'immeuble', 
+            'locataire', 
+            'loyers' => function($query) {
+                $query->with(['factures' => function($factureQuery) {
+                    $factureQuery->with('paiements');
+                }]);
+            }
+        ]);
+        
+        // Calculer les statistiques basées sur les factures
+        $factures = $appartement->loyers->flatMap->factures;
+        $facturesPayees = $factures->where('statut_paiement', 'payee');
+        $facturesNonPayees = $factures->where('statut_paiement', 'non_payee');
+        
+        $montantTotalPaye = $facturesPayees->sum('montant');
+        $montantTotalDu = $facturesNonPayees->sum('montant');
+        
+        return view('appartements.show', compact('appartement', 'montantTotalPaye', 'montantTotalDu'));
     }
 
     public function edit(Appartement $appartement)
     {
         $immeubles = Immeuble::all();
-        return view('appartements.edit', compact('appartement', 'immeubles'));
+        $locataires = \App\Models\Locataire::all();
+        return view('appartements.edit', compact('appartement', 'immeubles', 'locataires'));
     }
 
     public function update(Request $request, Appartement $appartement)

@@ -10,9 +10,6 @@
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genererFacturesModal">
             <i class="fas fa-file-invoice"></i> Générer factures
         </button>
-        <a href="<?php echo e(route('paiements.create')); ?>" class="btn btn-success">
-            <i class="fas fa-plus"></i> Nouveau paiement
-        </a>
     </div>
 </div>
 

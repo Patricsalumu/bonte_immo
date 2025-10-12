@@ -31,11 +31,11 @@
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Nom & Prénom</th>
-                                        <th>Email</th>
                                         <th>Téléphone</th>
                                         <th>Appartement</th>
                                         <th>Date d'entrée</th>
                                         <th>Garantie</th>
+                                         <th>Reste</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -45,20 +45,27 @@
                                             <td>
                                                 <strong>{{ $locataire->nom }} {{ $locataire->prenom }}</strong>
                                             </td>
-                                            <td>{{ $locataire->email }}</td>
                                             <td>{{ $locataire->telephone }}</td>
                                             <td>
-                                                @if($locataire->appartement)
+                                                @php
+                                                    $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
+                                                @endphp
+                                                @if($loyerActif && $loyerActif->appartement)
                                                     <span class="badge bg-info">
-                                                        {{ $locataire->appartement->immeuble->nom ?? 'N/A' }} - 
-                                                        App. {{ $locataire->appartement->numero }}
+                                                        {{ $loyerActif->appartement->immeuble->nom ?? 'N/A' }} - App. {{ $loyerActif->appartement->numero }}
                                                     </span>
                                                 @else
                                                     <span class="badge bg-warning">Non assigné</span>
                                                 @endif
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($locataire->date_entree)->format('d/m/Y') }}</td>
-                                            <td>{{ number_format($locataire->garantie, 0, ',', ' ') }} FC</td>
+                                            <td>{{ number_format($locataire->garantie_initiale, 0, ',', ' ') }} FC</td>
+                                            <td>
+                                                @php
+                                                    $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
+                                                @endphp
+                                                {{ $loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' FC' : '-' }}
+                                            </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ route('locataires.show', $locataire) }}" class="btn btn-sm btn-outline-info">

@@ -32,11 +32,11 @@
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Nom & Prénom</th>
-                                        <th>Email</th>
                                         <th>Téléphone</th>
                                         <th>Appartement</th>
                                         <th>Date d'entrée</th>
                                         <th>Garantie</th>
+                                         <th>Reste</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -46,13 +46,14 @@
                                             <td>
                                                 <strong><?php echo e($locataire->nom); ?> <?php echo e($locataire->prenom); ?></strong>
                                             </td>
-                                            <td><?php echo e($locataire->email); ?></td>
                                             <td><?php echo e($locataire->telephone); ?></td>
                                             <td>
-                                                <?php if($locataire->appartement): ?>
+                                                <?php
+                                                    $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
+                                                ?>
+                                                <?php if($loyerActif && $loyerActif->appartement): ?>
                                                     <span class="badge bg-info">
-                                                        <?php echo e($locataire->appartement->immeuble->nom ?? 'N/A'); ?> - 
-                                                        App. <?php echo e($locataire->appartement->numero); ?>
+                                                        <?php echo e($loyerActif->appartement->immeuble->nom ?? 'N/A'); ?> - App. <?php echo e($loyerActif->appartement->numero); ?>
 
                                                     </span>
                                                 <?php else: ?>
@@ -60,7 +61,14 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td><?php echo e(\Carbon\Carbon::parse($locataire->date_entree)->format('d/m/Y')); ?></td>
-                                            <td><?php echo e(number_format($locataire->garantie, 0, ',', ' ')); ?> FC</td>
+                                            <td><?php echo e(number_format($locataire->garantie_initiale, 0, ',', ' ')); ?> FC</td>
+                                            <td>
+                                                <?php
+                                                    $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
+                                                ?>
+                                                <?php echo e($loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' FC' : '-'); ?>
+
+                                            </td>
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="<?php echo e(route('locataires.show', $locataire)); ?>" class="btn btn-sm btn-outline-info">

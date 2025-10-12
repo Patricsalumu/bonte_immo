@@ -40,7 +40,7 @@ class LoyerController extends Controller
             'date_debut' => 'required|date',
             'date_fin' => 'nullable|date|after:date_debut',
             'montant' => 'required|numeric|min:0',
-            'garantie_locative' => 'nullable|numeric|min:0',
+            'garantie_locative' => 'required|numeric|min:1', // Garantie obligatoire
             'notes' => 'nullable|string',
         ]);
 
@@ -56,6 +56,12 @@ class LoyerController extends Controller
             return back()->withErrors(['locataire_id' => 'Ce locataire a déjà un contrat actif.'])->withInput();
         }
 
+        // Vérifier le paiement de la garantie
+        $montantGarantie = $validated['garantie_locative'];
+        if ($montantGarantie < 1) {
+            return back()->withErrors(['garantie_locative' => 'Le paiement de la garantie est obligatoire.'])->withInput();
+        }
+
         // Créer le contrat de loyer
         $loyer = Loyer::create([
             'appartement_id' => $validated['appartement_id'],
@@ -63,16 +69,39 @@ class LoyerController extends Controller
             'montant' => $validated['montant'],
             'date_debut' => $validated['date_debut'],
             'date_fin' => $validated['date_fin'],
-            'garantie_locative' => $validated['garantie_locative'] ?? 0,
+            'garantie_locative' => $montantGarantie,
             'notes' => $validated['notes'],
-            'statut' => 'actif'
+            'statut' => 'actif',
         ]);
 
-        // Marquer l'appartement comme occupé
-        $appartement->update(['statut' => 'occupe']);
+        // Mouvement caisse pour la garantie
+        $comptePrincipal = \App\Models\CompteFinancier::where('type_compte', 'caisse')->orderBy('id')->first();
+        if ($comptePrincipal) {
+            \App\Models\MouvementCaisse::create([
+                'compte_destination_id' => $comptePrincipal->id,
+                'type_mouvement' => 'entree',
+                'montant' => $montantGarantie,
+                'mode_paiement' => 'garantie_locative',
+                'description' => 'Paiement garantie locative à la création du loyer',
+                'categorie' => 'garantie_locative',
+                'utilisateur_id' => auth()->id(),
+                'date_operation' => now(),
+                'est_annule' => false,
+            ]);
+            $comptePrincipal->increment('solde', $montantGarantie);
+        }
+
+        // Mettre à jour la garantie initiale du locataire
+        $locataire->update(['garantie_initiale' => $montantGarantie]);
+
+        // Marquer l'appartement comme occupé et assigner le locataire
+        $appartement->update([
+            'statut' => 'occupe',
+            'locataire_id' => $validated['locataire_id']
+        ]);
 
         return redirect()->route('loyers.index')
-                        ->with('success', 'Contrat de loyer créé avec succès.');
+                        ->with('success', 'Contrat de loyer créé avec succès. Garantie encaissée.');
     }
 
     public function show(Loyer $loyer)
@@ -120,6 +149,11 @@ class LoyerController extends Controller
 
     public function desactiver(Loyer $loyer)
     {
+        // Vérifier s'il existe des factures non payées pour ce locataire et ce loyer
+        $facturesImpayees = $loyer->factures()->where('statut_paiement', 'non_paye')->count();
+        if ($facturesImpayees > 0) {
+            return redirect()->back()->with('error', 'Impossible de désactiver ce contrat : il existe des factures non payées pour ce locataire.');
+        }
         $loyer->desactiver('Contrat désactivé manuellement');
         $loyer->appartement->liberer();
 

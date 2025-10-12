@@ -16,8 +16,8 @@ class CaisseController extends Controller
 
     public function index()
     {
-        $comptes = CompteFinancier::all();
-        $soldeTotal = $comptes->sum('solde_actuel');
+        $comptes = CompteFinancier::where('actif', true)->get();
+                $soldeTotal = $comptes->sum('solde_actuel');
         
         $mouvementsRecents = MouvementCaisse::with(['compteSource', 'compteDestination', 'utilisateur'])
             ->where('est_annule', false)
@@ -30,7 +30,8 @@ class CaisseController extends Controller
 
     public function journal(Request $request)
     {
-        $query = MouvementCaisse::with(['compteSource', 'compteDestination', 'utilisateur']);
+        $query = MouvementCaisse::with(['compteSource', 'compteDestination', 'utilisateur'])
+            ->where('est_annule', false);
 
         // Filtres
         if ($request->filled('compte_id')) {
@@ -53,9 +54,25 @@ class CaisseController extends Controller
         }
 
         $mouvements = $query->orderBy('date_operation', 'desc')->paginate(20);
-        $comptes = CompteFinancier::all();
+        $comptes = CompteFinancier::where('actif', true)->get();
 
-        return view('caisse.journal', compact('mouvements', 'comptes'));
+        // Calculer les statistiques
+        $statistiques = [
+            'total_entrees' => MouvementCaisse::where('type_mouvement', 'entree')
+                ->where('est_annule', false)
+                ->sum('montant'),
+            'total_sorties' => MouvementCaisse::where('type_mouvement', 'sortie')
+                ->where('est_annule', false)
+                ->sum('montant'),
+            'total_transferts' => MouvementCaisse::where('type_mouvement', 'transfert')
+                ->where('est_annule', false)
+                ->sum('montant'),
+            'solde_net' => 0
+        ];
+        
+        $statistiques['solde_net'] = $statistiques['total_entrees'] - $statistiques['total_sorties'];
+
+        return view('caisse.journal', compact('mouvements', 'comptes', 'statistiques'));
     }
 
     public function create()

@@ -71,7 +71,10 @@ class Appartement extends Model
 
     public function liberer()
     {
-        $this->update(['statut' => 'libre']);
+        $this->update([
+            'statut' => 'libre',
+            'locataire_id' => null
+        ]);
         // Désactiver le contrat actuel s'il existe
         $contratActuel = $this->contratActuel();
         if ($contratActuel) {

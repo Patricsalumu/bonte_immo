@@ -33,14 +33,6 @@
                                 <td><strong>Adresse :</strong></td>
                                 <td>{{ $immeuble->adresse }}</td>
                             </tr>
-                            <tr>
-                                <td><strong>Quartier :</strong></td>
-                                <td>{{ $immeuble->quartier }}</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Commune :</strong></td>
-                                <td>{{ $immeuble->commune }}</td>
-                            </tr>
                         </table>
                     </div>
                     <div class="col-md-6">
@@ -201,11 +193,6 @@
                     <a href="{{ route('immeubles.edit', $immeuble) }}" class="btn btn-outline-warning">
                         <i class="fas fa-edit"></i> Modifier l'immeuble
                     </a>
-                    @if($immeuble->appartements->count() > 0)
-                    <a href="{{ route('rapports.immeuble', $immeuble) }}" class="btn btn-outline-info">
-                        <i class="fas fa-chart-bar"></i> Rapport détaillé
-                    </a>
-                    @endif
                 </div>
             </div>
         </div>

@@ -38,23 +38,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                         <div class="col-md-6 mb-3">
-                            <label for="nombre_etages" class="form-label">Nombre d'étages <span class="text-danger">*</span></label>
-                            <input type="number" 
-                                   class="form-control @error('nombre_etages') is-invalid @enderror" 
-                                   id="nombre_etages" 
-                                   name="nombre_etages" 
-                                   value="{{ old('nombre_etages', $immeuble->nombre_etages) }}" 
-                                   min="1" 
-                                   required>
-                            @error('nombre_etages')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="adresse" class="form-label">Adresse complète <span class="text-danger">*</span></label>
                         <textarea class="form-control @error('adresse') is-invalid @enderror" 
                                   id="adresse" 
@@ -65,58 +49,7 @@
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="quartier" class="form-label">Quartier <span class="text-danger">*</span></label>
-                            <input type="text" 
-                                   class="form-control @error('quartier') is-invalid @enderror" 
-                                   id="quartier" 
-                                   name="quartier" 
-                                   value="{{ old('quartier', $immeuble->quartier) }}" 
-                                   required>
-                            @error('quartier')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="commune" class="form-label">Commune <span class="text-danger">*</span></label>
-                            <select class="form-select @error('commune') is-invalid @enderror" 
-                                    id="commune" 
-                                    name="commune" 
-                                    required>
-                                <option value="">Sélectionner une commune</option>
-                                <option value="Bandalungwa" {{ old('commune', $immeuble->commune) == 'Bandalungwa' ? 'selected' : '' }}>Bandalungwa</option>
-                                <option value="Barumbu" {{ old('commune', $immeuble->commune) == 'Barumbu' ? 'selected' : '' }}>Barumbu</option>
-                                <option value="Bumbu" {{ old('commune', $immeuble->commune) == 'Bumbu' ? 'selected' : '' }}>Bumbu</option>
-                                <option value="Gombe" {{ old('commune', $immeuble->commune) == 'Gombe' ? 'selected' : '' }}>Gombe</option>
-                                <option value="Kalamu" {{ old('commune', $immeuble->commune) == 'Kalamu' ? 'selected' : '' }}>Kalamu</option>
-                                <option value="Kasa-Vubu" {{ old('commune', $immeuble->commune) == 'Kasa-Vubu' ? 'selected' : '' }}>Kasa-Vubu</option>
-                                <option value="Kimbanseke" {{ old('commune', $immeuble->commune) == 'Kimbanseke' ? 'selected' : '' }}>Kimbanseke</option>
-                                <option value="Kinshasa" {{ old('commune', $immeuble->commune) == 'Kinshasa' ? 'selected' : '' }}>Kinshasa</option>
-                                <option value="Kintambo" {{ old('commune', $immeuble->commune) == 'Kintambo' ? 'selected' : '' }}>Kintambo</option>
-                                <option value="Lemba" {{ old('commune', $immeuble->commune) == 'Lemba' ? 'selected' : '' }}>Lemba</option>
-                                <option value="Limete" {{ old('commune', $immeuble->commune) == 'Limete' ? 'selected' : '' }}>Limete</option>
-                                <option value="Lingwala" {{ old('commune', $immeuble->commune) == 'Lingwala' ? 'selected' : '' }}>Lingwala</option>
-                                <option value="Makala" {{ old('commune', $immeuble->commune) == 'Makala' ? 'selected' : '' }}>Makala</option>
-                                <option value="Maluku" {{ old('commune', $immeuble->commune) == 'Maluku' ? 'selected' : '' }}>Maluku</option>
-                                <option value="Masina" {{ old('commune', $immeuble->commune) == 'Masina' ? 'selected' : '' }}>Masina</option>
-                                <option value="Matete" {{ old('commune', $immeuble->commune) == 'Matete' ? 'selected' : '' }}>Matete</option>
-                                <option value="Mont-Ngafula" {{ old('commune', $immeuble->commune) == 'Mont-Ngafula' ? 'selected' : '' }}>Mont-Ngafula</option>
-                                <option value="Ndjili" {{ old('commune', $immeuble->commune) == 'Ndjili' ? 'selected' : '' }}>Ndjili</option>
-                                <option value="Ngaba" {{ old('commune', $immeuble->commune) == 'Ngaba' ? 'selected' : '' }}>Ngaba</option>
-                                <option value="Ngaliema" {{ old('commune', $immeuble->commune) == 'Ngaliema' ? 'selected' : '' }}>Ngaliema</option>
-                                <option value="Ngiri-Ngiri" {{ old('commune', $immeuble->commune) == 'Ngiri-Ngiri' ? 'selected' : '' }}>Ngiri-Ngiri</option>
-                                <option value="Nsele" {{ old('commune', $immeuble->commune) == 'Nsele' ? 'selected' : '' }}>Nsele</option>
-                                <option value="Selembao" {{ old('commune', $immeuble->commune) == 'Selembao' ? 'selected' : '' }}>Selembao</option>
-                            </select>
-                            @error('commune')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
                     </div>
-
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
                         <textarea class="form-control @error('description') is-invalid @enderror" 
