@@ -171,7 +171,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="loyer_mensuel" class="form-label">Loyer mensuel (CDF) <span class="text-danger">*</span></label>
+                            <label for="loyer_mensuel" class="form-label">Loyer mensuel ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control <?php $__errorArgs = ['loyer_mensuel'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -199,7 +199,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="garantie_locative" class="form-label">Garantie locative (CDF)</label>
+                            <label for="garantie_locative" class="form-label">Garantie locative ($)</label>
                             <input type="number" 
                                    class="form-control <?php $__errorArgs = ['garantie_locative'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');

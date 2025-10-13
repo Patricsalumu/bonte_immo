@@ -87,7 +87,7 @@ unset($__errorArgs, $__bag); ?>"
                                             data-garantie="<?php echo e($appartement->garantie_locative); ?>"
                                             <?php echo e(old('appartement_id') == $appartement->id ? 'selected' : ''); ?>>
                                         <?php echo e($appartement->immeuble->nom); ?> - Apt <?php echo e($appartement->numero); ?> (<?php echo e($appartement->type); ?>)
-                                        - <?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?> CDF/mois
+                                        - <?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?> $/mois
                                     </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
@@ -163,7 +163,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="montant" class="form-label">Montant du loyer (CDF) <span class="text-danger">*</span></label>
+                            <label for="montant" class="form-label">Montant du loyer ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control <?php $__errorArgs = ['montant'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -192,7 +192,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="garantie_locative" class="form-label">Garantie locative (CDF)</label>
+                            <label for="garantie_locative" class="form-label">Garantie locative ($)</label>
                             <input type="number" 
                                    class="form-control <?php $__errorArgs = ['garantie_locative'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
@@ -304,8 +304,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 apartmentInfo.innerHTML = `
-                    <p><strong>Loyer suggéré:</strong> ${Number(loyer).toLocaleString()} CDF</p>
-                    <p><strong>Garantie suggérée:</strong> ${Number(garantie).toLocaleString()} CDF</p>
+                    <p><strong>Loyer suggéré:</strong> ${Number(loyer).toLocaleString()} $</p>
+                    <p><strong>Garantie suggérée:</strong> ${Number(garantie).toLocaleString()} $</p>
                 `;
                 apartmentDetails.style.display = 'block';
             } else {

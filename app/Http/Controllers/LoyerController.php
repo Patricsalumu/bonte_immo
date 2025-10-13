@@ -75,21 +75,39 @@ class LoyerController extends Controller
         ]);
 
         // Mouvement caisse pour la garantie
-        $comptePrincipal = \App\Models\CompteFinancier::where('type_compte', 'caisse')->orderBy('id')->first();
-        if ($comptePrincipal) {
-            \App\Models\MouvementCaisse::create([
-                'compte_destination_id' => $comptePrincipal->id,
-                'type_mouvement' => 'entree',
-                'montant' => $montantGarantie,
-                'mode_paiement' => 'garantie_locative',
-                'description' => 'Paiement garantie locative à la création du loyer',
-                'categorie' => 'garantie_locative',
-                'utilisateur_id' => auth()->id(),
-                'date_operation' => now(),
-                'est_annule' => false,
-            ]);
-            $comptePrincipal->increment('solde', $montantGarantie);
+        $compteUtilisateur = auth()->user()->compte_financier_id ? \App\Models\CompteFinancier::find(auth()->user()->compte_financier_id) : null;
+        if (!$compteUtilisateur) {
+            // Suppression du loyer créé si le paiement échoue
+            $loyer->delete();
+            return back()->withErrors(['error' => "Le paiement de la garantie a échoué car aucun compte à débiter n'est configuré. Veuillez d'abord configurer un compte dans votre profil utilisateur."])->withInput();
         }
+        \App\Models\MouvementCaisse::create([
+            'compte_destination_id' => $compteUtilisateur->id,
+            'type_mouvement' => 'entree',
+            'montant' => $montantGarantie,
+            'mode_paiement' => 'garantie_locative',
+            'description' => 'Paiement garantie locative à la création du loyer',
+            'categorie' => 'garantie_locative',
+            'utilisateur_id' => auth()->id(),
+            'date_operation' => now(),
+            'est_annule' => false,
+        ]);
+        $compteUtilisateur->increment('solde', $montantGarantie);
+        $compteUtilisateur->increment('solde_actuel', $montantGarantie);
+
+        // Enregistrer le paiement de garantie dans la table paiements
+        \App\Models\Paiement::create([
+            'facture_id' => null,
+            'loyer_id' => $loyer->id,
+            'locataire_id' => $locataire->id,
+            'montant' => $montantGarantie,
+            'date_paiement' => now(),
+            'mode_paiement' => 'cash',
+            'reference_paiement' => null,
+            'utilisateur_id' => auth()->id(),
+            'est_annule' => false,
+            'notes' => 'Paiement de la garantie locative à la création du loyer',
+        ]);
 
         // Mettre à jour la garantie initiale du locataire
         $locataire->update(['garantie_initiale' => $montantGarantie]);

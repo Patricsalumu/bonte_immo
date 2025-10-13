@@ -17,7 +17,12 @@ class User extends Authenticatable
         'password',
         'role',
         'actif',
+        'compte_financier_id', // compte à débiter
     ];
+    public function compteFinancier()
+    {
+        return $this->belongsTo(CompteFinancier::class, 'compte_financier_id');
+    }
 
     protected $hidden = [
         'password',

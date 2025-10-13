@@ -115,7 +115,7 @@
             <div class="card text-white bg-success">
                 <div class="card-body">
                     <h6 class="card-title">Total Entrées</h6>
-                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_entrees'], 0, ',', ' ')); ?> FC</h4>
+                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_entrees'], 0, ',', ' ')); ?> $</h4>
                 </div>
             </div>
         </div>
@@ -123,7 +123,7 @@
             <div class="card text-white bg-danger">
                 <div class="card-body">
                     <h6 class="card-title">Total Sorties</h6>
-                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_sorties'], 0, ',', ' ')); ?> FC</h4>
+                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_sorties'], 0, ',', ' ')); ?> $</h4>
                 </div>
             </div>
         </div>
@@ -131,7 +131,7 @@
             <div class="card text-white bg-info">
                 <div class="card-body">
                     <h6 class="card-title">Total Transferts</h6>
-                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_transferts'], 0, ',', ' ')); ?> FC</h4>
+                    <h4 class="mb-0"><?php echo e(number_format($statistiques['total_transferts'], 0, ',', ' ')); ?> $</h4>
                 </div>
             </div>
         </div>
@@ -139,7 +139,7 @@
             <div class="card text-white bg-primary">
                 <div class="card-body">
                     <h6 class="card-title">Solde Net</h6>
-                    <h4 class="mb-0"><?php echo e(number_format($statistiques['solde_net'], 0, ',', ' ')); ?> FC</h4>
+                    <h4 class="mb-0"><?php echo e(number_format($statistiques['solde_net'], 0, ',', ' ')); ?> $</h4>
                 </div>
             </div>
         </div>
@@ -200,9 +200,9 @@
                                     </td>
                                     <td class="text-end">
                                         <?php if($mouvement->type_mouvement == 'entree'): ?>
-                                            <span class="text-success">+<?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> FC</span>
+                                            <span class="text-success">+<?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> $</span>
                                         <?php else: ?>
-                                            <span class="text-danger">-<?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> FC</span>
+                                            <span class="text-danger">-<?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> $</span>
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end">
@@ -210,7 +210,7 @@
                                             $compte = $mouvement->type_mouvement == 'entree' ? $mouvement->compteDestination : $mouvement->compteSource;
                                         ?>
                                         <?php if($compte): ?>
-                                            <strong><?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> FC</strong>
+                                            <strong><?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> $</strong>
                                         <?php else: ?>
                                             <span class="text-muted">-</span>
                                         <?php endif; ?>
@@ -286,7 +286,7 @@
                                 <option value="">Sélectionnez le compte source</option>
                                 <?php $__currentLoopData = $comptes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $compte): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($compte->id); ?>">
-                                        <?php echo e($compte->nom); ?> (<?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> FC)
+                                        <?php echo e($compte->nom); ?> (<?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> $)
                                     </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
@@ -303,7 +303,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="montant" class="form-label">Montant (FC)</label>
+                            <label for="montant" class="form-label">Montant ($)</label>
                             <input type="number" class="form-control" id="montant" name="montant" 
                                    step="0.01" min="0.01" required>
                         </div>

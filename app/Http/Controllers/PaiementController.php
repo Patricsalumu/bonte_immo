@@ -40,17 +40,23 @@ class PaiementController extends Controller
             'mode_paiement' => 'required|in:especes,cheque,virement,mobile_money',
             'reference' => 'nullable|string|max:255',
             'date_paiement' => 'required|date',
-            'compte_id' => 'required|exists:comptes_financiers,id',
+            'compte_id' => 'nullable|exists:comptes_financiers,id',
             'observations' => 'nullable|string',
         ]);
 
         $validated['utilisateur_id'] = auth()->id();
+        // Si aucun compte n'est choisi, utiliser celui configuré dans l'utilisateur
+        if (empty($validated['compte_id'])) {
+            $validated['compte_id'] = auth()->user()->compte_financier_id;
+        }
 
         $paiement = Paiement::create($validated);
 
-        // Mettre à jour le solde du compte
+        // Débiter le compte financier
         $compte = CompteFinancier::find($validated['compte_id']);
-        $compte->increment('solde', $validated['montant']);
+        if ($compte) {
+            $compte->decrement('solde', $validated['montant']);
+        }
 
         // Vérifier si le loyer est complètement payé
         $loyer = Loyer::find($validated['loyer_id']);

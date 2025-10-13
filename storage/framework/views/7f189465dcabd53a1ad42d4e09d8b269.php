@@ -63,7 +63,7 @@
                                                     <span class="text-muted">N/A</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> CDF</td>
+                                            <td><?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> $</td>
                                             <td>
                                                 <div>
                                                     <small class="text-muted">Du:</small> <?php echo e($loyer->date_debut->format('d/m/Y')); ?><br>

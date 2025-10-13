@@ -52,7 +52,7 @@ class CompteFinancierController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:255|unique:comptes_financiers,nom',
+            'nom_compte' => 'required|string|max:255|unique:comptes_financiers,nom_compte',
             'type' => 'required|in:caisse,banque,epargne,charge',
             'solde_initial' => 'required|numeric|min:0',
             'gestionnaire_id' => 'nullable|exists:users,id',
@@ -63,7 +63,7 @@ class CompteFinancierController extends Controller
 
         // Préparer les données pour la création
         $compteData = [
-            'nom' => $validated['nom'],
+            'nom_compte' => $validated['nom_compte'],
             'type' => $validated['type'],
             'solde_actuel' => $validated['solde_initial'],
             'gestionnaire_id' => $validated['gestionnaire_id'],
@@ -106,7 +106,7 @@ class CompteFinancierController extends Controller
     public function update(Request $request, CompteFinancier $compteFinancier)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:255',
+            'nom_compte' => 'required|string|max:255',
             'type' => 'required|in:caisse,banque,epargne',
             'solde' => 'required|numeric',
             'description' => 'nullable|string',

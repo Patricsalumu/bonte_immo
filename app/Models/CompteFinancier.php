@@ -12,7 +12,7 @@ class CompteFinancier extends Model
     protected $table = 'comptes_financiers';
 
     protected $fillable = [
-        'nom',
+        'nom_compte',
         'type', 
         'solde',
         'gestionnaire_id',

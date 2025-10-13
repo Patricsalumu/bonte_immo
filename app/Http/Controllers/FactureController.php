@@ -86,15 +86,18 @@ class FactureController extends Controller
 
         $factures = $query->paginate(20)->withQueryString();
 
-        // Statistiques
+        // Statistiques corrigées
+        $montantTotalFactures = Facture::sum('montant');
+        $montantTotalPaye = Paiement::whereNotNull('facture_id')->where('est_annule', false)->sum('montant');
+        $montantImpaye = $montantTotalFactures - $montantTotalPaye;
         $stats = [
             'total' => Facture::count(),
             'non_payees' => Facture::where('statut_paiement', 'non_paye')->count(),
             'en_retard' => Facture::enRetard()->count(),
             'payees' => Facture::payees()->count(),
-            'montant_total' => Facture::sum('montant'),
-            'montant_paye' => Facture::sum('montant_paye'),
-            'montant_impaye' => Facture::where('statut_paiement', 'non_paye')->sum('montant')
+            'montant_total' => $montantTotalFactures,
+            'montant_paye' => $montantTotalPaye,
+            'montant_impaye' => $montantImpaye
         ];
 
         // Data pour les filtres
@@ -151,7 +154,7 @@ class FactureController extends Controller
         $pdfUrl = url("public/factures/{$facture->id}/pdf");
         $messageWhatsApp = "Bonjour Mr/Mme {$facture->locataire->nom},\n\n";
         $messageWhatsApp .= "Votre facture de loyer n°{$facture->numero_facture} pour la période {$facture->getMoisNom()} {$facture->annee} a été générée.\n\n";
-        $messageWhatsApp .= "Montant à payer : " . number_format($facture->montant, 0, ',', ' ') . " CDF\n";
+        $messageWhatsApp .= "Montant à payer : " . number_format($facture->montant, 0, ',', ' ') . " $\n";
         $messageWhatsApp .= "Date d'échéance : {$facture->date_echeance->format('d/m/Y')}\n\n";
         $messageWhatsApp .= "Vous pouvez télécharger votre facture à tout moment sur le lien suivant :\n{$pdfUrl}\n\n";
         $messageWhatsApp .= "Merci de procéder au règlement avant la date d'échéance.\n\n";
@@ -254,6 +257,14 @@ class FactureController extends Controller
             'reference' => 'nullable|string|max:255',
         ]);
 
+        // Vérifier le compte à débiter
+        $compteId = auth()->user()->compte_financier_id ?? null;
+        if (empty($compteId)) {
+            return redirect()->back()->withErrors([
+                'error' => "Aucun compte à débiter n'est configuré pour l'utilisateur. Veuillez d'abord configurer un compte dans le profil utilisateur."
+            ]);
+        }
+
         Log::info('Validation réussie', ['validated' => $validated]);
 
         try {
@@ -315,6 +326,11 @@ class FactureController extends Controller
                 'est_annule' => false,
                 'notes' => $notes,
             ]);
+            // Incrémenter le solde du compte configuré
+            $compte = \App\Models\CompteFinancier::find($compteId);
+            if ($compte) {
+                $compte->increment('solde', $montantPaye);
+            }
 
             // Déterminer le nouveau statut de la facture
             $montantActuelPaye = $facture->montantPaye();
@@ -329,22 +345,18 @@ class FactureController extends Controller
                 'comparaison' => $nouveauMontantPaye >= $facture->montant ? 'COMPLET' : 'PARTIEL'
             ]);
             
-            if ($nouveauMontantPaye >= $facture->montant) {
+            if ($nouveauMontantPaye == $facture->montant) {
                 // Facture entièrement payée - vérifier si en retard
                 $dateEcheance = Carbon::parse($facture->date_echeance);
                 $aujourdhui = Carbon::now();
-                
                 if ($aujourdhui->gt($dateEcheance)) {
                     $nouveauStatut = 'paye_en_retard';
                 } else {
                     $nouveauStatut = 'paye';
                 }
-            }
-            else if ($nouveauMontantPaye>0){
+            } elseif ($nouveauMontantPaye > 0) {
                 $nouveauStatut = 'partielle';
-            } 
-            else {
-                // Facture partiellement payée - rester en 'non_paye'
+            } else {
                 $nouveauStatut = 'non_paye';
             }
 
@@ -389,28 +401,37 @@ class FactureController extends Controller
             ]);
 
             DB::commit();
-            
-            // Recalculer les montants après commit
+            // Recalculer les montants et le statut après commit
             $facture->refresh();
             $montantTotalPaye = $facture->montantPaye();
             $resteAPayer = $facture->montant - $montantTotalPaye;
-            
-            // Créer le message WhatsApp personnalisé
 
+            // Correction : recalculer et mettre à jour le statut si besoin
+            if ($montantTotalPaye == $facture->montant) {
+                $dateEcheance = Carbon::parse($facture->date_echeance);
+                $aujourdhui = Carbon::now();
+                $nouveauStatut = $aujourdhui->gt($dateEcheance) ? 'paye_en_retard' : 'paye';
+                $facture->update(['statut_paiement' => $nouveauStatut]);
+            } elseif ($montantTotalPaye > 0) {
+                $facture->update(['statut_paiement' => 'partielle']);
+            } else {
+                $facture->update(['statut_paiement' => 'non_paye']);
+            }
+
+            // Créer le message WhatsApp personnalisé
             $utilisateur = auth()->user();
             $dateFormatee = now()->format('d/m/Y');
             $moisFacture = $facture->mois . ' ' . $facture->annee;
 
             // Générer le lien public vers le PDF
-
             $pdfUrl = url("public/factures/{$facture->id}/pdf");
 
             $messageWhatsApp = "Bonjour Mr/Mme {$facture->locataire->nom},\n\n";
-            $messageWhatsApp .= "Nous vous confirmons un paiement de " . number_format($montantPaye, 0, ',', ' ') . " CDF ";
+            $messageWhatsApp .= "Nous vous confirmons un paiement de " . number_format($montantPaye, 0, ',', ' ') . " $ ";
             $messageWhatsApp .= "qui a été enregistré le {$dateFormatee} par {$utilisateur->name} ";
             $messageWhatsApp .= "pour la facture n°{$facture->numero_facture} - {$moisFacture}.\n\n";
             $messageWhatsApp .= "Numéro facture : {$facture->numero_facture}\n";
-            $messageWhatsApp .= "Reste à payer : " . number_format($resteAPayer, 0, ',', ' ') . " CDF\n\n";
+            $messageWhatsApp .= "Reste à payer : " . number_format($resteAPayer, 0, ',', ' ') . " $\n\n";
             $messageWhatsApp .= "Vous pouvez télécharger votre facture à tout moment sur le lien suivant :\n{$pdfUrl}\n\n";
 
             if ($resteAPayer <= 0) {
@@ -434,8 +455,8 @@ class FactureController extends Controller
             ]);
 
             return redirect()->back()->with([
-                'success' => 'Paiement de ' . number_format($montantPaye, 0, ',', ' ') . ' CDF enregistré avec succès. ' .
-                    ($resteAPayer <= 0 ? 'Facture entièrement payée' : 'Reste à payer : ' . number_format($resteAPayer, 0, ',', ' ') . ' CDF'),
+                'success' => 'Paiement de ' . number_format($montantPaye, 0, ',', ' ') . ' $ enregistré avec succès. ' .
+                    ($resteAPayer <= 0 ? 'Facture entièrement payée' : 'Reste à payer : ' . number_format($resteAPayer, 0, ',', ' ') . ' $'),
                 'whatsapp_url' => $whatsappUrl,
                 'whatsapp_message' => $messageWhatsApp
             ]);

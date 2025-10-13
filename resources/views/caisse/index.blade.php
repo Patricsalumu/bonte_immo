@@ -94,6 +94,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">Comptes Financiers</h5>
+                            <a href="{{ route('comptes-financiers.create') }}" class="btn btn-primary btn-sm float-end">
+                                <i class="bi bi-plus-circle"></i> Nouveau Compte
+                            </a>
                         </div>
                         <div class="card-body">
                             @if($comptes->count() > 0)
@@ -111,7 +114,7 @@
                                         <tbody>
                                             @foreach($comptes as $compte)
                                                 <tr>
-                                                    <td><strong>{{ $compte->nom }}</strong></td>
+                                                    <td><strong>{{ $compte->nom_compte }}</strong></td>
                                                     <td>
                                                         @switch($compte->type)
                                                             @case('caisse')
@@ -135,30 +138,23 @@
                                                     <td>{{ $compte->description }}</td>
                                                     <td>
                                                         <div class="btn-group" role="group">
-                                                            <a href="{{ route('comptes-financiers.show', $compte) }}" class="btn btn-sm btn-outline-info">
+                                                            <a href="{{ route('comptes-financiers.show', $compte) }}" class="btn btn-sm btn-outline-info" title="Voir">
                                                                 <i class="bi bi-eye"></i>
                                                             </a>
-                                                            @can('admin')
-                                                            <a href="{{ route('comptes-financiers.edit', $compte) }}" class="btn btn-sm btn-outline-warning">
+                                                            <a href="{{ route('comptes-financiers.edit', $compte) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
                                                                 <i class="bi bi-pencil"></i>
                                                             </a>
-                                                            @endcan
+                                                            <form method="POST" action="{{ route('comptes-financiers.destroy', $compte) }}" class="d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce compte ?')" title="Supprimer">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </form>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="bi bi-bank display-1 text-muted"></i>
-                                    <p class="text-muted mt-3">Aucun compte financier configuré</p>
-                                    @can('admin')
-                                    <a href="{{ route('comptes-financiers.create') }}" class="btn btn-primary">
-                                        Créer le premier compte
-                                    </a>
-                                    @endcan
                                 </div>
                             @endif
                         </div>

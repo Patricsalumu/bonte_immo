@@ -111,6 +111,18 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="compte_financier_id" class="form-label">Compte à débiter</label>
+                        <select class="form-select @error('compte_financier_id') is-invalid @enderror" id="compte_financier_id" name="compte_financier_id">
+                            <option value="">Sélectionner un compte</option>
+                            @foreach($comptesFinanciers ?? [] as $compte)
+                                <option value="{{ $compte->id }}" {{ old('compte_financier_id') == $compte->id ? 'selected' : '' }}>{{ $compte->nom_compte }}</option>
+                            @endforeach
+                        </select>
+                        @error('compte_financier_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div class="d-flex justify-content-end gap-2">
                         <a href="{{ route('users.index') }}" class="btn btn-secondary">Annuler</a>
                         <button type="submit" class="btn btn-primary">

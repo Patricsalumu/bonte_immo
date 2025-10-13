@@ -112,7 +112,9 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant payé</h6>
-                        <h4 id="stat-montant-paye">{{ number_format($factures->filter(function($f) { return $f->estPayee(); })->sum('montant'), 0, ',', ' ') }} $</h4>
+                        <h4 id="stat-montant-paye">
+                            {{ number_format($factures->flatMap(function($f) { return $f->paiements->where('est_annule', false); })->sum('montant'), 0, ',', ' ') }} $
+                        </h4>
                     </div>
                     <i class="fas fa-money-bill-wave fa-2x"></i>
                 </div>
@@ -125,7 +127,9 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant non payé</h6>
-                        <h4 id="stat-montant-non-paye">{{ number_format($factures->where('statut_paiement', 'non_paye')->sum('montant'), 0, ',', ' ') }} $</h4>
+                        <h4 id="stat-montant-non-paye">
+                            {{ number_format($factures->sum('montant') - $factures->flatMap(function($f) { return $f->paiements->where('est_annule', false); })->sum('montant'), 0, ',', ' ') }} $
+                        </h4>
                     </div>
                     <i class="fas fa-money-bill-alt fa-2x"></i>
                 </div>
@@ -526,7 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Construction du lien PDF public
     const pdfUrl = `${window.location.origin}/public/factures/${numeroFacture}/pdf`;
 
-    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} FCFA\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
+    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
 
     const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
     window.open(urlWhatsApp, '_blank');

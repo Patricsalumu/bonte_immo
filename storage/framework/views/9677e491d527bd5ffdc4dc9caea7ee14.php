@@ -48,7 +48,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Solde Total</h5>
-                                    <h2 class="mb-0"><?php echo e(number_format($soldeTotal, 0, ',', ' ')); ?> FC</h2>
+                                    <h2 class="mb-0"><?php echo e(number_format($soldeTotal, 0, ',', ' ')); ?> $</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="bi bi-wallet2 display-4"></i>
@@ -95,6 +95,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0">Comptes Financiers</h5>
+                            <a href="<?php echo e(route('comptes-financiers.create')); ?>" class="btn btn-primary btn-sm float-end">
+                                <i class="bi bi-plus-circle"></i> Nouveau Compte
+                            </a>
                         </div>
                         <div class="card-body">
                             <?php if($comptes->count() > 0): ?>
@@ -112,7 +115,7 @@
                                         <tbody>
                                             <?php $__currentLoopData = $comptes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $compte): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                                 <tr>
-                                                    <td><strong><?php echo e($compte->nom); ?></strong></td>
+                                                    <td><strong><?php echo e($compte->nom_compte); ?></strong></td>
                                                     <td>
                                                         <?php switch($compte->type):
                                                             case ('caisse'): ?>
@@ -130,36 +133,29 @@
                                                     </td>
                                                     <td>
                                                         <strong class="<?php echo e($compte->solde >= 0 ? 'text-success' : 'text-danger'); ?>">
-                                                            <?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> FC
+                                                            <?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> $
                                                         </strong>
                                                     </td>
                                                     <td><?php echo e($compte->description); ?></td>
                                                     <td>
                                                         <div class="btn-group" role="group">
-                                                            <a href="<?php echo e(route('comptes-financiers.show', $compte)); ?>" class="btn btn-sm btn-outline-info">
+                                                            <a href="<?php echo e(route('comptes-financiers.show', $compte)); ?>" class="btn btn-sm btn-outline-info" title="Voir">
                                                                 <i class="bi bi-eye"></i>
                                                             </a>
-                                                            <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
-                                                            <a href="<?php echo e(route('comptes-financiers.edit', $compte)); ?>" class="btn btn-sm btn-outline-warning">
+                                                            <a href="<?php echo e(route('comptes-financiers.edit', $compte)); ?>" class="btn btn-sm btn-outline-warning" title="Modifier">
                                                                 <i class="bi bi-pencil"></i>
                                                             </a>
-                                                            <?php endif; ?>
+                                                            <form method="POST" action="<?php echo e(route('comptes-financiers.destroy', $compte)); ?>" class="d-inline">
+                                                                <?php echo csrf_field(); ?>
+                                                                <?php echo method_field('DELETE'); ?>
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce compte ?')" title="Supprimer">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </form>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php else: ?>
-                                <div class="text-center py-4">
-                                    <i class="bi bi-bank display-1 text-muted"></i>
-                                    <p class="text-muted mt-3">Aucun compte financier configuré</p>
-                                    <?php if (app(\Illuminate\Contracts\Auth\Access\Gate::class)->check('admin')): ?>
-                                    <a href="<?php echo e(route('comptes-financiers.create')); ?>" class="btn btn-primary">
-                                        Créer le premier compte
-                                    </a>
-                                    <?php endif; ?>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -211,7 +207,7 @@
                                                     <td><?php echo e($mouvement->compteDestination->nom ?? '-'); ?></td>
                                                     <td>
                                                         <strong class="<?php echo e($mouvement->type_mouvement === 'entree' ? 'text-success' : ($mouvement->type_mouvement === 'sortie' ? 'text-danger' : 'text-info')); ?>">
-                                                            <?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> FC
+                                                            <?php echo e(number_format($mouvement->montant, 0, ',', ' ')); ?> $
                                                         </strong>
                                                     </td>
                                                     <td><?php echo e($mouvement->description); ?></td>

@@ -22,7 +22,8 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('users.create');
+        $comptesFinanciers = \App\Models\CompteFinancier::all();
+        return view('users.create', compact('comptesFinanciers'));
     }
 
     public function store(Request $request)
@@ -33,6 +34,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,gestionnaire',
             'actif' => 'boolean',
+            'compte_financier_id' => 'nullable|exists:comptes_financiers,id',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -51,7 +53,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        $comptesFinanciers = \App\Models\CompteFinancier::all();
+        return view('users.edit', compact('user', 'comptesFinanciers'));
     }
 
     public function update(Request $request, User $user)
@@ -62,6 +65,7 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:admin,gestionnaire',
             'actif' => 'boolean',
+            'compte_financier_id' => 'nullable|exists:comptes_financiers,id',
         ]);
 
         if (!empty($validated['password'])) {
