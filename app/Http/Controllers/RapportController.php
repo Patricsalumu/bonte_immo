@@ -7,6 +7,7 @@ use App\Models\Paiement;
 use App\Models\CompteFinancier;
 use App\Models\Appartement;
 use App\Models\Locataire;
+use App\Models\Facture;
 use Illuminate\Http\Request;
 use PDF;
 use Excel;
@@ -20,98 +21,38 @@ class RapportController extends Controller
 
     public function index()
     {
-        // Données simulées pour les statistiques
-        $stats = [
-            'total_immeubles' => 15,
-            'immeubles_actifs' => 12,
-            'total_appartements' => 120,
-            'appartements_disponibles' => 25,
-            'appartements_occupes' => 95,
-            'total_locataires' => 95,
-            'locataires_actifs' => 90,
-            'revenus_mensuels' => 45000000
-        ];
-
-        // Données simulées pour les retards
-        $retards = collect([
-            (object) [
-                'locataire' => (object) ['nom' => 'KASONGO Marie'],
-                'appartement' => (object) ['numero' => 'A12'],
-                'montant' => 350000,
-                'jours_retard' => 15
-            ],
-            (object) [
-                'locataire' => (object) ['nom' => 'MPIANA Jean'],
-                'appartement' => (object) ['numero' => 'B05'],
-                'montant' => 280000,
-                'jours_retard' => 8
-            ]
-        ]);
-
-        // Données simulées pour le top des immeubles
-        $top_immeubles = collect([
-            (object) [
-                'nom' => 'Immeuble Central',
-                'appartements_count' => 24,
-                'revenus' => 8400000
-            ],
-            (object) [
-                'nom' => 'Résidence Moderne',
-                'appartements_count' => 18,
-                'revenus' => 6300000
-            ]
-        ]);
-
-        // Données pour les graphiques
-        $chartData = [
-            'revenus' => [
-                'labels' => ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
-                'data' => [38000000, 42000000, 39000000, 45000000, 47000000, 44000000, 46000000, 48000000, 45000000, 45000000, 43000000, 45000000]
-            ]
-        ];
-
-        return view('rapports.index', compact('stats', 'retards', 'top_immeubles', 'chartData'));
+        // Redirige vers la vue mensuelle par défaut (mois/année courants)
+        $mois = now()->month;
+        $annee = now()->year;
+        return redirect()->route('rapports.mensuel', ['mois' => $mois, 'annee' => $annee]);
     }
 
     public function mensuel(Request $request)
     {
-        $mois = $request->input('mois', now()->month);
-        $annee = $request->input('annee', now()->year);
+    $nomMois = [
+        1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+        5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+        9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+    ];
 
-        // Loyers du mois
-        $loyers = Loyer::with(['appartement.immeuble', 'locataire', 'paiements'])
+    $mois = $request->input('mois', now()->month);
+    $annee = $request->input('annee', now()->year);
+
+        // Factures du mois
+        $factures = Facture::with(['appartement.immeuble', 'locataire', 'paiements'])
             ->where('mois', $mois)
             ->where('annee', $annee)
             ->get();
 
         // Statistiques
         $stats = [
-            'total_loyers' => $loyers->sum('montant'),
-            'loyers_payes' => $loyers->where('statut', 'paye')->sum('montant'),
-            'loyers_impayes' => $loyers->where('statut', 'impaye')->sum('montant'),
-            'loyers_partiels' => $loyers->where('statut', 'partiel')->sum('montant'),
-            'nombre_payes' => $loyers->where('statut', 'paye')->count(),
-            'nombre_impayes' => $loyers->where('statut', 'impaye')->count(),
-            'nombre_partiels' => $loyers->where('statut', 'partiel')->count(),
+            'total_factures' => $factures->sum('montant'),
+            'montant_payes' => $factures->sum('montant_paye'),
+            'reste_a_payer' => $factures->sum('montant') - $factures->sum('montant_paye'),
+            'nombre_factures' => $factures->count(),
         ];
 
-        // Paiements du mois
-        $paiements = Paiement::with(['locataire', 'loyer.appartement'])
-            ->whereHas('loyer', function($query) use ($mois, $annee) {
-                $query->where('mois', $mois)->where('annee', $annee);
-            })
-            ->where('est_annule', false)
-            ->get();
-
-        // Grouper par mode de paiement
-        $paiementsParMode = $paiements->groupBy('mode_paiement')->map(function($group) {
-            return [
-                'nombre' => $group->count(),
-                'montant' => $group->sum('montant')
-            ];
-        });
-
-        return view('rapports.mensuel', compact('loyers', 'paiements', 'stats', 'paiementsParMode', 'mois', 'annee'));
+    return view('rapports.mensuel', compact('factures', 'stats', 'mois', 'annee', 'nomMois'));
     }
 
     public function export(Request $request)
@@ -135,26 +76,33 @@ class RapportController extends Controller
 
     private function exportMensuel($format, $mois, $annee)
     {
-        $loyers = Loyer::with(['appartement.immeuble', 'locataire', 'paiements'])
+        $factures = Facture::with(['appartement.immeuble', 'locataire', 'paiements.utilisateur'])
             ->where('mois', $mois)
             ->where('annee', $annee)
             ->get();
 
-        $stats = [
-            'total_loyers' => $loyers->sum('montant'),
-            'loyers_payes' => $loyers->where('statut', 'paye')->sum('montant'),
-            'loyers_impayes' => $loyers->where('statut', 'impaye')->sum('montant'),
-            'nombre_payes' => $loyers->where('statut', 'paye')->count(),
-            'nombre_impayes' => $loyers->where('statut', 'impaye')->count(),
-        ];
+        // Calculs dynamiques pour chaque facture
+        foreach ($factures as $facture) {
+            $paiementsValides = $facture->paiements->where('est_annule', false);
+            $facture->montant_payes_calc = $paiementsValides->sum('montant');
+            $dernierPaiement = $paiementsValides->sortByDesc('created_at')->first();
+            $facture->date_paiement_calc = $dernierPaiement ? $dernierPaiement->created_at : null;
+            $facture->percepteur_calc = $dernierPaiement && $dernierPaiement->utilisateur ? $dernierPaiement->utilisateur->name : null;
+        }
 
+        $stats = [
+            'total_factures' => $factures->sum('montant'),
+            'montant_payes' => $factures->sum('montant_payes_calc'),
+            'reste_a_payer' => $factures->sum('montant') - $factures->sum('montant_payes_calc'),
+            'nombre_factures' => $factures->count(),
+        ];
         $nomMois = [
             1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
             5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
             9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
         ];
 
-        $data = compact('loyers', 'stats', 'mois', 'annee', 'nomMois');
+        $data = compact('factures', 'stats', 'mois', 'annee', 'nomMois');
 
         if ($format === 'pdf') {
             $pdf = PDF::loadView('rapports.pdf.mensuel', $data);
