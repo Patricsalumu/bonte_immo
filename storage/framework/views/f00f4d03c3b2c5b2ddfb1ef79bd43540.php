@@ -61,7 +61,7 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td><?php echo e(\Carbon\Carbon::parse($locataire->date_entree)->format('d/m/Y')); ?></td>
-                                            <td><?php echo e(number_format($locataire->garantie_initiale, 0, ',', ' ')); ?> FC</td>
+                                            <td><?php echo e(number_format($locataire->garantie_initiale, 0, ',', ' ')); ?> $</td>
                                             <td>
                                                 <?php
                                                     $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();

@@ -47,7 +47,7 @@
                                             <td><strong>{{ $appartement->numero }}</strong></td>
                                             <td>{{ ucfirst($appartement->type) }}</td>
                                             <td>{{ $appartement->surface }} m²</td>
-                                            <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} FC</td>
+                                            <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>
                                             <td>
                                                 @if($appartement->locataire)
                                                     <span class="badge bg-success">

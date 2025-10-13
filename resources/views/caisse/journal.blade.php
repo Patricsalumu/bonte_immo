@@ -114,7 +114,7 @@
             <div class="card text-white bg-success">
                 <div class="card-body">
                     <h6 class="card-title">Total Entrées</h6>
-                    <h4 class="mb-0">{{ number_format($statistiques['total_entrees'], 0, ',', ' ') }} FC</h4>
+                    <h4 class="mb-0">{{ number_format($statistiques['total_entrees'], 0, ',', ' ') }} $</h4>
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@
             <div class="card text-white bg-danger">
                 <div class="card-body">
                     <h6 class="card-title">Total Sorties</h6>
-                    <h4 class="mb-0">{{ number_format($statistiques['total_sorties'], 0, ',', ' ') }} FC</h4>
+                    <h4 class="mb-0">{{ number_format($statistiques['total_sorties'], 0, ',', ' ') }} $</h4>
                 </div>
             </div>
         </div>
@@ -130,7 +130,7 @@
             <div class="card text-white bg-info">
                 <div class="card-body">
                     <h6 class="card-title">Total Transferts</h6>
-                    <h4 class="mb-0">{{ number_format($statistiques['total_transferts'], 0, ',', ' ') }} FC</h4>
+                    <h4 class="mb-0">{{ number_format($statistiques['total_transferts'], 0, ',', ' ') }} $</h4>
                 </div>
             </div>
         </div>
@@ -138,7 +138,7 @@
             <div class="card text-white bg-primary">
                 <div class="card-body">
                     <h6 class="card-title">Solde Net</h6>
-                    <h4 class="mb-0">{{ number_format($statistiques['solde_net'], 0, ',', ' ') }} FC</h4>
+                    <h4 class="mb-0">{{ number_format($statistiques['solde_net'], 0, ',', ' ') }} $</h4>
                 </div>
             </div>
         </div>
@@ -199,9 +199,9 @@
                                     </td>
                                     <td class="text-end">
                                         @if($mouvement->type_mouvement == 'entree')
-                                            <span class="text-success">+{{ number_format($mouvement->montant, 0, ',', ' ') }} FC</span>
+                                            <span class="text-success">+{{ number_format($mouvement->montant, 0, ',', ' ') }} $</span>
                                         @else
-                                            <span class="text-danger">-{{ number_format($mouvement->montant, 0, ',', ' ') }} FC</span>
+                                            <span class="text-danger">-{{ number_format($mouvement->montant, 0, ',', ' ') }} $</span>
                                         @endif
                                     </td>
                                     <td class="text-end">
@@ -209,7 +209,7 @@
                                             $compte = $mouvement->type_mouvement == 'entree' ? $mouvement->compteDestination : $mouvement->compteSource;
                                         @endphp
                                         @if($compte)
-                                            <strong>{{ number_format($compte->solde, 0, ',', ' ') }} FC</strong>
+                                            <strong>{{ number_format($compte->solde, 0, ',', ' ') }} $</strong>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -284,7 +284,7 @@
                                 <option value="">Sélectionnez le compte source</option>
                                 @foreach($comptes as $compte)
                                     <option value="{{ $compte->id }}">
-                                        {{ $compte->nom }} ({{ number_format($compte->solde, 0, ',', ' ') }} FC)
+                                        {{ $compte->nom }} ({{ number_format($compte->solde, 0, ',', ' ') }} $)
                                     </option>
                                 @endforeach
                             </select>
@@ -301,7 +301,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="montant" class="form-label">Montant (FC)</label>
+                            <label for="montant" class="form-label">Montant ($)</label>
                             <input type="number" class="form-control" id="montant" name="montant" 
                                    step="0.01" min="0.01" required>
                         </div>

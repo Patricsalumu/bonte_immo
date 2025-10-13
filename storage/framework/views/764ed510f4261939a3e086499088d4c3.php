@@ -58,7 +58,8 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Non payées</h6>
-                        <h4 id="stat-non-payees"><?php echo e($factures->where('statut_paiement', 'non_paye')->count()); ?></h4>
+                        <h4 id="stat-non-payees"><?php echo e($factures->where('statut_paiement', 'non_paye')->count() 
+                            + $factures->where('statut_paiement', 'partielle')->count()); ?></h4>
                     </div>
                     <i class="fas fa-clock fa-2x"></i>
                 </div>
@@ -100,7 +101,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant total</h6>
-                        <h4 id="stat-montant-total"><?php echo e(number_format($factures->sum('montant'), 0, ',', ' ')); ?> CDF</h4>
+                        <h4 id="stat-montant-total"><?php echo e(number_format($factures->sum('montant'), 0, ',', ' ')); ?> $</h4>
                     </div>
                     <i class="fas fa-dollar-sign fa-2x"></i>
                 </div>
@@ -113,7 +114,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant payé</h6>
-                        <h4 id="stat-montant-paye"><?php echo e(number_format($factures->filter(function($f) { return $f->estPayee(); })->sum('montant'), 0, ',', ' ')); ?> CDF</h4>
+                        <h4 id="stat-montant-paye"><?php echo e(number_format($factures->filter(function($f) { return $f->estPayee(); })->sum('montant'), 0, ',', ' ')); ?> $</h4>
                     </div>
                     <i class="fas fa-money-bill-wave fa-2x"></i>
                 </div>
@@ -126,7 +127,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant non payé</h6>
-                        <h4 id="stat-montant-non-paye"><?php echo e(number_format($factures->where('statut_paiement', 'non_paye')->sum('montant'), 0, ',', ' ')); ?> CDF</h4>
+                        <h4 id="stat-montant-non-paye"><?php echo e(number_format($factures->where('statut_paiement', 'non_paye')->sum('montant'), 0, ',', ' ')); ?> $</h4>
                     </div>
                     <i class="fas fa-money-bill-alt fa-2x"></i>
                 </div>
@@ -150,6 +151,7 @@
                 <select id="filtreStatut" class="form-select">
                     <option value="">Tous les statuts</option>
                     <option value="non_paye">Non payées</option>
+                    <option value="partielle">Partielles</option>
                     <option value="paye">Payées</option>
                     <option value="en_retard">En retard</option>
                 </select>
@@ -215,23 +217,25 @@
                                 <small class="text-muted">Échéance: <?php echo e($facture->date_echeance->format('d/m/Y')); ?></small>
                             </td>
                             <td>
-                                <strong><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> CDF</strong>
+                                <strong><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> $</strong>
                                 <?php if($facture->montant_paye > 0): ?>
                                     <br>
-                                    <small class="text-success">Payé: <?php echo e(number_format($facture->montant_paye, 0, ',', ' ')); ?> CDF</small>
+                                    <small class="text-success">Payé: <?php echo e(number_format($facture->montant_paye, 0, ',', ' ')); ?> $</small>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php if($facture->estPayee()): ?>
-                                    <span class="badge bg-success">Payée</span>
-                                <?php elseif($facture->estPartielementPayee()): ?>
-                                    <span class="badge bg-warning">Partielle</span>
-                                <?php elseif($facture->estEnRetard()): ?>
-                                    <span class="badge bg-danger">En retard</span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Non payée</span>
-                                <?php endif; ?>
+                                    <?php
+                                        $montantPaye = $facture->paiements->sum('montant');
+                                    ?>
+                                    <?php if($montantPaye >= $facture->montant): ?>
+                                        <span class="badge bg-success">Payée</span>
+                                    <?php elseif($montantPaye > 0): ?>
+                                        <span class="badge bg-warning">Partielle</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Non payée</span>
+                                    <?php endif; ?>
                             </td>
+                            
                             <td>
                                 <div class="btn-group" role="group">
                                     <!-- Bouton PDF -->
@@ -264,7 +268,7 @@
                                                 data-bs-target="#modalPaiement<?php echo e($facture->id); ?>">
                                             <i class="fas fa-credit-card"></i> Payer
                                             <?php if($facture->montantPaye() > 0): ?>
-                                                <small>(<?php echo e(number_format($facture->montantRestant(), 0, ',', ' ')); ?> CDF restant)</small>
+                                                <small>(<?php echo e(number_format($facture->montantRestant(), 0, ',', ' ')); ?> $ restant)</small>
                                             <?php endif; ?>
                                         </button>
                                     <?php endif; ?>
@@ -296,7 +300,7 @@
                                                                data-montant-restant="<?php echo e($facture->montant - $facture->montantPaye()); ?>"
                                                                step="0.01" required>
                                                         <div class="form-text">
-                                                            Montant restant: <?php echo e(number_format($facture->montant - $facture->montantPaye(), 0, ',', ' ')); ?> CDF
+                                                            Montant restant: <?php echo e(number_format($facture->montant - $facture->montantPaye(), 0, ',', ' ')); ?> $
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
@@ -307,12 +311,12 @@
                                                             <option value="virement">Virement bancaire</option>
                                                             <option value="mobile_money">Mobile Money</option>
                                                             <option value="garantie_locative">
-                                                                Garantie locative (<?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> CDF disponible)
+                                                                Garantie locative (<?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> $ disponible)
                                                             </option>
                                                         </select>
                                                         <div class="form-text" id="garantie-info-<?php echo e($facture->id); ?>" style="display: none;">
                                                             <i class="fas fa-info-circle text-info"></i>
-                                                            Garantie locative disponible : <strong><?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> CDF</strong>
+                                                            Garantie locative disponible : <strong><?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> $</strong>
                                                         </div>
                                                     </div>
                                                     <div class="mb-3">
@@ -518,26 +522,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // === FONCTION WHATSAPP ===
     window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance) {
-        const numeroClean = telephone.replace(/[^\d+]/g, '');
-        const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
-        const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
-        
-        const message = `Bonjour ${civilite} ${nomComplet},
+    const numeroClean = telephone.replace(/[^\d+]/g, '');
+    const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
+    const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
 
-Une facture a été générée à votre nom.
+    // Construction du lien PDF public
+    const pdfUrl = `${window.location.origin}/public/factures/${numeroFacture}/pdf`;
 
-📄 Numéro de facture : ${numeroFacture}
-💰 Montant : ${montant} FCFA
-📅 Mois du loyer : ${mois}
-⏰ Date d'échéance : ${echeance}
+    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} FCFA\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
 
-Merci de procéder au règlement avant la date d'échéance. La facture PDF sera jointe à ce message.
-
-Cordialement,
-La Bonte Immo`;
-        
-        const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
-        window.open(urlWhatsApp, '_blank');
+    const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
+    window.open(urlWhatsApp, '_blank');
     };
 
     // === NOUVELLE FONCTION WHATSAPP AVEC DATA ATTRIBUTES ===
@@ -594,7 +589,7 @@ La Bonte Immo`;
                         
                         // Extraire le montant de garantie disponible depuis le texte de l'option
                         const optionText = this.selectedOptions[0].textContent;
-                        const garantieMatch = optionText.match(/\(([0-9\s,]+)\s+CDF/);
+                        const garantieMatch = optionText.match(/\(([0-9\s,]+)\s+$/);
                         
                         if (garantieMatch) {
                             const garantieDisponible = parseFloat(garantieMatch[1].replace(/[\s,]/g, ''));

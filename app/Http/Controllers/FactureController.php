@@ -17,6 +17,28 @@ use Carbon\Carbon;
 class FactureController extends Controller
 {
     /**
+     * Exporter une facture en PDF (public, sans authentification)
+     */
+    public function exportPdfPublic(Facture $facture)
+    {
+        $facture->load(['locataire', 'loyer.appartement.immeuble']);
+        $data = [
+            'facture' => $facture,
+            'entreprise' => [
+                'nom' => 'La Bonte Immo',
+                'adresse' => 'Avenue de la révolution, Q. Industriel C. Lshi',
+                'telephone' => '+243 000 000 000',
+                'email' => 'contact@labonteimmo.cd'
+            ],
+            'date_generation' => now()->format('d/m/Y H:i')
+        ];
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('factures.pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+        $filename = "facture_{$facture->numero_facture}.pdf";
+        return $pdf->download($filename);
+    }
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -118,6 +140,24 @@ class FactureController extends Controller
         if ($existante) {
             return back()->withErrors(['error' => 'Une facture existe déjà pour cette période.']);
         }
+
+        // Après création de la facture, envoyer le message WhatsApp personnalisé au locataire
+        // (exemple pour une facture non payée)
+        // ... Création de la facture ...
+        // Supposons $facture est la nouvelle facture créée
+        // Personnalisation du message WhatsApp
+        // (À placer après la création effective de la facture)
+        /*
+        $pdfUrl = url("public/factures/{$facture->id}/pdf");
+        $messageWhatsApp = "Bonjour Mr/Mme {$facture->locataire->nom},\n\n";
+        $messageWhatsApp .= "Votre facture de loyer n°{$facture->numero_facture} pour la période {$facture->getMoisNom()} {$facture->annee} a été générée.\n\n";
+        $messageWhatsApp .= "Montant à payer : " . number_format($facture->montant, 0, ',', ' ') . " CDF\n";
+        $messageWhatsApp .= "Date d'échéance : {$facture->date_echeance->format('d/m/Y')}\n\n";
+        $messageWhatsApp .= "Vous pouvez télécharger votre facture à tout moment sur le lien suivant :\n{$pdfUrl}\n\n";
+        $messageWhatsApp .= "Merci de procéder au règlement avant la date d'échéance.\n\n";
+        $messageWhatsApp .= "Cordialement,\nL'équipe La Bonte Immo";
+        // ... Générer le lien WhatsApp et l'envoyer au locataire ...
+        */
 
         $loyer = Loyer::findOrFail($request->loyer_id);
 
@@ -237,8 +277,8 @@ class FactureController extends Controller
                     DB::rollback();
                     return redirect()->back()->withErrors([
                         'error' => 'Garantie locative insuffisante. Disponible : ' . 
-                                 number_format($loyer->garantie_locative, 0, ',', ' ') . ' CDF, ' .
-                                 'Demandé : ' . number_format($montantPaye, 0, ',', ' ') . ' CDF'
+                                 number_format($loyer->garantie_locative, 0, ',', ' ') . ' $, ' .
+                                 'Demandé : ' . number_format($montantPaye, 0, ',', ' ') . ' $'
                     ]);
                 }
                 
@@ -299,7 +339,11 @@ class FactureController extends Controller
                 } else {
                     $nouveauStatut = 'paye';
                 }
-            } else {
+            }
+            else if ($nouveauMontantPaye>0){
+                $nouveauStatut = 'partielle';
+            } 
+            else {
                 // Facture partiellement payée - rester en 'non_paye'
                 $nouveauStatut = 'non_paye';
             }
@@ -352,25 +396,31 @@ class FactureController extends Controller
             $resteAPayer = $facture->montant - $montantTotalPaye;
             
             // Créer le message WhatsApp personnalisé
+
             $utilisateur = auth()->user();
             $dateFormatee = now()->format('d/m/Y');
             $moisFacture = $facture->mois . ' ' . $facture->annee;
-            
+
+            // Générer le lien public vers le PDF
+
+            $pdfUrl = url("public/factures/{$facture->id}/pdf");
+
             $messageWhatsApp = "Bonjour Mr/Mme {$facture->locataire->nom},\n\n";
             $messageWhatsApp .= "Nous vous confirmons un paiement de " . number_format($montantPaye, 0, ',', ' ') . " CDF ";
             $messageWhatsApp .= "qui a été enregistré le {$dateFormatee} par {$utilisateur->name} ";
-            $messageWhatsApp .= "pour le compte de la facture n°{$facture->numero_facture} - {$moisFacture}.\n\n";
+            $messageWhatsApp .= "pour la facture n°{$facture->numero_facture} - {$moisFacture}.\n\n";
             $messageWhatsApp .= "Numéro facture : {$facture->numero_facture}\n";
             $messageWhatsApp .= "Reste à payer : " . number_format($resteAPayer, 0, ',', ' ') . " CDF\n\n";
-            
+            $messageWhatsApp .= "Vous pouvez télécharger votre facture à tout moment sur le lien suivant :\n{$pdfUrl}\n\n";
+
             if ($resteAPayer <= 0) {
                 $messageWhatsApp .= "Votre facture a été complètement réglée. ✅\n\n";
             } else {
                 $messageWhatsApp .= "Votre facture est partiellement réglée.\n\n";
             }
-            
-            $messageWhatsApp .= "Cordialement,\nÉquipe La Bonte Immo";
-            
+
+            $messageWhatsApp .= "Cordialement,\nL'équipe La Bonte Immo";
+
             // Encoder le message pour WhatsApp
             $messageEncoded = urlencode($messageWhatsApp);
             $numeroWhatsapp = $facture->locataire->telephone ?? '';

@@ -65,7 +65,7 @@
                                             data-garantie="{{ $appartement->garantie_locative }}"
                                             {{ old('appartement_id') == $appartement->id ? 'selected' : '' }}>
                                         {{ $appartement->immeuble->nom }} - Apt {{ $appartement->numero }} ({{ $appartement->type }})
-                                        - {{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} CDF/mois
+                                        - {{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $/mois
                                     </option>
                                 @endforeach
                             </select>
@@ -106,7 +106,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="montant" class="form-label">Montant du loyer (CDF) <span class="text-danger">*</span></label>
+                            <label for="montant" class="form-label">Montant du loyer ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control @error('montant') is-invalid @enderror" 
                                    id="montant" 
@@ -121,7 +121,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="garantie_locative" class="form-label">Garantie locative (CDF)</label>
+                            <label for="garantie_locative" class="form-label">Garantie locative ($)</label>
                             <input type="number" 
                                    class="form-control @error('garantie_locative') is-invalid @enderror" 
                                    id="garantie_locative" 
@@ -205,8 +205,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 apartmentInfo.innerHTML = `
-                    <p><strong>Loyer suggéré:</strong> ${Number(loyer).toLocaleString()} CDF</p>
-                    <p><strong>Garantie suggérée:</strong> ${Number(garantie).toLocaleString()} CDF</p>
+                    <p><strong>Loyer suggéré:</strong> ${Number(loyer).toLocaleString()} $</p>
+                    <p><strong>Garantie suggérée:</strong> ${Number(garantie).toLocaleString()} $</p>
                 `;
                 apartmentDetails.style.display = 'block';
             } else {

@@ -46,7 +46,7 @@
                                             <td>{{ $immeuble->adresse }}</td>
                                             <td>
                                                 <span class="badge bg-info">
-                                                    {{ $immeuble->appartements_count ?? 0 }} appartements
+                                                    {{ $immeuble->appartements->count() }} appartements
                                                 </span>
                                             </td>
                                             <td>{{ $immeuble->gestionnaire ?? 'Non assigné' }}</td>
@@ -68,7 +68,7 @@
                     @else
                         <div class="text-center py-4">
                             <i class="bi bi-building display-1 text-muted"></i>
-                            <p class="text-muted mt-3">Aucun immeuble enregistré</p>
+                            <p class="text-muted mt-
                             <a href="{{ route('immeubles.create') }}" class="btn btn-primary">
                                 Créer le premier immeuble
                             </a>

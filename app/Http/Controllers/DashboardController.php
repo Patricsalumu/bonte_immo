@@ -54,12 +54,12 @@ class DashboardController extends Controller
             
             $facturesPayees = Facture::where('mois', $mois)
                 ->where('annee', $annee)
-                ->where('statut_paiement', 'paye')
+                ->where('statut_paiement', '!=','non_paye')
                 ->sum('montant');
                 
             $facturesImpayees = Facture::where('mois', $mois)
                 ->where('annee', $annee)
-                ->where('statut_paiement', '!=', 'paye')
+                ->where('statut_paiement',  'non_paye')
                 ->sum('montant');
             
             $graphiqueData[] = [

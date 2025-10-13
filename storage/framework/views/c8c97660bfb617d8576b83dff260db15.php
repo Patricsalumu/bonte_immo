@@ -106,7 +106,7 @@
                                 <td><strong>Revenu mensuel :</strong></td>
                                 <td>
                                     <?php if($locataire->revenu_mensuel): ?>
-                                        <?php echo e(number_format($locataire->revenu_mensuel, 0, ',', ' ')); ?> CDF
+                                        <?php echo e(number_format($locataire->revenu_mensuel, 0, ',', ' ')); ?> $
                                     <?php else: ?>
                                         Non renseigné
                                     <?php endif; ?>
@@ -183,7 +183,7 @@
                             </tr>
                             <tr>
                                 <td><strong>Loyer mensuel :</strong></td>
-                                <td><span class="fw-bold text-success"><?php echo e(number_format($locataire->appartement->loyer_mensuel, 0, ',', ' ')); ?> CDF</span></td>
+                                <td><span class="fw-bold text-success"><?php echo e(number_format($locataire->appartement->loyer_mensuel, 0, ',', ' ')); ?> $</span></td>
                             </tr>
                         </table>
                     </div>
@@ -194,12 +194,6 @@
 
         <!-- Historique des paiements -->
         <div class="card mt-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Historique des paiements</h5>
-                <a href="<?php echo e(route('paiements.create', ['locataire_id' => $locataire->id])); ?>" class="btn btn-sm btn-success">
-                    <i class="fas fa-plus"></i> Nouveau paiement
-                </a>
-            </div>
             <div class="card-body">
                 <?php
                     $paiements = $locataire->paiements()->with(['facture', 'utilisateur'])->orderByDesc('date_paiement')->get();
@@ -331,12 +325,12 @@
                 <div class="row">
                     <div class="col-12 mb-2">
                         <small class="text-muted">Capacité de paiement estimée :</small>
-                        <div class="fw-bold"><?php echo e(number_format($locataire->revenu_mensuel * 0.33, 0, ',', ' ')); ?> CDF</div>
+                        <div class="fw-bold"><?php echo e(number_format($locataire->revenu_mensuel * 0.33, 0, ',', ' ')); ?> $</div>
                     </div>
                     <?php if($loyerMensuel > 0): ?>
                     <div class="col-12 mb-2">
                         <small class="text-muted">Reste à vivre :</small>
-                        <div class="fw-bold"><?php echo e(number_format($locataire->revenu_mensuel - $loyerMensuel, 0, ',', ' ')); ?> CDF</div>
+                        <div class="fw-bold"><?php echo e(number_format($locataire->revenu_mensuel - $loyerMensuel, 0, ',', ' ')); ?> $</div>
                     </div>
                     <?php endif; ?>
                 </div>

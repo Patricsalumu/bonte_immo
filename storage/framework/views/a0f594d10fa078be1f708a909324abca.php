@@ -183,17 +183,20 @@
                                 <tr>
                                     <td><?php echo e($facture->created_at->format('d/m/Y')); ?></td>
                                     <td><?php echo e(str_pad($facture->mois, 2, '0', STR_PAD_LEFT)); ?>/<?php echo e($facture->annee); ?></td>
-                                    <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> FC</td>
+                                    <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> $</td>
                                     <td>
-                                        <?php if($facture->statut_paiement === 'payee'): ?>
+                                        <?php if($facture->statut_paiement === 'paye'): ?>
                                             <span class="badge bg-success">Payée</span>
+                                        <?php elseif($facture->statut_paiement === 'paye_en_retard'): ?>
+                                            <span class="badge bg-success">Payée en retard</span>
+
                                         <?php elseif($facture->statut_paiement === 'partielle'): ?>
                                             <span class="badge bg-warning">Partielle</span>
                                         <?php else: ?>
                                             <span class="badge bg-danger">Non payée</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo e(number_format($facture->paiements->sum('montant'), 0, ',', ' ')); ?> FC</td>
+                                    <td><?php echo e(number_format($facture->paiements->sum('montant'), 0, ',', ' ')); ?> $</td>
                                     <td>
                                         <a href="<?php echo e(route('factures.show', $facture)); ?>" class="btn btn-sm btn-outline-info">
                                             <i class="fas fa-eye"></i>
@@ -233,22 +236,29 @@
                 <h6 class="mb-0">Résumé financier</h6>
             </div>
             <div class="card-body">
+                <?php
+                    $totalPaye = 0;
+                    $totalDu = 0;
+                    $factures = $appartement->loyers->flatMap->factures;
+                    $totalPaye = $factures->flatMap->paiements->sum('montant');
+                    $totalDu = $factures->count() * $appartement->loyer_mensuel;
+                ?>
                 <div class="row text-center">
                     <div class="col-12 mb-3">
                         <div class="border rounded p-3 bg-light">
                             <h4 class="text-success mb-0"><?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?></h4>
-                            <small class="text-muted">FC/mois</small>
+                            <small class="text-muted">$/mois</small>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <div class="border rounded p-3">
-                            <h5 class="text-primary mb-0"><?php echo e(number_format($montantTotalPaye ?? 0, 0, ',', ' ')); ?></h5>
+                            <h5 class="text-primary mb-0"><?php echo e(number_format($totalPaye, 0, ',', ' ')); ?></h5>
                             <small class="text-muted">Total Payé</small>
                         </div>
                     </div>
                     <div class="col-6 mb-3">
                         <div class="border rounded p-3">
-                            <h5 class="text-danger mb-0"><?php echo e(number_format($montantTotalDu ?? 0, 0, ',', ' ')); ?></h5>
+                            <h5 class="text-danger mb-0"><?php echo e(number_format($totalDu, 0, ',', ' ')); ?></h5>
                             <small class="text-muted">Total Dû</small>
                         </div>
                     </div>

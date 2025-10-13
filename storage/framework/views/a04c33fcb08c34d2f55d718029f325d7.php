@@ -47,7 +47,7 @@
                                             <td><?php echo e($immeuble->adresse); ?></td>
                                             <td>
                                                 <span class="badge bg-info">
-                                                    <?php echo e($immeuble->appartements_count ?? 0); ?> appartements
+                                                    <?php echo e($immeuble->appartements->count()); ?> appartements
                                                 </span>
                                             </td>
                                             <td><?php echo e($immeuble->gestionnaire ?? 'Non assigné'); ?></td>
@@ -69,7 +69,7 @@
                     <?php else: ?>
                         <div class="text-center py-4">
                             <i class="bi bi-building display-1 text-muted"></i>
-                            <p class="text-muted mt-3">Aucun immeuble enregistré</p>
+                            <p class="text-muted mt-
                             <a href="<?php echo e(route('immeubles.create')); ?>" class="btn btn-primary">
                                 Créer le premier immeuble
                             </a>

@@ -60,7 +60,7 @@
                                                     <span class="text-muted">N/A</span>
                                                 @endif
                                             </td>
-                                            <td>{{ number_format($loyer->montant, 0, ',', ' ') }} CDF</td>
+                                            <td>{{ number_format($loyer->montant, 0, ',', ' ') }} $</td>
                                             <td>
                                                 <div>
                                                     <small class="text-muted">Du:</small> {{ $loyer->date_debut->format('d/m/Y') }}<br>

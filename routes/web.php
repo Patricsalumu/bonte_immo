@@ -21,6 +21,7 @@ use App\Http\Controllers\RapportController;
 |--------------------------------------------------------------------------
 */
 
+
 // Routes publiques
 Route::get('/', function () {
     return redirect('/login');
@@ -29,6 +30,9 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Route publique pour téléchargement PDF facture
+Route::get('public/factures/{facture}/pdf', [FactureController::class, 'exportPdfPublic'])->name('factures.export-pdf-public');
 
 // Routes protégées par authentification
 Route::middleware(['auth'])->group(function () {

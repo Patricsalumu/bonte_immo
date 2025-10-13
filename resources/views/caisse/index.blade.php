@@ -47,7 +47,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h5 class="card-title">Solde Total</h5>
-                                    <h2 class="mb-0">{{ number_format($soldeTotal, 0, ',', ' ') }} FC</h2>
+                                    <h2 class="mb-0">{{ number_format($soldeTotal, 0, ',', ' ') }} $</h2>
                                 </div>
                                 <div class="align-self-center">
                                     <i class="bi bi-wallet2 display-4"></i>
@@ -129,7 +129,7 @@
                                                     </td>
                                                     <td>
                                                         <strong class="{{ $compte->solde >= 0 ? 'text-success' : 'text-danger' }}">
-                                                            {{ number_format($compte->solde, 0, ',', ' ') }} FC
+                                                            {{ number_format($compte->solde, 0, ',', ' ') }} $
                                                         </strong>
                                                     </td>
                                                     <td>{{ $compte->description }}</td>
@@ -210,7 +210,7 @@
                                                     <td>{{ $mouvement->compteDestination->nom ?? '-' }}</td>
                                                     <td>
                                                         <strong class="{{ $mouvement->type_mouvement === 'entree' ? 'text-success' : ($mouvement->type_mouvement === 'sortie' ? 'text-danger' : 'text-info') }}">
-                                                            {{ number_format($mouvement->montant, 0, ',', ' ') }} FC
+                                                            {{ number_format($mouvement->montant, 0, ',', ' ') }} $
                                                         </strong>
                                                     </td>
                                                     <td>{{ $mouvement->description }}</td>

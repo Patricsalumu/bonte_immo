@@ -72,7 +72,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="montant" class="form-label">Montant du loyer (CDF) <span class="text-danger">*</span></label>
+                            <label for="montant" class="form-label">Montant du loyer ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control @error('montant') is-invalid @enderror" 
                                    id="montant" 
@@ -87,7 +87,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="garantie_locative" class="form-label">Garantie locative (CDF)</label>
+                            <label for="garantie_locative" class="form-label">Garantie locative ($)</label>
                             <input type="number" 
                                    class="form-control @error('garantie_locative') is-invalid @enderror" 
                                    id="garantie_locative" 

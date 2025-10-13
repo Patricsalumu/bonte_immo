@@ -21,7 +21,7 @@
                         </tr>
                         <tr>
                             <td><strong>Montant :</strong></td>
-                            <td>{{ number_format($facture->montant, 0, ',', ' ') }} FC</td>
+                            <td>{{ number_format($facture->montant, 0, ',', ' ') }} $</td>
                         </tr>
                         <tr>
                             <td><strong>Statut :</strong></td>
@@ -95,7 +95,7 @@
                                 @foreach($facture->paiements as $paiement)
                                 <tr>
                                     <td>{{ $paiement->date_paiement ? $paiement->date_paiement->format('d/m/Y') : '-' }}</td>
-                                    <td>{{ number_format($paiement->montant, 0, ',', ' ') }} FC</td>
+                                    <td>{{ number_format($paiement->montant, 0, ',', ' ') }} $</td>
                                     <td>{{ ucfirst($paiement->mode_paiement) }}</td>
                                     <td>{{ $paiement->reference ?? '-' }}</td>
                                     <td>{{ $paiement->notes ?? '-' }}</td>

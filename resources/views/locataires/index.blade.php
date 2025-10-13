@@ -59,7 +59,7 @@
                                                 @endif
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($locataire->date_entree)->format('d/m/Y') }}</td>
-                                            <td>{{ number_format($locataire->garantie_initiale, 0, ',', ' ') }} FC</td>
+                                            <td>{{ number_format($locataire->garantie_initiale, 0, ',', ' ') }} $</td>
                                             <td>
                                                 @php
                                                     $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();

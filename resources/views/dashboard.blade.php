@@ -54,7 +54,7 @@
         <div class="stats-card p-4 text-center">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h3 class="text-success mb-1">{{ number_format($recettesMois, 0, ',', ' ') }} CDF</h3>
+                    <h3 class="text-success mb-1">{{ number_format($recettesMois, 0, ',', ' ') }} $</h3>
                     <p class="text-muted mb-0">Recettes du Mois</p>
                 </div>
                 <i class="bi bi-currency-dollar text-success" style="font-size: 2.5rem;"></i>
@@ -103,8 +103,8 @@
             </div>
             <div class="card-body">
                 @if($facturesImpayees > 0)
-                    <p class="text-warning mb-3">{{ $facturesImpayees }} facture(s) non payée(s) ce mois.</p>
-                    <a href="{{ route('factures.index', ['statut' => 'impayee']) }}" class="btn btn-warning btn-custom">
+                    <p class="text-warning mb-3">{{ number_format($facturesImpayees, 0, ',', ' ') }} facture(s) non payée(s) ce mois.</p>
+                    <a href="#" class="btn btn-warning btn-custom">
                         <i class="bi bi-eye"></i> Voir les détails
                     </a>
                 @else
@@ -136,7 +136,7 @@
                                     <h6 class="mb-1">{{ $paiement->locataire->nom }}</h6>
                                     <small class="text-muted">
                                         {{ $paiement->loyer->appartement->numero ?? 'N/A' }} - 
-                                        {{ number_format($paiement->montant, 0, ',', ' ') }} CDF
+                                        {{ number_format($paiement->montant, 0, ',', ' ') }} $
                                     </small>
                                 </div>
                                 <small class="text-muted">{{ $paiement->date_paiement->format('d/m') }}</small>
@@ -192,7 +192,7 @@
                                 </div>
                                 <div class="text-end">
                                     <span class="badge bg-primary">
-                                        {{ number_format($contrat['garantie_restante'], 0, ',', ' ') }} CDF
+                                        {{ number_format($contrat['garantie_restante'], 0, ',', ' ') }} $
                                     </span>
                                 </div>
                             </div>
@@ -243,7 +243,7 @@
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return new Intl.NumberFormat('fr-FR').format(value) + ' CDF';
+                            return new Intl.NumberFormat('fr-FR').format(value) + ' $';
                         }
                     }
                 }
@@ -256,7 +256,7 @@
                     callbacks: {
                         label: function(context) {
                             return context.dataset.label + ': ' + 
-                                   new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' CDF';
+                                   new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' $';
                         }
                     }
                 }

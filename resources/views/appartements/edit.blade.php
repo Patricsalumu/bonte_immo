@@ -99,7 +99,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="loyer_mensuel" class="form-label">Loyer mensuel (CDF) <span class="text-danger">*</span></label>
+                            <label for="loyer_mensuel" class="form-label">Loyer mensuel ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control @error('loyer_mensuel') is-invalid @enderror" 
                                    id="loyer_mensuel" 
@@ -113,7 +113,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label for="garantie_locative" class="form-label">Garantie locative (CDF) <span class="text-danger">*</span></label>
+                            <label for="garantie_locative" class="form-label">Garantie locative ($) <span class="text-danger">*</span></label>
                             <input type="number" 
                                    class="form-control @error('garantie_locative') is-invalid @enderror" 
                                    id="garantie_locative" 
@@ -241,14 +241,14 @@ function calculateValues() {
     // Prix au m²
     if (superficie > 0) {
         const prixM2 = loyer / superficie;
-        document.getElementById('prix_m2').textContent = prixM2.toFixed(0) + ' CDF/m²';
+        document.getElementById('prix_m2').textContent = prixM2.toFixed(0) + ' $/m²';
     } else {
         document.getElementById('prix_m2').textContent = '-';
     }
     
     // Garantie recommandée
     const garantieRecommandee = loyer * 2;
-    document.getElementById('garantie_recommandee').textContent = garantieRecommandee.toLocaleString() + ' CDF';
+    document.getElementById('garantie_recommandee').textContent = garantieRecommandee.toLocaleString() + ' $';
     
     // Suggérer la garantie
     const garantieInput = document.getElementById('garantie_locative');

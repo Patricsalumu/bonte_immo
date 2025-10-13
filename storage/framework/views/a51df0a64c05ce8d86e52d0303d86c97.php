@@ -21,7 +21,7 @@
                         </tr>
                         <tr>
                             <td><strong>Montant :</strong></td>
-                            <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> FC</td>
+                            <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> $</td>
                         </tr>
                         <tr>
                             <td><strong>Statut :</strong></td>
@@ -97,7 +97,7 @@
                                 <?php $__currentLoopData = $facture->paiements; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paiement): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td><?php echo e($paiement->date_paiement ? $paiement->date_paiement->format('d/m/Y') : '-'); ?></td>
-                                    <td><?php echo e(number_format($paiement->montant, 0, ',', ' ')); ?> FC</td>
+                                    <td><?php echo e(number_format($paiement->montant, 0, ',', ' ')); ?> $</td>
                                     <td><?php echo e(ucfirst($paiement->mode_paiement)); ?></td>
                                     <td><?php echo e($paiement->reference ?? '-'); ?></td>
                                     <td><?php echo e($paiement->notes ?? '-'); ?></td>

@@ -48,7 +48,7 @@
                                             <td><strong><?php echo e($appartement->numero); ?></strong></td>
                                             <td><?php echo e(ucfirst($appartement->type)); ?></td>
                                             <td><?php echo e($appartement->surface); ?> m²</td>
-                                            <td><?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?> FC</td>
+                                            <td><?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?> $</td>
                                             <td>
                                                 <?php if($appartement->locataire): ?>
                                                     <span class="badge bg-success">

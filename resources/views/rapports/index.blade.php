@@ -80,7 +80,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Revenus Mensuels</h6>
-                        <h3 class="mb-0">{{ number_format($stats['revenus_mensuels'] ?? 0, 0, ',', ' ') }} CDF</h3>
+                        <h3 class="mb-0">{{ number_format($stats['revenus_mensuels'] ?? 0, 0, ',', ' ') }} $</h3>
                         <small>Ce mois</small>
                     </div>
                     <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
@@ -144,7 +144,7 @@
                                 <tr>
                                     <td>{{ $retard->locataire->nom ?? 'N/A' }}</td>
                                     <td>{{ $retard->appartement->numero ?? 'N/A' }}</td>
-                                    <td>{{ number_format($retard->montant ?? 0, 0, ',', ' ') }} CDF</td>
+                                    <td>{{ number_format($retard->montant ?? 0, 0, ',', ' ') }} $</td>
                                     <td>
                                         <span class="badge bg-danger">
                                             {{ $retard->jours_retard ?? 0 }} jours
@@ -189,7 +189,7 @@
                                     <td>{{ $immeuble->nom ?? 'N/A' }}</td>
                                     <td>{{ $immeuble->appartements_count ?? 0 }}</td>
                                     <td>
-                                        <strong>{{ number_format($immeuble->revenus ?? 0, 0, ',', ' ') }} CDF</strong>
+                                        <strong>{{ number_format($immeuble->revenus ?? 0, 0, ',', ' ') }} $</strong>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: @json($chartData['revenus']['labels'] ?? []),
             datasets: [{
-                label: 'Revenus (CDF)',
+                label: 'Revenus ($)',
                 data: @json($chartData['revenus']['data'] ?? []),
                 borderColor: 'rgb(75, 192, 192)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     beginAtZero: true,
                     ticks: {
                         callback: function(value) {
-                            return new Intl.NumberFormat('fr-FR').format(value) + ' CDF';
+                            return new Intl.NumberFormat('fr-FR').format(value) + ' $';
                         }
                     }
                 }

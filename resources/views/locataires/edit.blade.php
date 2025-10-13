@@ -144,7 +144,7 @@
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <label for="revenu_mensuel" class="form-label">Revenu mensuel (CDF)</label>
+                            <label for="revenu_mensuel" class="form-label">Revenu mensuel ($)</label>
                             <input type="number" 
                                    class="form-control @error('revenu_mensuel') is-invalid @enderror" 
                                    id="revenu_mensuel" 
@@ -272,7 +272,7 @@
                                         data-loyer="{{ $appartement->loyer_mensuel }}"
                                         {{ old('appartement_id', $locataire->appartement_id) == $appartement->id ? 'selected' : '' }}>
                                     {{ $appartement->immeuble->nom }} - Apt {{ $appartement->numero }}
-                                    ({{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} CDF)
+                                    ({{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $)
                                 </option>
                             @endforeach
                         </select>
@@ -308,7 +308,7 @@
                     <div class="mb-3">
                         <small class="text-muted">Appartement actuel :</small>
                         <div class="fw-bold">{{ $locataire->appartement->immeuble->nom }} - Apt {{ $locataire->appartement->numero }}</div>
-                        <div class="text-success">{{ number_format($locataire->appartement->loyer_mensuel, 0, ',', ' ') }} CDF/mois</div>
+                        <div class="text-success">{{ number_format($locataire->appartement->loyer_mensuel, 0, ',', ' ') }} $/mois</div>
                     </div>
                     @endif
                     
@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mise à jour de la capacité de paiement
         if (revenu > 0) {
             const capacite = revenu * 0.33;
-            capaciteText.innerHTML = `<i class="fas fa-info-circle"></i> Capacité de paiement recommandée : <strong>${formatNumber(capacite)} CDF</strong>`;
+            capaciteText.innerHTML = `<i class="fas fa-info-circle"></i> Capacité de paiement recommandée : <strong>${formatNumber(capacite)} $</strong>`;
         } else {
             capaciteText.innerHTML = '';
         }
@@ -439,11 +439,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </tr>
                     <tr>
                         <td>Reste à vivre :</td>
-                        <td class="fw-bold">${formatNumber(resteAVivre)} CDF</td>
+                        <td class="fw-bold">${formatNumber(resteAVivre)} $</td>
                     </tr>
                     <tr>
                         <td>Capacité théorique :</td>
-                        <td class="fw-bold">${formatNumber(capacite)} CDF</td>
+                        <td class="fw-bold">${formatNumber(capacite)} $</td>
                     </tr>
                 </table>
                 <div class="alert alert-info alert-sm p-2 mb-0">

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('annee'); // 2024, 2025...
             $table->decimal('montant', 15, 2);
             $table->date('date_echeance');
-            $table->enum('statut_paiement', ['non_paye', 'paye', 'paye_en_retard'])->default('non_paye');
+            $table->enum('statut_paiement', ['non_paye', 'paye', 'paye_en_retard', 'partielle'])->default('non_paye');
             $table->date('date_paiement')->nullable();
             $table->decimal('montant_paye', 15, 2)->default(0);
             $table->text('notes')->nullable();
