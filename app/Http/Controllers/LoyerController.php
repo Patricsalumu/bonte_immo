@@ -92,7 +92,7 @@ class LoyerController extends Controller
             'date_operation' => now(),
             'est_annule' => false,
         ]);
-        $compteUtilisateur->increment('solde', $montantGarantie);
+    // $compteUtilisateur->increment('solde', $montantGarantie); // supprimé, on ne garde que solde_actuel
         $compteUtilisateur->increment('solde_actuel', $montantGarantie);
 
         // Enregistrer le paiement de garantie dans la table paiements

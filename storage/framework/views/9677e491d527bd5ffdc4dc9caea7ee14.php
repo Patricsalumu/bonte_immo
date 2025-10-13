@@ -19,11 +19,6 @@
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="<?php echo e(route('comptes-financiers.index')); ?>">
-                        <i class="bi bi-bank"></i> Comptes Financiers
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
                     <a class="nav-link" href="<?php echo e(route('caisse.journal')); ?>">
                         <i class="bi bi-journal-text"></i> Journal de Caisse
                     </a>
@@ -132,8 +127,8 @@
                                                         <?php endswitch; ?>
                                                     </td>
                                                     <td>
-                                                        <strong class="<?php echo e($compte->solde >= 0 ? 'text-success' : 'text-danger'); ?>">
-                                                            <?php echo e(number_format($compte->solde, 0, ',', ' ')); ?> $
+                                                        <strong class="<?php echo e($compte->solde_actuel >= 0 ? 'text-success' : 'text-danger'); ?>">
+                                                            <?php echo e(number_format($compte->solde_actuel, 0, ',', ' ')); ?> $
                                                         </strong>
                                                     </td>
                                                     <td><?php echo e($compte->description); ?></td>

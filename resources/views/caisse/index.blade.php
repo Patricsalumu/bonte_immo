@@ -19,11 +19,6 @@
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="{{ route('comptes-financiers.index') }}">
-                        <i class="bi bi-bank"></i> Comptes Financiers
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
                     <a class="nav-link" href="{{ route('caisse.journal') }}">
                         <i class="bi bi-journal-text"></i> Journal de Caisse
                     </a>
@@ -131,8 +126,8 @@
                                                         @endswitch
                                                     </td>
                                                     <td>
-                                                        <strong class="{{ $compte->solde >= 0 ? 'text-success' : 'text-danger' }}">
-                                                            {{ number_format($compte->solde, 0, ',', ' ') }} $
+                                                        <strong class="{{ $compte->solde_actuel >= 0 ? 'text-success' : 'text-danger' }}">
+                                                            {{ number_format($compte->solde_actuel, 0, ',', ' ') }} $
                                                         </strong>
                                                     </td>
                                                     <td>{{ $compte->description }}</td>

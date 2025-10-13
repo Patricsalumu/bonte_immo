@@ -329,7 +329,7 @@ class FactureController extends Controller
             // Incrémenter le solde du compte configuré
             $compte = \App\Models\CompteFinancier::find($compteId);
             if ($compte) {
-                $compte->increment('solde', $montantPaye);
+                $compte->increment('solde_actuel', $montantPaye);
             }
 
             // Déterminer le nouveau statut de la facture
@@ -363,33 +363,9 @@ class FactureController extends Controller
             // Mettre à jour le statut de la facture
             $facture->update(['statut_paiement' => $nouveauStatut]);
 
-            // Récupérer le compte du gestionnaire connecté
-            $gestionnaire = auth()->user();
-            $compteGestionnaire = CompteFinancier::where('type_compte', 'caisse')
-                                                ->where('nom_compte', 'LIKE', '%' . $gestionnaire->name . '%')
-                                                ->first();
-
-            // Si pas de compte spécifique, utiliser le compte caisse principal
-            if (!$compteGestionnaire) {
-                $compteGestionnaire = CompteFinancier::where('type_compte', 'caisse')->first();
-                
-                // Si aucun compte caisse n'existe, en créer un
-                if (!$compteGestionnaire) {
-                    $compteGestionnaire = CompteFinancier::create([
-                        'nom_compte' => 'Caisse Principale',
-                        'type_compte' => 'caisse',
-                        'solde_actuel' => 0,
-                        'description' => 'Compte caisse principal créé automatiquement'
-                    ]);
-                }
-            }
-
-            // Mettre à jour le solde du compte
-            $compteGestionnaire->increment('solde_actuel', $montantPaye);
-
-            // Créer le mouvement financier
+            // Créer le mouvement financier (optionnel, si vous souhaitez garder une trace)
             MouvementCaisse::create([
-                'compte_destination_id' => $compteGestionnaire->id,
+                'compte_destination_id' => $compte->id,
                 'type_mouvement' => 'entree',
                 'montant' => $montantPaye,
                 'mode_paiement' => $validated['mode_paiement'],
@@ -450,7 +426,7 @@ class FactureController extends Controller
             Log::info('Paiement créé avec succès', [
                 'paiement_id' => $paiement->id,
                 'nouveau_statut' => $nouveauStatut,
-                'compte_id' => $compteGestionnaire->id,
+                'compte_id' => $compte->id,
                 'reste_a_payer' => $resteAPayer
             ]);
 

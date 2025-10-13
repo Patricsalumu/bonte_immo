@@ -13,8 +13,8 @@ class CompteFinancier extends Model
 
     protected $fillable = [
         'nom_compte',
-        'type', 
-        'solde',
+        'type',
+        'solde_actuel',
         'gestionnaire_id',
         'description',
         'actif',
@@ -22,7 +22,7 @@ class CompteFinancier extends Model
     ];
 
     protected $casts = [
-        'solde' => 'decimal:2',
+        'solde_actuel' => 'decimal:2',
         'actif' => 'boolean',
         'autoriser_decouvert' => 'boolean',
     ];

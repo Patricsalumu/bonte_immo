@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CompteFinancier;
 use App\Models\MouvementCaisse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CaisseController extends Controller
 {
@@ -53,25 +54,34 @@ class CaisseController extends Controller
             $query->where('date_operation', '<=', $request->date_fin);
         }
 
-        $mouvements = $query->orderBy('date_operation', 'desc')->paginate(20);
-        $comptes = CompteFinancier::where('actif', true)->get();
+        $mouvements = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        // Calculer les statistiques
+        // Appliquer les mêmes filtres pour les statistiques
+        $baseStatsQuery = MouvementCaisse::where('est_annule', false);
+        if ($request->filled('compte_id')) {
+            $baseStatsQuery = $baseStatsQuery->where(function($q) use ($request) {
+                $q->where('compte_source_id', $request->compte_id)
+                  ->orWhere('compte_destination_id', $request->compte_id);
+            });
+        }
+        if ($request->filled('type_mouvement')) {
+            $baseStatsQuery = $baseStatsQuery->where('type_mouvement', $request->type_mouvement);
+        }
+        if ($request->filled('date_debut')) {
+            $baseStatsQuery = $baseStatsQuery->where('date_operation', '>=', $request->date_debut);
+        }
+        if ($request->filled('date_fin')) {
+            $baseStatsQuery = $baseStatsQuery->where('date_operation', '<=', $request->date_fin);
+        }
+
         $statistiques = [
-            'total_entrees' => MouvementCaisse::where('type_mouvement', 'entree')
-                ->where('est_annule', false)
-                ->sum('montant'),
-            'total_sorties' => MouvementCaisse::where('type_mouvement', 'sortie')
-                ->where('est_annule', false)
-                ->sum('montant'),
-            'total_transferts' => MouvementCaisse::where('type_mouvement', 'transfert')
-                ->where('est_annule', false)
-                ->sum('montant'),
+            'total_entrees' => (clone $baseStatsQuery)->where('type_mouvement', 'entree')->sum('montant'),
+            'total_sorties' => (clone $baseStatsQuery)->where('type_mouvement', 'sortie')->sum('montant'),
+            'total_transferts' => (clone $baseStatsQuery)->where('type_mouvement', 'transfert')->sum('montant'),
             'solde_net' => 0
         ];
-        
         $statistiques['solde_net'] = $statistiques['total_entrees'] - $statistiques['total_sorties'];
-
+        $comptes = CompteFinancier::where('actif', true)->get();
         return view('caisse.journal', compact('mouvements', 'comptes', 'statistiques'));
     }
 
@@ -131,32 +141,74 @@ class CaisseController extends Controller
 
     public function executeTransfert(Request $request)
     {
-        $validated = $request->validate([
-            'compte_source_id' => 'required|exists:comptes_financiers,id',
-            'compte_destination_id' => 'required|exists:comptes_financiers,id|different:compte_source_id',
-            'montant' => 'required|numeric|min:0.01',
-            'description' => 'required|string|max:1000',
-            'date_operation' => 'required|date',
+    Log::info('Tentative de transfert', [
+            'input' => $request->all()
         ]);
+        try {
+            $validated = $request->validate([
+                'compte_source_id' => 'required|exists:comptes_financiers,id',
+                'compte_destination_id' => 'required|exists:comptes_financiers,id|different:compte_source_id',
+                'montant' => 'required|numeric|min:0.01',
+                'description' => 'required|string|max:1000',
+                'date_operation' => 'required|date',
+            ]);
+            Log::info('Validation OK', $validated);
+            $compteSource = CompteFinancier::findOrFail($validated['compte_source_id']);
+            $compteDestination = CompteFinancier::findOrFail($validated['compte_destination_id']);
+            Log::info('Comptes trouvés', [
+                'source' => $compteSource->toArray(),
+                'destination' => $compteDestination->toArray()
+            ]);
+            // Vérifier si le compte source a suffisamment de fonds
+            if ($compteSource->solde_actuel < $validated['montant']) {
+                Log::warning('Solde insuffisant', [
+                    'solde' => $compteSource->solde_actuel,
+                    'montant' => $validated['montant']
+                ]);
+                return back()->withInput()->with('error', 'Solde insuffisant dans le compte source. Le montant demandé (' . number_format($validated['montant'], 2, ',', ' ') . ' $) dépasse le solde disponible (' . number_format($compteSource->solde_actuel, 2, ',', ' ') . ' $).');
+            }
+            // Créer mouvement sortie (compte source)
+            $mouvementSortie = MouvementCaisse::create([
+                'compte_source_id' => $compteSource->id,
+                'compte_destination_id' => null,
+                'type_mouvement' => 'sortie',
+                'montant' => $validated['montant'],
+                'mode_paiement' => 'transfert',
+                'description' => $validated['description'],
+                'categorie' => 'Transfert',
+                'utilisateur_id' => auth()->id(),
+                'date_operation' => $validated['date_operation'],
+            ]);
+            $compteSource->debiter($validated['montant']);
 
-        $compteSource = CompteFinancier::findOrFail($validated['compte_source_id']);
-        $compteDestination = CompteFinancier::findOrFail($validated['compte_destination_id']);
+            // Créer mouvement entrée (compte destination)
+            $mouvementEntree = MouvementCaisse::create([
+                'compte_source_id' => null,
+                'compte_destination_id' => $compteDestination->id,
+                'type_mouvement' => 'entree',
+                'montant' => $validated['montant'],
+                'mode_paiement' => 'transfert',
+                'description' => $validated['description'],
+                'categorie' => 'Transfert',
+                'utilisateur_id' => auth()->id(),
+                'date_operation' => $validated['date_operation'],
+            ]);
+            $compteDestination->crediter($validated['montant']);
 
-        // Vérifier si le compte source a suffisamment de fonds
-        if ($compteSource->solde_actuel < $validated['montant']) {
-            return back()->with('error', 'Solde insuffisant dans le compte source.');
+            Log::info('Transfert effectué (double écriture)', [
+                'source_id' => $compteSource->id,
+                'destination_id' => $compteDestination->id,
+                'montant' => $validated['montant']
+            ]);
+            return redirect()->route('caisse.journal')
+                ->with('success', 'Transfert effectué avec succès.');
+        } catch (\Exception $e) {
+            Log::error('Erreur transfert caisse', [
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->withInput()->with('error', 'Erreur lors du transfert : ' . $e->getMessage());
         }
-
-        // Effectuer le transfert
-        $compteSource->transfererVers(
-            $compteDestination,
-            $validated['montant'],
-            $validated['description'],
-            auth()->user()
-        );
-
-        return redirect()->route('caisse.index')
-            ->with('success', 'Transfert effectué avec succès.');
     }
 
     public function annuler(MouvementCaisse $mouvement)

@@ -4,6 +4,59 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Modal Transfert de fonds -->
+    <div class="modal fade" id="transfertModal" tabindex="-1" aria-labelledby="transfertModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="{{ route('caisse.transfert') }}">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="transfertModalLabel">
+                            <i class="bi bi-arrow-left-right"></i> Transfert de fonds
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="compte_source_id" class="form-label">Compte source</label>
+                            <select class="form-select" id="compte_source_id" name="compte_source_id" required>
+                                <option value="">Sélectionner le compte source</option>
+                                @foreach($comptes as $compte)
+                                    <option value="{{ $compte->id }}">{{ $compte->nom_compte }} ({{ ucfirst($compte->type) }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="compte_destination_id" class="form-label">Compte destination</label>
+                            <select class="form-select" id="compte_destination_id" name="compte_destination_id" required>
+                                <option value="">Sélectionner le compte destination</option>
+                                @foreach($comptes as $compte)
+                                    <option value="{{ $compte->id }}">{{ $compte->nom_compte }} ({{ ucfirst($compte->type) }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="montant" class="form-label">Montant à transférer</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="montant" name="montant" min="1" step="0.01" required>
+                                <span class="input-group-text" id="soldeSourceAffiche" style="min-width:120px;">Solde: -- $</span>
+                            </div>
+                        </div>
+                        <!-- Champ motif supprimé, description obligatoire ci-dessous -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="description" name="description" required placeholder="Description du transfert">
+                        </div>
+                        <input type="hidden" id="date_operation" name="date_operation" value="{{ date('Y-m-d') }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Valider le transfert</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <!-- Navigation par onglets -->
     <div class="row">
         <div class="col-12">
@@ -16,11 +69,6 @@
                 <li class="nav-item" role="presentation">
                     <a class="nav-link" href="{{ route('caisse.index') }}">
                         <i class="bi bi-speedometer2"></i> Tableau de Bord
-                    </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="{{ route('comptes-financiers.index') }}">
-                        <i class="bi bi-bank"></i> Comptes Financiers
                     </a>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -41,68 +89,51 @@
 
     <!-- Filtres et actions -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Filtres</h5>
-                    <form method="GET" action="{{ route('caisse.journal') }}" class="row g-3">
-                        <div class="col-md-3">
+        <div class="col-12">
+            <div class="card mb-2">
+                <div class="card-body py-2">
+                    <form method="GET" action="{{ route('caisse.journal') }}" class="row g-2 align-items-end flex-wrap">
+                        <div class="col-12 col-md-2">
                             <label for="compte_id" class="form-label">Compte</label>
-                            <select class="form-select" id="compte_id" name="compte_id">
+                            <select class="form-select form-select-sm" id="compte_id" name="compte_id">
                                 <option value="">Tous les comptes</option>
                                 @foreach($comptes as $compte)
                                     <option value="{{ $compte->id }}" {{ request('compte_id') == $compte->id ? 'selected' : '' }}>
-                                        {{ $compte->nom }} ({{ ucfirst($compte->type) }})
+                                        {{ $compte->nom_compte }} ({{ ucfirst($compte->type) }})
                                     </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-12 col-md-2">
                             <label for="type_mouvement" class="form-label">Type</label>
-                            <select class="form-select" id="type_mouvement" name="type_mouvement">
+                            <select class="form-select form-select-sm" id="type_mouvement" name="type_mouvement">
                                 <option value="">Tous les types</option>
                                 <option value="entree" {{ request('type_mouvement') == 'entree' ? 'selected' : '' }}>Entrée</option>
                                 <option value="sortie" {{ request('type_mouvement') == 'sortie' ? 'selected' : '' }}>Sortie</option>
                                 <option value="transfert" {{ request('type_mouvement') == 'transfert' ? 'selected' : '' }}>Transfert</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-12 col-md-2">
                             <label for="date_debut" class="form-label">Date début</label>
-                            <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ request('date_debut') }}">
+                            <input type="date" class="form-control form-control-sm" id="date_debut" name="date_debut" value="{{ request('date_debut') }}">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-12 col-md-2">
                             <label for="date_fin" class="form-label">Date fin</label>
-                            <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ request('date_fin') }}">
+                            <input type="date" class="form-control form-control-sm" id="date_fin" name="date_fin" value="{{ request('date_fin') }}">
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label">&nbsp;</label>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-search"></i> Filtrer
-                                </button>
-                            </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label d-none d-md-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-search"></i> Filtrer
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <label class="form-label d-none d-md-block">&nbsp;</label>
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#transfertModal">
+                                <i class="bi bi-arrow-left-right"></i> Transfert de fonds
+                            </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Actions Rapides</h5>
-                    @can('admin')
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('caisse.create') }}" class="btn btn-success">
-                            <i class="bi bi-plus-circle"></i> Nouveau Mouvement
-                        </a>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#transfertModal">
-                            <i class="bi bi-arrow-left-right"></i> Effectuer un Transfert
-                        </button>
-                        <a href="{{ route('caisse.journal', array_merge(request()->all(), ['export' => 'pdf'])) }}" class="btn btn-outline-danger">
-                            <i class="bi bi-file-pdf"></i> Exporter PDF
-                        </a>
-                    </div>
-                    @endcan
                 </div>
             </div>
         </div>
@@ -126,14 +157,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h6 class="card-title">Total Transferts</h6>
-                    <h4 class="mb-0">{{ number_format($statistiques['total_transferts'], 0, ',', ' ') }} $</h4>
-                </div>
-            </div>
-        </div>
+        <!-- Carte Total Transferts supprimée -->
         <div class="col-md-3">
             <div class="card text-white bg-primary">
                 <div class="card-body">
@@ -161,21 +185,19 @@
                                 <th>Description</th>
                                 <th>Référence</th>
                                 <th class="text-end">Montant</th>
-                                <th class="text-end">Solde</th>
-                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($mouvements as $mouvement)
                                 <tr>
-                                    <td>{{ $mouvement->date_operation->format('d/m/Y H:i') }}</td>
+                                    <td>{{ $mouvement->created_at->format('d/m/Y H:i') }}</td>
                                     <td>
                                         @php
                                             $compte = $mouvement->type_mouvement == 'entree' ? $mouvement->compteDestination : $mouvement->compteSource;
                                         @endphp
                                         @if($compte)
-                                            <span class="badge bg-secondary">{{ $compte->nom }}</span>
-                                            <small class="text-muted d-block">{{ ucfirst($compte->type) }}</small>
+                                            <span class="badge bg-secondary">{{ $compte->nom_compte }}</span>
+                                            <small class="text-muted d-block">{{ $compte->type ? ucfirst($compte->type) : '' }}</small>
                                         @else
                                             <span class="text-muted">N/A</span>
                                         @endif
@@ -203,35 +225,6 @@
                                         @else
                                             <span class="text-danger">-{{ number_format($mouvement->montant, 0, ',', ' ') }} $</span>
                                         @endif
-                                    </td>
-                                    <td class="text-end">
-                                        @php
-                                            $compte = $mouvement->type_mouvement == 'entree' ? $mouvement->compteDestination : $mouvement->compteSource;
-                                        @endphp
-                                        @if($compte)
-                                            <strong>{{ number_format($compte->solde, 0, ',', ' ') }} $</strong>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @can('admin')
-                                        <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-info" data-bs-toggle="tooltip" title="Détails">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                            @if($mouvement->type_mouvement == 'transfert' && $mouvement->created_at->diffInHours() < 24)
-                                                <form method="POST" action="{{ route('caisse.annuler', $mouvement->id) }}" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-danger" 
-                                                            onclick="return confirm('Êtes-vous sûr de vouloir annuler ce transfert ?')"
-                                                            data-bs-toggle="tooltip" title="Annuler">
-                                                        <i class="bi bi-x-circle"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        </div>
-                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
@@ -280,18 +273,18 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="compte_source" class="form-label">Compte Source</label>
-                            <select class="form-select" id="compte_source" name="compte_source" required>
+                            <select class="form-select" id="compte_source" name="compte_source_id" required>
                                 <option value="">Sélectionnez le compte source</option>
                                 @foreach($comptes as $compte)
                                     <option value="{{ $compte->id }}">
-                                        {{ $compte->nom }} ({{ number_format($compte->solde, 0, ',', ' ') }} $)
+                                        {{ $compte->nom }} ({{ number_format($compte->solde_actuel, 0, ',', ' ') }} $)
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="compte_destination" class="form-label">Compte Destination</label>
-                            <select class="form-select" id="compte_destination" name="compte_destination" required>
+                            <select class="form-select" id="compte_destination" name="compte_destination_id" required>
                                 <option value="">Sélectionnez le compte destination</option>
                                 @foreach($comptes as $compte)
                                     <option value="{{ $compte->id }}">
@@ -302,8 +295,10 @@
                         </div>
                         <div class="col-md-6">
                             <label for="montant" class="form-label">Montant ($)</label>
-                            <input type="number" class="form-control" id="montant" name="montant" 
-                                   step="0.01" min="0.01" required>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="montant" name="montant" step="0.01" min="0.01" required>
+                                <span class="input-group-text" id="soldeSourceAffiche" style="min-width:120px;">Solde: -- $</span>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label for="reference" class="form-label">Référence</label>
@@ -341,46 +336,75 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Validation du formulaire de transfert
-document.getElementById('transfertModal').addEventListener('show.bs.modal', function() {
-    const form = this.querySelector('form');
-    const compteSource = form.querySelector('#compte_source');
-    const compteDestination = form.querySelector('#compte_destination');
-    
-    // Empêcher la sélection du même compte
-    compteSource.addEventListener('change', function() {
-        updateDestinationOptions();
-    });
-    
-    compteDestination.addEventListener('change', function() {
-        updateSourceOptions();
-    });
-    
-    function updateDestinationOptions() {
-        const sourceValue = compteSource.value;
-        const destinationOptions = compteDestination.querySelectorAll('option');
-        
-        destinationOptions.forEach(option => {
-            if (option.value === sourceValue && option.value !== '') {
-                option.disabled = true;
-            } else {
-                option.disabled = false;
+    // Validation du formulaire de transfert
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('transfertModal');
+        modal.addEventListener('show.bs.modal', function() {
+            const form = modal.querySelector('form');
+            const compteSource = form.querySelector('#compte_source');
+            const compteDestination = form.querySelector('#compte_destination');
+            const montantInput = form.querySelector('#montant');
+            const soldeSourceAffiche = form.querySelector('#soldeSourceAffiche');
+
+            function updateDestinationOptions() {
+                const sourceValue = compteSource.value;
+                const destinationOptions = compteDestination.querySelectorAll('option');
+                destinationOptions.forEach(option => {
+                    option.disabled = (option.value === sourceValue && option.value !== '');
+                });
             }
-        });
-    }
-    
-    function updateSourceOptions() {
-        const destinationValue = compteDestination.value;
-        const sourceOptions = compteSource.querySelectorAll('option');
-        
-        sourceOptions.forEach(option => {
-            if (option.value === destinationValue && option.value !== '') {
-                option.disabled = true;
-            } else {
-                option.disabled = false;
+            function updateSourceOptions() {
+                const destinationValue = compteDestination.value;
+                const sourceOptions = compteSource.querySelectorAll('option');
+                sourceOptions.forEach(option => {
+                    option.disabled = (option.value === destinationValue && option.value !== '');
+                });
             }
+            function updateMontantMax() {
+                let selectedOption = compteSource.options[compteSource.selectedIndex];
+                if (selectedOption && selectedOption.value !== '') {
+                    let soldeMatch = selectedOption.text.match(/\(([0-9\s.,]+)\s*\$\)/);
+                    if (soldeMatch) {
+                        let soldeStr = soldeMatch[1].replace(/\s/g, '').replace(/\./g, '').replace(/,/g, '.');
+                        let solde = parseFloat(soldeStr);
+                        if (!isNaN(solde)) {
+                            montantInput.max = solde;
+                        } else {
+                            montantInput.max = '';
+                        }
+                    } else {
+                        montantInput.max = '';
+                    }
+                } else {
+                    montantInput.max = '';
+                }
+            }
+            function updateSoldeAffiche() {
+                let selectedOption = compteSource.options[compteSource.selectedIndex];
+                if (selectedOption && selectedOption.value !== '') {
+                    let soldeMatch = selectedOption.text.match(/\(([0-9\s.,]+)\s*\$\)/);
+                    if (soldeMatch) {
+                        let solde = soldeMatch[1].trim();
+                        soldeSourceAffiche.textContent = 'Solde: ' + solde + ' $';
+                    } else {
+                        soldeSourceAffiche.textContent = 'Solde: -- $';
+                    }
+                } else {
+                    soldeSourceAffiche.textContent = 'Solde: -- $';
+                }
+            }
+            compteSource.addEventListener('change', function() {
+                updateDestinationOptions();
+                updateMontantMax();
+                updateSoldeAffiche();
+            });
+            compteDestination.addEventListener('change', function() {
+                updateSourceOptions();
+            });
+            // Initialiser au chargement du modal
+            updateMontantMax();
+            updateSoldeAffiche();
         });
-    }
-});
+    });
 </script>
 @endpush

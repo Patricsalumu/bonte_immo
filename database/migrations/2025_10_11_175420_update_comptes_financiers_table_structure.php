@@ -20,10 +20,6 @@ return new class extends Migration
             if (!Schema::hasColumn('comptes_financiers', 'type')) {
                 $table->string('type')->nullable();
             }
-            if (!Schema::hasColumn('comptes_financiers', 'solde')) {
-                $table->decimal('solde', 12, 2)->default(0);
-            }
-            
             // Ajouter les nouvelles colonnes
             if (!Schema::hasColumn('comptes_financiers', 'gestionnaire_id')) {
                 $table->unsignedBigInteger('gestionnaire_id')->nullable();
@@ -43,7 +39,6 @@ return new class extends Migration
         DB::table('comptes_financiers')->update([
             'nom' => DB::raw('nom_compte'),
             'type' => DB::raw('type_compte'),
-            'solde' => DB::raw('solde_actuel')
         ]);
     }
 
@@ -74,9 +69,7 @@ return new class extends Migration
             if (Schema::hasColumn('comptes_financiers', 'type')) {
                 $table->dropColumn('type');
             }
-            if (Schema::hasColumn('comptes_financiers', 'solde')) {
-                $table->dropColumn('solde');
-            }
+            // La colonne 'solde' n'existe plus, rien à supprimer ici
         });
     }
 };
