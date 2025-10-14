@@ -84,7 +84,6 @@ Route::middleware(['auth'])->group(function () {
         
         // Paiements (modification et suppression)
         Route::get('paiements/{paiement}/edit', [PaiementController::class, 'edit'])->name('paiements.edit');
-        Route::put('paiements/{paiement}', [PaiementController::class, 'update'])->name('paiements.update');
         Route::delete('paiements/{paiement}', [PaiementController::class, 'destroy'])->name('paiements.destroy');
         
         // Caisse (gestion complète)
