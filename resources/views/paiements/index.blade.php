@@ -249,16 +249,17 @@
                                     
                                     <!-- Bouton WhatsApp -->
                                     @if($facture->locataire && $facture->locataire->telephone)
-                                    <button type="button" 
-                                            class="btn btn-outline-success btn-sm" 
-                                            data-telephone="{{ $facture->locataire->telephone }}"
-                                            data-prenom="{{ $facture->locataire->prenom ?? '' }}"
-                                            data-nom="{{ $facture->locataire->nom }}"
-                                            data-numero="{{ $facture->numero_facture }}"
-                                            data-montant="{{ number_format($facture->montant, 0, ' ', ' ') }}"
-                                            data-mois="{{ $facture->getMoisNom() }} {{ $facture->annee }}"
-                                            data-echeance="{{ $facture->date_echeance->format('d/m/Y') }}"
-                                            onclick="partagerWhatsAppData(this)">
+                    <button type="button" 
+                        class="btn btn-outline-success btn-sm" 
+                        data-telephone="{{ $facture->locataire->telephone }}"
+                        data-prenom="{{ $facture->locataire->prenom ?? '' }}"
+                        data-nom="{{ $facture->locataire->nom }}"
+                        data-numero="{{ $facture->numero_facture }}"
+                        data-id="{{ $facture->id }}"
+                        data-montant="{{ number_format($facture->montant, 0, ' ', ' ') }}"
+                        data-mois="{{ $facture->getMoisNom() }} {{ $facture->annee }}"
+                        data-echeance="{{ $facture->date_echeance->format('d/m/Y') }}"
+                        onclick="partagerWhatsAppData(this)">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
                                     @endif
@@ -522,18 +523,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // === FONCTION WHATSAPP ===
-    window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance) {
-    const numeroClean = telephone.replace(/[^\d+]/g, '');
-    const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
-    const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
+    window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance, factureId) {
+        const numeroClean = telephone.replace(/[^\d+]/g, '');
+        const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
+        const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
 
-    // Construction du lien PDF public
-    const pdfUrl = `${window.location.origin}/public/factures/${numeroFacture}/pdf`;
+        // Construction du lien PDF public avec l'ID
+        const pdfUrl = `${window.location.origin}/public/factures/${factureId}/pdf`;
 
-    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
+        const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
 
-    const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
-    window.open(urlWhatsApp, '_blank');
+        const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
+        window.open(urlWhatsApp, '_blank');
     };
 
     // === NOUVELLE FONCTION WHATSAPP AVEC DATA ATTRIBUTES ===
@@ -545,8 +546,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const montant = button.dataset.montant;
         const mois = button.dataset.mois;
         const echeance = button.dataset.echeance;
+        const factureId = button.dataset.id;
         
-        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance);
+        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance, factureId);
     };
 
     // === FONCTIONS DE DEBUG ===
@@ -656,4 +658,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 @push('scripts')
 <script src="{{ asset('js/filtres-factures.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus automatique sur le premier champ de la modal paiement à l'ouverture
+    document.querySelectorAll('[id^="modalPaiement"]').forEach(function(modal) {
+        modal.addEventListener('shown.bs.modal', function () {
+            const input = modal.querySelector('input, select, textarea, button');
+            if (input) input.focus();
+        });
+    });
+});
+</script>
 @endpush

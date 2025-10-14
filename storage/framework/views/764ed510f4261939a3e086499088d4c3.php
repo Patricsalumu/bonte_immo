@@ -251,16 +251,17 @@
                                     
                                     <!-- Bouton WhatsApp -->
                                     <?php if($facture->locataire && $facture->locataire->telephone): ?>
-                                    <button type="button" 
-                                            class="btn btn-outline-success btn-sm" 
-                                            data-telephone="<?php echo e($facture->locataire->telephone); ?>"
-                                            data-prenom="<?php echo e($facture->locataire->prenom ?? ''); ?>"
-                                            data-nom="<?php echo e($facture->locataire->nom); ?>"
-                                            data-numero="<?php echo e($facture->numero_facture); ?>"
-                                            data-montant="<?php echo e(number_format($facture->montant, 0, ' ', ' ')); ?>"
-                                            data-mois="<?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?>"
-                                            data-echeance="<?php echo e($facture->date_echeance->format('d/m/Y')); ?>"
-                                            onclick="partagerWhatsAppData(this)">
+                    <button type="button" 
+                        class="btn btn-outline-success btn-sm" 
+                        data-telephone="<?php echo e($facture->locataire->telephone); ?>"
+                        data-prenom="<?php echo e($facture->locataire->prenom ?? ''); ?>"
+                        data-nom="<?php echo e($facture->locataire->nom); ?>"
+                        data-numero="<?php echo e($facture->numero_facture); ?>"
+                        data-id="<?php echo e($facture->id); ?>"
+                        data-montant="<?php echo e(number_format($facture->montant, 0, ' ', ' ')); ?>"
+                        data-mois="<?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?>"
+                        data-echeance="<?php echo e($facture->date_echeance->format('d/m/Y')); ?>"
+                        onclick="partagerWhatsAppData(this)">
                                         <i class="fab fa-whatsapp"></i> WhatsApp
                                     </button>
                                     <?php endif; ?>
@@ -525,18 +526,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // === FONCTION WHATSAPP ===
-    window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance) {
-    const numeroClean = telephone.replace(/[^\d+]/g, '');
-    const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
-    const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
+    window.partagerWhatsApp = function(telephone, prenom, nom, numeroFacture, montant, mois, echeance, factureId) {
+        const numeroClean = telephone.replace(/[^\d+]/g, '');
+        const civilite = prenom && prenom.trim() !== '' ? 'Mr/Mme' : 'Mr/Mme';
+        const nomComplet = prenom && prenom.trim() !== '' ? `${prenom} ${nom}` : nom;
 
-    // Construction du lien PDF public
-    const pdfUrl = `${window.location.origin}/public/factures/${numeroFacture}/pdf`;
+        // Construction du lien PDF public avec l'ID
+        const pdfUrl = `${window.location.origin}/public/factures/${factureId}/pdf`;
 
-    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
+        const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
 
-    const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
-    window.open(urlWhatsApp, '_blank');
+        const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
+        window.open(urlWhatsApp, '_blank');
     };
 
     // === NOUVELLE FONCTION WHATSAPP AVEC DATA ATTRIBUTES ===
@@ -548,8 +549,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const montant = button.dataset.montant;
         const mois = button.dataset.mois;
         const echeance = button.dataset.echeance;
+        const factureId = button.dataset.id;
         
-        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance);
+        partagerWhatsApp(telephone, prenom, nom, numeroFacture, montant, mois, echeance, factureId);
     };
 
     // === FONCTIONS DE DEBUG ===
@@ -659,6 +661,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <?php $__env->startPush('scripts'); ?>
 <script src="<?php echo e(asset('js/filtres-factures.js')); ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Focus automatique sur le premier champ de la modal paiement à l'ouverture
+    document.querySelectorAll('[id^="modalPaiement"]').forEach(function(modal) {
+        modal.addEventListener('shown.bs.modal', function () {
+            const input = modal.querySelector('input, select, textarea, button');
+            if (input) input.focus();
+        });
+    });
+});
+</script>
 <?php $__env->stopPush(); ?>
 
 <?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\immo\resources\views/paiements/index.blade.php ENDPATH**/ ?>

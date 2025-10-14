@@ -1157,3 +1157,7 @@ mmo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illum
 [stacktrace]
 #0 {main}
 "} 
+[2025-10-14 11:18:44] local.INFO: marquerPayee appelée {"facture_id":25,"request_data":{"_token":"xATTQTysQOkd6QsFeoxHQ11cdvjKzOK4dClSoDrj","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-14 11:18:44] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-14 11:18:44] local.INFO: Calcul statut paiement {"facture_id":25,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-14 11:18:44] local.INFO: Paiement créé avec succès {"paiement_id":13,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
