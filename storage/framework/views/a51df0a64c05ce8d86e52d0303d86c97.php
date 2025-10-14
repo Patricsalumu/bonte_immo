@@ -9,9 +9,20 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Facture #<?php echo e($facture->id); ?></h4>
-                    <a href="<?php echo e(route('factures.export-pdf', $facture)); ?>" class="btn btn-outline-danger">
-                        <i class="bi bi-file-pdf"></i> Télécharger PDF
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="<?php echo e(route('factures.export-pdf', $facture)); ?>" class="btn btn-outline-danger">
+                            <i class="bi bi-file-pdf"></i> Télécharger PDF
+                        </a>
+                        <?php if(auth()->user() && auth()->user()->isAdmin()): ?>
+                        <form method="POST" action="<?php echo e(route('factures.destroy', $facture)); ?>" onsubmit="return confirm('Confirmer la suppression de cette facture ? Cette action est irréversible.')">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('DELETE'); ?>
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </button>
+                        </form>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="card-body">
                     <table class="table table-borderless">
@@ -69,6 +80,53 @@
                             </td>
                         </tr>
                     </table>
+
+                    <?php if($montantPaye < $facture->montant && auth()->user()): ?>
+                    <hr>
+                    <h5 class="mb-3">Régler la facture</h5>
+                    <form method="POST" action="<?php echo e(route('factures.marquer-payee', $facture)); ?>">
+                        <?php echo csrf_field(); ?>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Montant à payer</label>
+                                <input type="number" class="form-control" name="montant"
+                                       value="<?php echo e($facture->montant - $montantPaye); ?>"
+                                       min="1"
+                                       max="<?php echo e($facture->montant - $montantPaye); ?>"
+                                       step="0.01" required>
+                                <div class="form-text">
+                                    Montant restant: <?php echo e(number_format($facture->montant - $montantPaye, 0, ',', ' ')); ?> $
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Mode de paiement *</label>
+                                <select name="mode_paiement" class="form-select" required>
+                                    <option value="">Sélectionner...</option>
+                                    <option value="cash">Espèces</option>
+                                    <option value="virement">Virement bancaire</option>
+                                    <option value="mobile_money">Mobile Money</option>
+                                    <option value="garantie_locative">
+                                        Garantie locative (<?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> $ disponible)
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Référence</label>
+                            <input type="text" name="reference" class="form-control"
+                                   placeholder="Numéro de transaction, référence...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="Notes facultatives..."></textarea>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check"></i> Confirmer le paiement
+                            </button>
+                        </div>
+                    </form>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

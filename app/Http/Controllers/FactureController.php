@@ -230,14 +230,95 @@ class FactureController extends Controller
      */
     public function destroy(Facture $facture)
     {
-        if ($facture->est_payee) {
-            return back()->withErrors(['error' => 'Impossible de supprimer une facture payée.']);
-        }
+        \Log::info('Tentative suppression facture', [
+            'facture_id' => $facture->id,
+            'numero_facture' => $facture->numero_facture,
+            'statut_paiement' => $facture->statut_paiement,
+            'montant_paye' => $facture->montant_paye,
+            'user_id' => auth()->id(),
+        ]);
+        DB::transaction(function () use ($facture) {
+            \Illuminate\Support\Facades\Log::info('Suppression facture en cours', [
+                'facture_id' => $facture->id,
+                'numero_facture' => $facture->numero_facture,
+            ]);
+            // 1. Déduire du compte financier et ajuster garantie locative
+            foreach ($facture->paiements as $paiement) {
+                $montant = $paiement->montant;
+                $mode = $paiement->mode_paiement;
+                $compte = $paiement->compte;
+                // Fallback : si le paiement n'a pas de compte, utiliser le compte de l'utilisateur
+                if (!$compte && $paiement->utilisateur && $paiement->utilisateur->compteFinancier) {
+                    $compte = $paiement->utilisateur->compteFinancier;
+                    \Illuminate\Support\Facades\Log::info('Fallback compte financier utilisateur', [
+                        'paiement_id' => $paiement->id,
+                        'user_id' => $paiement->utilisateur->id,
+                        'compte_id' => $compte->id,
+                    ]);
+                }
+                $loyer = $paiement->loyer;
 
-        $facture->delete();
+                // Déduire le montant du compte financier
+                if ($compte) {
+                    \Illuminate\Support\Facades\Log::info('Déduction du compte financier', [
+                        'compte_id' => $compte->id,
+                        'montant' => $montant,
+                    ]);
+                    $compte->debiter($montant);
+                } else {
+                    \Illuminate\Support\Facades\Log::error('Aucun compte financier trouvé pour débiter', [
+                        'paiement_id' => $paiement->id,
+                        'user_id' => $paiement->utilisateur ? $paiement->utilisateur->id : null,
+                    ]);
+                }
 
-        return redirect()->route('factures.index')
-                        ->with('success', 'Facture supprimée avec succès.');
+                // Si paiement par garantie locative, réajuster la garantie
+                if ($mode === 'garantie_locative' && $loyer) {
+                    \Illuminate\Support\Facades\Log::info('Réajustement garantie locative', [
+                        'loyer_id' => $loyer->id,
+                        'montant_ajoute' => $montant,
+                    ]);
+                    $loyer->garantie_locative += $montant;
+                    $loyer->save();
+                }
+            }
+
+            // 2. Supprimer les mouvements liés à la facture
+            foreach ($facture->paiements as $paiement) {
+                $montant = $paiement->montant;
+                $desc = 'Paiement facture ' . $facture->numero_facture;
+                $mouvement = \App\Models\MouvementCaisse::where('description', 'like', "%$desc%")
+                    ->where('montant', $montant)
+                    ->first();
+                if ($mouvement) {
+                    \Illuminate\Support\Facades\Log::info('Suppression mouvement caisse', [
+                        'mouvement_id' => $mouvement->id,
+                        'description' => $mouvement->description,
+                    ]);
+                    $mouvement->delete();
+                }
+            }
+
+            // 3. Supprimer les paiements liés à la facture
+            foreach ($facture->paiements as $paiement) {
+                \Illuminate\Support\Facades\Log::info('Suppression paiement', [
+                    'paiement_id' => $paiement->id,
+                    'montant' => $paiement->montant,
+                    'mode' => $paiement->mode_paiement,
+                ]);
+                $paiement->delete();
+            }
+
+            // 4. Supprimer la facture
+            $facture->delete();
+            \Illuminate\Support\Facades\Log::info('Facture supprimée', [
+                'facture_id' => $facture->id,
+                'numero_facture' => $facture->numero_facture,
+            ]);
+        });
+
+        return redirect()->route('paiements.index')
+                        ->with('success', 'Facture et paiements supprimés avec succès.');
     }
 
     /**
