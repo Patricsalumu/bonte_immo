@@ -26,6 +26,19 @@
                     <h5 class="card-title mb-0">Liste des Appartements</h5>
                 </div>
                 <div class="card-body">
+                    <form method="GET" action="<?php echo e(route('appartements.index')); ?>" class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" name="immeuble" class="form-control" placeholder="Nom de l'immeuble" value="<?php echo e(request('immeuble')); ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="numero" class="form-control" placeholder="Numéro d'appartement" value="<?php echo e(request('numero')); ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </form>
                     <?php if($appartements->count() > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">

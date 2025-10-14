@@ -65,7 +65,7 @@
                             <select class="form-select @error('type') is-invalid @enderror" 
                                     id="type" 
                                     name="type" 
-                                    required>
+                                    >
                                 <option value="">Sélectionner un type</option>
                                 <option value="studio" {{ old('type', $appartement->type) == 'studio' ? 'selected' : '' }}>Studio</option>
                                 <option value="1_chambre" {{ old('type', $appartement->type) == '1_chambre' ? 'selected' : '' }}>1 chambre</option>
@@ -88,7 +88,7 @@
                                    value="{{ old('superficie', $appartement->superficie) }}" 
                                    min="10" 
                                    step="0.1" 
-                                   required>
+                                   >
                             @error('superficie')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

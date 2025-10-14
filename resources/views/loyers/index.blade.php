@@ -25,6 +25,19 @@
                     <h5 class="card-title mb-0">Liste des Contrats de Loyer</h5>
                 </div>
                 <div class="card-body">
+                    <form method="GET" action="{{ route('loyers.index') }}" class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" name="appartement" class="form-control" placeholder="Immeuble ou numéro d'appartement" value="{{ request('appartement') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="client" class="form-control" placeholder="Nom ou prénom du client" value="{{ request('client') }}">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </form>
                     @if($loyers->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">

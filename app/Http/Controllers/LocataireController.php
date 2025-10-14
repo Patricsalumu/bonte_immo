@@ -16,7 +16,20 @@ class LocataireController extends Controller
 
     public function index()
     {
-        $locataires = Locataire::with('appartement')->get();
+        $query = Locataire::query();
+        if (request('nom')) {
+            $query->where(function($q) {
+                $q->where('nom', 'like', '%' . request('nom') . '%')
+                  ->orWhere('prenom', 'like', '%' . request('nom') . '%');
+            });
+        }
+        if (request('numero')) {
+            $query->where(function($q) {
+                $q->where('telephone', 'like', '%' . request('numero') . '%')
+                  ->orWhere('numero_carte_identite', 'like', '%' . request('numero') . '%');
+            });
+        }
+        $locataires = $query->with('appartement')->get();
         return view('locataires.index', compact('locataires'));
     }
 
@@ -73,15 +86,15 @@ class LocataireController extends Controller
         $validated = $request->validate([
             'nom' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
-            'email' => 'required|email|unique:locataires,email,' . $locataire->id,
+            'email' => 'nullable|email|unique:locataires,email,' . $locataire->id,
             'telephone' => 'required|string|max:20',
-            'adresse' => 'required|string',
-            'date_naissance' => 'required|date',
+            'adresse' => 'nullable|string',
+            'date_naissance' => 'nullable|date',
             'profession' => 'nullable|string|max:255',
             'salaire' => 'nullable|numeric|min:0',
-            'appartement_id' => 'required|exists:appartements,id',
-            'date_entree' => 'required|date',
-            'garantie' => 'required|numeric|min:0',
+            'appartement_id' => 'nullable|exists:appartements,id',
+            'date_entree' => 'nullable|date',
+            'garantie' => 'nullable|numeric|min:0',
             'observations' => 'nullable|string',
         ]);
 

@@ -26,6 +26,19 @@
                     <h5 class="card-title mb-0">Liste des Locataires</h5>
                 </div>
                 <div class="card-body">
+                    <form method="GET" action="<?php echo e(route('locataires.index')); ?>" class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" name="nom" class="form-control" placeholder="Nom ou prénom" value="<?php echo e(request('nom')); ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="numero" class="form-control" placeholder="Numéro de téléphone ou carte" value="<?php echo e(request('numero')); ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> Rechercher
+                            </button>
+                        </div>
+                    </form>
                     <?php if($locataires->count() > 0): ?>
                         <div class="table-responsive">
                             <table class="table table-striped table-hover">

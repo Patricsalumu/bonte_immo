@@ -175,7 +175,8 @@ class Facture extends Model
                 // Au Congo, on facture le mois précédent
                 // Le 1er octobre, on facture septembre (mois écoulé)
                 // La date d'échéance est fixée au 5 du mois courant
-                $dateEcheance = Carbon::create($annee, $mois, 5);
+                // La date d'échéance est fixée au 5 du mois suivant
+                $dateEcheance = Carbon::create($annee, $mois, 1)->addMonth()->day(5);
                 
                 self::create([
                     'loyer_id' => $loyer->id,

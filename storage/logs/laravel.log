@@ -1035,3 +1035,125 @@ mmo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illum
 [2025-10-13 19:03:43] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
 [2025-10-13 19:03:43] local.INFO: Calcul statut paiement {"facture_id":4,"montant_facture":"800.00","montant_actuel_paye":"800.00","nouveau_paiement":"300","nouveau_total_paye":1100.0,"comparaison":"COMPLET"} 
 [2025-10-13 19:03:43] local.INFO: Paiement créé avec succès {"paiement_id":8,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 21:34:55] local.INFO: Tentative de transfert {"input":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","compte_source_id":"1","compte_destination_id":"2","montant":"16500","description":"Dépôt garantie vers le boss","date_operation":"2025-10-13"}} 
+[2025-10-13 21:34:55] local.INFO: Validation OK {"compte_source_id":"1","compte_destination_id":"2","montant":"16500","description":"Dépôt garantie vers le boss","date_operation":"2025-10-13"} 
+[2025-10-13 21:34:55] local.INFO: Comptes trouvés {"source":{"id":1,"nom_compte":"Caisse principale","type_compte":"caisse","solde_actuel":"16850.00","description":"ras","created_at":"2025-10-13T10:52:15.000000Z","updated_at":"2025-10-13T19:27:12.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"caisse"},"destination":{"id":2,"nom_compte":"Boss","type_compte":"caisse","solde_actuel":"0.00","description":null,"created_at":"2025-10-13T10:52:59.000000Z","updated_at":"2025-10-13T15:24:48.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"caisse"}} 
+[2025-10-13 21:34:55] local.INFO: Transfert effectué (double écriture) {"source_id":1,"destination_id":2,"montant":"16500"} 
+[2025-10-13 21:36:43] local.INFO: Tentative de transfert {"input":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","compte_source_id":"1","compte_destination_id":"2","montant":"350","description":"Deuxieme transfert vers le boss","date_operation":"2025-10-13"}} 
+[2025-10-13 21:36:44] local.INFO: Validation OK {"compte_source_id":"1","compte_destination_id":"2","montant":"350","description":"Deuxieme transfert vers le boss","date_operation":"2025-10-13"} 
+[2025-10-13 21:36:44] local.INFO: Comptes trouvés {"source":{"id":1,"nom_compte":"Caisse principale","type_compte":"caisse","solde_actuel":"350.00","description":"ras","created_at":"2025-10-13T10:52:15.000000Z","updated_at":"2025-10-13T19:34:55.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"caisse"},"destination":{"id":2,"nom_compte":"Boss","type_compte":"caisse","solde_actuel":"16500.00","description":null,"created_at":"2025-10-13T10:52:59.000000Z","updated_at":"2025-10-13T19:34:55.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"caisse"}} 
+[2025-10-13 21:36:44] local.INFO: Transfert effectué (double écriture) {"source_id":1,"destination_id":2,"montant":"350"} 
+[2025-10-13 21:55:03] local.INFO: marquerPayee appelée {"facture_id":1,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 21:55:04] local.INFO: Validation réussie {"validated":{"montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 21:55:04] local.INFO: Calcul statut paiement {"facture_id":1,"montant_facture":"500.00","montant_actuel_paye":"250.00","nouveau_paiement":"250","nouveau_total_paye":500.0,"comparaison":"COMPLET"} 
+[2025-10-13 21:55:04] local.INFO: Paiement créé avec succès {"paiement_id":9,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":250.0} 
+[2025-10-13 21:56:09] local.INFO: marquerPayee appelée {"facture_id":1,"request_data":{"_token":"8hJSelKongeFvuRldu8jIDyiRYxBT4uYhCMpVujU","montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 21:56:09] local.INFO: Validation réussie {"validated":{"montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 21:56:09] local.INFO: Calcul statut paiement {"facture_id":1,"montant_facture":"500.00","montant_actuel_paye":"500.00","nouveau_paiement":"250","nouveau_total_paye":750.0,"comparaison":"COMPLET"} 
+[2025-10-13 21:56:09] local.INFO: Paiement créé avec succès {"paiement_id":10,"nouveau_statut":"paye_en_retard","compte_id":4,"reste_a_payer":0.0} 
+[2025-10-13 22:03:56] local.INFO: marquerPayee appelée {"facture_id":24,"request_data":{"_token":"8hJSelKongeFvuRldu8jIDyiRYxBT4uYhCMpVujU","montant":"1800","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:03:56] local.INFO: Validation réussie {"validated":{"montant":"1800","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:03:56] local.INFO: Paiement par garantie locative {"garantie_disponible":"6000.00","montant_demande":"1800","montant_facture":"1800.00"} 
+[2025-10-13 22:03:56] local.INFO: Garantie locative mise à jour {"ancienne_garantie":6000.0,"nouvelle_garantie":"4200.00","montant_deduit":"1800"} 
+[2025-10-13 22:03:56] local.INFO: Calcul statut paiement {"facture_id":24,"montant_facture":"1800.00","montant_actuel_paye":"1800.00","nouveau_paiement":"1800","nouveau_total_paye":3600.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:03:56] local.INFO: Paiement créé avec succès {"paiement_id":11,"nouveau_statut":"paye","compte_id":4,"reste_a_payer":0.0} 
+[2025-10-13 22:10:31] local.INFO: marquerPayee appelée {"facture_id":17,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"500","mode_paiement":"virement","reference":null}} 
+[2025-10-13 22:10:31] local.INFO: Validation réussie {"validated":{"montant":"500","mode_paiement":"virement","reference":null}} 
+[2025-10-13 22:10:31] local.INFO: Calcul statut paiement {"facture_id":17,"montant_facture":"500.00","montant_actuel_paye":"500.00","nouveau_paiement":"500","nouveau_total_paye":1000.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:10:31] local.INFO: Paiement créé avec succès {"paiement_id":12,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:10:49] local.INFO: marquerPayee appelée {"facture_id":18,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"150","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:10:49] local.INFO: Validation réussie {"validated":{"montant":"150","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:10:49] local.INFO: Calcul statut paiement {"facture_id":18,"montant_facture":"150.00","montant_actuel_paye":"150.00","nouveau_paiement":"150","nouveau_total_paye":300.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:10:49] local.INFO: Paiement créé avec succès {"paiement_id":13,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:11:17] local.INFO: marquerPayee appelée {"facture_id":2,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"150","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:17] local.INFO: Validation réussie {"validated":{"montant":"150","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:17] local.INFO: Calcul statut paiement {"facture_id":2,"montant_facture":"150.00","montant_actuel_paye":"150.00","nouveau_paiement":"150","nouveau_total_paye":300.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:11:17] local.INFO: Paiement créé avec succès {"paiement_id":14,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:11:32] local.INFO: marquerPayee appelée {"facture_id":19,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:32] local.INFO: Validation réussie {"validated":{"montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:32] local.INFO: Calcul statut paiement {"facture_id":19,"montant_facture":"250.00","montant_actuel_paye":"250.00","nouveau_paiement":"250","nouveau_total_paye":500.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:11:32] local.INFO: Paiement créé avec succès {"paiement_id":15,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:11:57] local.INFO: marquerPayee appelée {"facture_id":20,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"800","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:57] local.INFO: Validation réussie {"validated":{"montant":"800","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:11:57] local.INFO: Calcul statut paiement {"facture_id":20,"montant_facture":"800.00","montant_actuel_paye":"800.00","nouveau_paiement":"800","nouveau_total_paye":1600.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:11:57] local.INFO: Paiement créé avec succès {"paiement_id":16,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:12:32] local.INFO: marquerPayee appelée {"facture_id":9,"request_data":{"_token":"xAZ0ousp0A6EMlEKvm8TIjM2lQB8cnoX98tdPrlg","montant":"500","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:12:32] local.INFO: Validation réussie {"validated":{"montant":"500","mode_paiement":"cash","reference":null}} 
+[2025-10-13 22:12:32] local.INFO: Calcul statut paiement {"facture_id":9,"montant_facture":"500.00","montant_actuel_paye":"500.00","nouveau_paiement":"500","nouveau_total_paye":1000.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:12:32] local.INFO: Paiement créé avec succès {"paiement_id":17,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-13 22:18:09] local.INFO: marquerPayee appelée {"facture_id":2,"request_data":{"_token":"8hJSelKongeFvuRldu8jIDyiRYxBT4uYhCMpVujU","montant":"150","mode_paiement":"virement","reference":null}} 
+[2025-10-13 22:18:30] local.INFO: marquerPayee appelée {"facture_id":3,"request_data":{"_token":"8hJSelKongeFvuRldu8jIDyiRYxBT4uYhCMpVujU","montant":"250","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:18:30] local.INFO: Validation réussie {"validated":{"montant":"250","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:18:30] local.INFO: Paiement par garantie locative {"garantie_disponible":"1000.00","montant_demande":"250","montant_facture":"250.00"} 
+[2025-10-13 22:18:30] local.INFO: Garantie locative mise à jour {"ancienne_garantie":1000.0,"nouvelle_garantie":"750.00","montant_deduit":"250"} 
+[2025-10-13 22:18:30] local.INFO: Calcul statut paiement {"facture_id":3,"montant_facture":"250.00","montant_actuel_paye":"250.00","nouveau_paiement":"250","nouveau_total_paye":500.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:18:30] local.INFO: Paiement créé avec succès {"paiement_id":18,"nouveau_statut":"paye_en_retard","compte_id":4,"reste_a_payer":0.0} 
+[2025-10-13 22:20:46] local.INFO: marquerPayee appelée {"facture_id":4,"request_data":{"_token":"8hJSelKongeFvuRldu8jIDyiRYxBT4uYhCMpVujU","montant":"800","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:20:46] local.INFO: Validation réussie {"validated":{"montant":"800","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-13 22:20:46] local.INFO: Paiement par garantie locative {"garantie_disponible":"3000.00","montant_demande":"800","montant_facture":"800.00"} 
+[2025-10-13 22:20:46] local.INFO: Garantie locative mise à jour {"ancienne_garantie":3000.0,"nouvelle_garantie":"2200.00","montant_deduit":"800"} 
+[2025-10-13 22:20:46] local.INFO: Calcul statut paiement {"facture_id":4,"montant_facture":"800.00","montant_actuel_paye":"800.00","nouveau_paiement":"800","nouveau_total_paye":1600.0,"comparaison":"COMPLET"} 
+[2025-10-13 22:20:46] local.INFO: Paiement créé avec succès {"paiement_id":19,"nouveau_statut":"paye_en_retard","compte_id":4,"reste_a_payer":0.0} 
+[2025-10-13 23:01:26] local.ERROR: Method App\Http\Controllers\LocataireController::destroy does not exist. {"userId":1,"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\LocataireController::destroy does not exist. at C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('destroy', Array)
+#1 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('destroy', Array)
+#2 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(260): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\LocataireController), 'destroy')
+#3 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#4 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#5 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\xampp\\htdocs\\immo\\app\\Http\\Middleware\\GestionnaireMiddleware.php(22): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\GestionnaireMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\xampp\\htdocs\\immo\\app\\Http\\Middleware\\AdminMiddleware.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\AdminMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#12 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#13 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#14 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken.php(78): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#16 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Middleware\\ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(121): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#20 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\EncryptCookies.php(67): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#27 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#28 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#29 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#30 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#31 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#32 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#33 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#34 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#38 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#39 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#40 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#41 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#42 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#43 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#44 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#45 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#46 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#47 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#48 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#49 C:\\xampp\\htdocs\\immo\\public\\index.php(16): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#50 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('C:\\\\xampp\\\\htdocs...')
+#51 {main}
+"} 
+[2025-10-14 08:01:58] local.ERROR: Namespace declaration statement has to be the very first statement or after any declare call in the script {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Namespace declaration statement has to be the very first statement or after any declare call in the script at C:\\xampp\\htdocs\\immo\\app\\Http\\Controllers\\LocataireController.php:45)
+[stacktrace]
+#0 {main}
+"} 
+[2025-10-14 08:12:06] local.ERROR: Namespace declaration statement has to be the very first statement or after any declare call in the script {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Namespace declaration statement has to be the very first statement or after any declare call in the script at C:\\xampp\\htdocs\\immo\\app\\Http\\Controllers\\LocataireController.php:45)
+[stacktrace]
+#0 {main}
+"} 

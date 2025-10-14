@@ -44,7 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['gestionnaire'])->group(function () {
         Route::resource('immeubles', ImmeubleeController::class)->except(['destroy']);
         Route::resource('appartements', AppartementController::class)->except(['destroy']);
-        Route::resource('locataires', LocataireController::class)->except(['destroy']);
+    Route::resource('locataires', LocataireController::class)->except(['destroy']);
+    Route::get('ajax/locataires', [LocataireController::class, 'ajaxSearch'])->name('locataires.ajax-search');
         Route::resource('loyers', LoyerController::class)->except(['destroy']);
         Route::resource('paiements', PaiementController::class)->except(['destroy']);
         Route::resource('factures', FactureController::class);

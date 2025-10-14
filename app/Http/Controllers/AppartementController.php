@@ -16,7 +16,16 @@ class AppartementController extends Controller
 
     public function index()
     {
-        $appartements = Appartement::with(['immeuble', 'locataire'])->get();
+        $query = Appartement::with(['immeuble', 'locataire']);
+        if (request('immeuble')) {
+            $query->whereHas('immeuble', function($q) {
+                $q->where('nom', 'like', '%' . request('immeuble') . '%');
+            });
+        }
+        if (request('numero')) {
+            $query->where('numero', 'like', '%' . request('numero') . '%');
+        }
+        $appartements = $query->get();
         return view('appartements.index', compact('appartements'));
     }
 

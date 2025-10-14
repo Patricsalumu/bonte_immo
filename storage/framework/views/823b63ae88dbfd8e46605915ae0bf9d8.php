@@ -100,7 +100,7 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                     id="type" 
                                     name="type" 
-                                    required>
+                                    >
                                 <option value="">Sélectionner un type</option>
                                 <option value="studio" <?php echo e(old('type', $appartement->type) == 'studio' ? 'selected' : ''); ?>>Studio</option>
                                 <option value="1_chambre" <?php echo e(old('type', $appartement->type) == '1_chambre' ? 'selected' : ''); ?>>1 chambre</option>
@@ -137,7 +137,7 @@ unset($__errorArgs, $__bag); ?>"
                                    value="<?php echo e(old('superficie', $appartement->superficie)); ?>" 
                                    min="10" 
                                    step="0.1" 
-                                   required>
+                                   >
                             <?php $__errorArgs = ['superficie'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

@@ -17,7 +17,22 @@ class LoyerController extends Controller
 
     public function index()
     {
-        $loyers = Loyer::with(['appartement.immeuble', 'locataire'])->orderBy('created_at', 'desc')->get();
+        $query = Loyer::with(['appartement.immeuble', 'locataire'])->orderBy('created_at', 'desc');
+        if (request('appartement')) {
+            $query->whereHas('appartement.immeuble', function($q) {
+                $q->where('nom', 'like', '%' . request('appartement') . '%');
+            })
+            ->orWhereHas('appartement', function($q) {
+                $q->where('numero', 'like', '%' . request('appartement') . '%');
+            });
+        }
+        if (request('client')) {
+            $query->whereHas('locataire', function($q) {
+                $q->where('nom', 'like', '%' . request('client') . '%')
+                  ->orWhere('prenom', 'like', '%' . request('client') . '%');
+            });
+        }
+        $loyers = $query->get();
         return view('loyers.index', compact('loyers'));
     }
 
