@@ -65,7 +65,7 @@ class RapportController extends Controller
             // Filtre par statut de paiement
             if ($statut === 'payee') {
                 $paiementsQuery->whereHas('facture', function($q) {
-                    $q->where('statut_paiement', 'paye');
+                    $q->whereIn('statut_paiement', ['paye', 'paye_en_retard']);
                 });
             } elseif ($statut === 'non_payee') {
                 $paiementsQuery->whereHas('facture', function($q) {
@@ -93,7 +93,7 @@ class RapportController extends Controller
 
             // Filtre par statut de paiement
             if ($statut === 'payee') {
-                $facturesQuery->where('statut_paiement', 'paye');
+                $facturesQuery->whereIn('statut_paiement', ['paye', 'paye_en_retard']);
             } elseif ($statut === 'non_payee') {
                 $facturesQuery->where('statut_paiement', 'non_paye');
             } elseif ($statut === 'partielle') {
