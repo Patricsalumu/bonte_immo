@@ -40,7 +40,7 @@ class AppartementController extends Controller
         $validated = $request->validate([
             'immeuble_id' => 'required|exists:immeubles,id',
             'numero' => 'required|string|max:10',
-            'type' => 'required|in:studio,1_chambre,2_chambres,3_chambres,4_chambres_plus,duplex',
+            'type' => 'nullable|in:local,1_pièce,2_pièces,3_pièces,4_pièces_plus,duplex',
             'superficie' => 'nullable|numeric|min:1',
             'etage' => 'nullable|integer|min:0',
             'loyer_mensuel' => 'required|numeric|min:0',
@@ -91,7 +91,7 @@ class AppartementController extends Controller
         $validated = $request->validate([
             'immeuble_id' => 'required|exists:immeubles,id',
             'numero' => 'required|string|max:10',
-            'type' => 'required|in:studio,1_chambre,2_chambres,3_chambres,4_chambres_plus,duplex',
+            'type' => 'nullable|in:local,1_pièce,2_pièces,3_pièces,4_pièces_plus,duplex',
             'superficie' => 'nullable|numeric|min:1',
             'etage' => 'nullable|integer|min:0',
             'loyer_mensuel' => 'required|numeric|min:0',

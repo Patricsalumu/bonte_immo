@@ -77,7 +77,7 @@
                                                 @php
                                                     $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
                                                 @endphp
-                                                {{ $loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' FC' : '-' }}
+                                                {{ $loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' $' : '-' }}
                                             </td>
                                             <td>
                                                 <div class="btn-group" role="group">

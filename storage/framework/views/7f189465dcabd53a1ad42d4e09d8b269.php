@@ -47,7 +47,7 @@
                                         <th>ID</th>
                                         <th>Locataire</th>
                                         <th>Appartement</th>
-                                        <th>Montant</th>
+                                        <th>Loyer</th>
                                         <th>Période</th>
                                         <th>Statut</th>
                                         <th>Actions</th>

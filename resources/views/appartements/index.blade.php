@@ -46,7 +46,7 @@
                                         <th>Immeuble</th>
                                         <th>Numéro</th>
                                         <th>Type</th>
-                                        <th>Surface</th>
+                                        <th>Garantie</th>
                                         <th>Loyer</th>
                                         <th>Locataire</th>
                                         <th>Statut</th>
@@ -59,7 +59,7 @@
                                             <td>{{ $appartement->immeuble->nom ?? 'N/A' }}</td>
                                             <td><strong>{{ $appartement->numero }}</strong></td>
                                             <td>{{ ucfirst($appartement->type) }}</td>
-                                            <td>{{ $appartement->surface }} m²</td>
+                                            <td>{{ $appartement->garantie_locative }} $</td>
                                             <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>
                                             <td>
                                                 @if($appartement->locataire)

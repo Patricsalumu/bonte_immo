@@ -15,7 +15,23 @@
     </style>
 </head>
 <body>
-    <h2>Rapport Mensuel des Loyers - {{ $nomMois[$mois] }} {{ $annee }}</h2>
+    <table style="width:100%; margin-bottom:10px;">
+        <tr>
+            <td style="width:120px; vertical-align:top;">
+                <img src="{{ public_path('logo.png') }}" alt="Logo" style="max-width:100px; max-height:80px;">
+            </td>
+            <td style="vertical-align:top;">
+                <strong>La Bonte Immo</strong><br>
+                Avenue de la révolution, Q. Industriel C. Lshi<br>
+                Tél : +243 970 000 000<br>
+                Email : contact@labonteimmo.com<br>
+            </td>
+            <td style="text-align:right; vertical-align:top;">
+                <h2 style="margin:0; color:#007bff;">Rapport Mensuel des Loyers</h2>
+                <span>{{ $nomMois[$mois] }} {{ $annee }}</span>
+            </td>
+        </tr>
+    </table>
     @foreach($factures->groupBy('appartement.immeuble.nom') as $immeuble => $facturesImmeuble)
         <h3>Immeuble : {{ $immeuble }}</h3>
         <table>
@@ -58,10 +74,40 @@
             </tfoot>
         </table>
     @endforeach
-    <ul class="stats">
-        <li><strong>Total à facturer :</strong> {{ number_format($stats['total_factures'] ?? 0, 0, ',', ' ') }} $</li>
-        <li><strong>Montant payé :</strong> {{ number_format($stats['montant_payes'] ?? 0, 0, ',', ' ') }} $</li>
-        <li><strong>Reste à payer :</strong> {{ number_format($stats['reste_a_payer'] ?? 0, 0, ',', ' ') }} $</li>
-    </ul>
+    <table style="width:100%; margin-top:30px;">
+        <tr>
+            <td style="width:50%; vertical-align:top;">
+                <strong>Montant encaissé par percepteur</strong>
+                <table style="width:100%; border-collapse:collapse; margin-top:5px;">
+                    <thead>
+                        <tr>
+                            <th style="background:#f8f9fa;">Percepteur</th>
+                            <th style="background:#f8f9fa;">Montant encaissé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($percepteurs as $percepteur)
+                            <tr>
+                                <td>{{ $percepteur->nom }}</td>
+                                <td>{{ number_format($percepteur->total_encaisse ?? 0, 0, ',', ' ') }} $</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @if($percepteurId)
+                    <div style="margin-top:10px; color:green;">
+                        <strong>Total payé chez le percepteur :</strong> {{ number_format($totalPayesPercepteur ?? 0, 0, ',', ' ') }} $
+                    </div>
+                @endif
+            </td>
+            <td style="width:50%; vertical-align:top;">
+                <ul class="stats" style="list-style:none; padding-left:0;">
+                    <li><strong>Total à facturer :</strong> {{ number_format($totalFactures ?? 0, 0, ',', ' ') }} $</li>
+                    <li><strong>Montant payé :</strong> {{ number_format($totalPayes ?? 0, 0, ',', ' ') }} $</li>
+                    <li><strong>Reste à payer :</strong> {{ number_format($resteAPayer ?? 0, 0, ',', ' ') }} $</li>
+                </ul>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

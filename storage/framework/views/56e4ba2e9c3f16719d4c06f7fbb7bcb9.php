@@ -42,8 +42,8 @@
                     </div>
                     <div class="col-md-6">
                         <h6>Détails financiers</h6>
-                        <p class="mb-1"><strong>Montant du loyer:</strong> <?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> CDF</p>
-                        <p class="mb-3"><strong>Garantie locative:</strong> <?php echo e(number_format($loyer->garantie_locative, 0, ',', ' ')); ?> CDF</p>
+                        <p class="mb-1"><strong>Montant du loyer:</strong> <?php echo e(number_format($loyer->montant, 0, ',', ' ')); ?> $</p>
+                        <p class="mb-3"><strong>Garantie locative:</strong> <?php echo e(number_format($loyer->garantie_locative, 0, ',', ' ')); ?> $</p>
 
                         <h6>Durée du contrat</h6>
                         <p class="mb-1"><strong>Date de début:</strong> <?php echo e($loyer->date_debut->format('d/m/Y')); ?></p>
@@ -84,7 +84,7 @@
                             <?php $__currentLoopData = $loyer->factures; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $facture): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
                                     <td><?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?></td>
-                                    <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> CDF</td>
+                                    <td><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> $</td>
                                     <td>
                                         <?php if($facture->estPayee()): ?>
                                             <span class="badge bg-success">Payée</span>

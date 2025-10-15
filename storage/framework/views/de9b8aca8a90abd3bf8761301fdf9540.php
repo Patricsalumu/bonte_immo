@@ -18,6 +18,18 @@
                 <option value="<?php echo e($i); ?>" <?php echo e($annee == $i ? 'selected' : ''); ?>><?php echo e($i); ?></option>
             <?php endfor; ?>
         </select>
+            <select name="percepteur" class="form-select" style="width:150px">
+                <option value="">Tous les percepteurs</option>
+                <?php $__currentLoopData = $percepteurs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $percepteur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($percepteur->id); ?>" <?php echo e(request('percepteur') == $percepteur->id ? 'selected' : ''); ?>><?php echo e($percepteur->nom); ?></option>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </select>
+            <select name="statut" class="form-select" style="width:150px">
+                <option value="">Tous les statuts</option>
+                <option value="payee" <?php echo e(request('statut') == 'payee' ? 'selected' : ''); ?>>Payées</option>
+                <option value="non_payee" <?php echo e(request('statut') == 'non_payee' ? 'selected' : ''); ?>>Non payées</option>
+                <option value="partielle" <?php echo e(request('statut') == 'partielle' ? 'selected' : ''); ?>>Partielles</option>
+            </select>
         <button type="submit" class="btn btn-primary">Filtrer</button>
         <a href="<?php echo e(route('rapports.export', ['type'=>'mensuel','format'=>'pdf','mois'=>$mois,'annee'=>$annee])); ?>" class="btn btn-success">
             <i class="fas fa-file-pdf"></i> Exporter PDF
@@ -87,6 +99,23 @@
 ?>
 <div class="row mt-4">
     <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Montant encaissé par percepteur</h5>
+                <ul class="list-group list-group-flush">
+                    <?php $__currentLoopData = $percepteurs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $percepteur): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><?php echo e($percepteur->nom); ?></span>
+                            <span class="fw-bold text-success">
+                                <?php echo e(number_format($percepteur->total_encaisse ?? 0, 0, ',', ' ')); ?> $
+                            </span>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Statistiques du mois</h5>
@@ -94,6 +123,9 @@
                     <li class="list-group-item">Total à facturer : <strong><?php echo e(number_format($totalFactures, 0, ',', ' ')); ?> $</strong></li>
                     <li class="list-group-item">Montant payé : <strong><?php echo e(number_format($totalPayes, 0, ',', ' ')); ?> $</strong></li>
                     <li class="list-group-item">Reste à payer : <strong><?php echo e(number_format($resteAPayer, 0, ',', ' ')); ?> $</strong></li>
+                    <?php if(request('percepteur')): ?>
+                        <li class="list-group-item text-success">Total payé chez le percepteur : <strong><?php echo e(number_format($totalPayesPercepteur, 0, ',', ' ')); ?> $</strong></li>
+                    <?php endif; ?>
                 </ul>
             </div>
         </div>

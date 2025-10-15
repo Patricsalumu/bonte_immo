@@ -28,3 +28,248 @@
 [2025-10-14 12:24:24] local.INFO: Suppression mouvement caisse {"mouvement_id":16,"description":"Paiement facture FAC00007 - DELPHIN DELPHIN"} 
 [2025-10-14 12:24:24] local.INFO: Suppression paiement {"paiement_id":16,"montant":"300.00","mode":"cash"} 
 [2025-10-14 12:24:24] local.INFO: Facture supprimée {"facture_id":31,"numero_facture":"FAC00007"} 
+[2025-10-14 12:30:23] local.INFO: marquerPayee appelée {"facture_id":32,"request_data":{"_token":"xATTQTysQOkd6QsFeoxHQ11cdvjKzOK4dClSoDrj","montant":"300","mode_paiement":"cash","reference":null,"notes":null}} 
+[2025-10-14 12:30:23] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-14 12:30:23] local.INFO: Calcul statut paiement {"facture_id":32,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-14 12:30:23] local.INFO: Paiement créé avec succès {"paiement_id":17,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-14 16:36:52] local.ERROR: Method App\Http\Controllers\LocataireController::destroy does not exist. {"userId":1,"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\LocataireController::destroy does not exist. at C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('destroy', Array)
+#1 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(43): Illuminate\\Routing\\Controller->callAction('destroy', Array)
+#2 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(260): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\LocataireController), 'destroy')
+#3 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(205): Illuminate\\Routing\\Route->runController()
+#4 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(806): Illuminate\\Routing\\Route->run()
+#5 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\xampp\\htdocs\\immo\\app\\Http\\Middleware\\GestionnaireMiddleware.php(22): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\GestionnaireMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\xampp\\htdocs\\immo\\app\\Http\\Middleware\\AdminMiddleware.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): App\\Http\\Middleware\\AdminMiddleware->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#10 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(50): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#11 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#12 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Auth\\Middleware\\Authenticate.php(57): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#13 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Auth\\Middleware\\Authenticate->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#14 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken.php(78): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\VerifyCsrfToken->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#16 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\View\\Middleware\\ShareErrorsFromSession.php(49): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#17 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\View\\Middleware\\ShareErrorsFromSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(121): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Session\\Middleware\\StartSession.php(64): Illuminate\\Session\\Middleware\\StartSession->handleStatefulRequest(Object(Illuminate\\Http\\Request), Object(Illuminate\\Session\\Store), Object(Closure))
+#20 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Session\\Middleware\\StartSession->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse.php(37): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Cookie\\Middleware\\AddQueuedCookiesToResponse->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Cookie\\Middleware\\EncryptCookies.php(67): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Cookie\\Middleware\\EncryptCookies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#27 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(784): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#28 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(748): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#29 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(737): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#30 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(200): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#31 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(144): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#32 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#33 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#34 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#35 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#36 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(40): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#37 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#38 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#39 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#40 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(99): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#41 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#42 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(49): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#43 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#44 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(39): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#45 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(183): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#46 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(119): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#47 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(175): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#48 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(144): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#49 C:\\xampp\\htdocs\\immo\\public\\index.php(16): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#50 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('C:\\\\xampp\\\\htdocs...')
+#51 {main}
+"} 
+[2025-10-15 07:51:05] local.INFO: marquerPayee appelée {"facture_id":256,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"110","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:51:05] local.INFO: Validation réussie {"validated":{"montant":"110","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:51:05] local.INFO: Calcul statut paiement {"facture_id":256,"montant_facture":"110.00","montant_actuel_paye":"110.00","nouveau_paiement":"110","nouveau_total_paye":220.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:51:05] local.INFO: Paiement créé avec succès {"paiement_id":192,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:51:39] local.INFO: marquerPayee appelée {"facture_id":257,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"110","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:51:39] local.INFO: Validation réussie {"validated":{"montant":"110","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:51:39] local.INFO: Calcul statut paiement {"facture_id":257,"montant_facture":"110.00","montant_actuel_paye":"110.00","nouveau_paiement":"110","nouveau_total_paye":220.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:51:39] local.INFO: Paiement créé avec succès {"paiement_id":193,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:52:22] local.INFO: marquerPayee appelée {"facture_id":258,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:52:22] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:52:22] local.INFO: Calcul statut paiement {"facture_id":258,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:52:22] local.INFO: Paiement créé avec succès {"paiement_id":194,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:53:14] local.INFO: marquerPayee appelée {"facture_id":259,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:53:14] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:53:14] local.INFO: Calcul statut paiement {"facture_id":259,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:53:14] local.INFO: Paiement créé avec succès {"paiement_id":195,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:54:03] local.INFO: marquerPayee appelée {"facture_id":260,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:54:03] local.INFO: Validation réussie {"validated":{"montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:54:03] local.INFO: Calcul statut paiement {"facture_id":260,"montant_facture":"100.00","montant_actuel_paye":"100.00","nouveau_paiement":"100","nouveau_total_paye":200.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:54:03] local.INFO: Paiement créé avec succès {"paiement_id":196,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:56:07] local.INFO: marquerPayee appelée {"facture_id":261,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:56:07] local.INFO: Validation réussie {"validated":{"montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:56:07] local.INFO: Calcul statut paiement {"facture_id":261,"montant_facture":"100.00","montant_actuel_paye":"100.00","nouveau_paiement":"100","nouveau_total_paye":200.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:56:07] local.INFO: Paiement créé avec succès {"paiement_id":197,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:56:48] local.INFO: marquerPayee appelée {"facture_id":262,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:56:48] local.INFO: Validation réussie {"validated":{"montant":"100","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:56:48] local.INFO: Calcul statut paiement {"facture_id":262,"montant_facture":"100.00","montant_actuel_paye":"100.00","nouveau_paiement":"100","nouveau_total_paye":200.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:56:48] local.INFO: Paiement créé avec succès {"paiement_id":198,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:57:15] local.INFO: marquerPayee appelée {"facture_id":263,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:57:15] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:57:15] local.INFO: Calcul statut paiement {"facture_id":263,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:57:15] local.INFO: Paiement créé avec succès {"paiement_id":199,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:57:59] local.INFO: marquerPayee appelée {"facture_id":264,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"virement","reference":"RW0001"}} 
+[2025-10-15 07:57:59] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"virement","reference":"RW0001"}} 
+[2025-10-15 07:57:59] local.INFO: Calcul statut paiement {"facture_id":264,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:57:59] local.INFO: Paiement créé avec succès {"paiement_id":200,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:58:35] local.INFO: marquerPayee appelée {"facture_id":265,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:58:35] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:58:35] local.INFO: Calcul statut paiement {"facture_id":265,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:58:35] local.INFO: Paiement créé avec succès {"paiement_id":201,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:59:03] local.INFO: marquerPayee appelée {"facture_id":266,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:03] local.INFO: Validation réussie {"validated":{"montant":"50","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:03] local.INFO: Calcul statut paiement {"facture_id":266,"montant_facture":"50.00","montant_actuel_paye":"50.00","nouveau_paiement":"50","nouveau_total_paye":100.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:59:03] local.INFO: Paiement créé avec succès {"paiement_id":202,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:59:25] local.INFO: marquerPayee appelée {"facture_id":267,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:25] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:25] local.INFO: Calcul statut paiement {"facture_id":267,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:59:25] local.INFO: Paiement créé avec succès {"paiement_id":203,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 07:59:53] local.INFO: marquerPayee appelée {"facture_id":268,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:53] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 07:59:53] local.INFO: Calcul statut paiement {"facture_id":268,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 07:59:53] local.INFO: Paiement créé avec succès {"paiement_id":204,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:00:16] local.INFO: marquerPayee appelée {"facture_id":269,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"230","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:00:16] local.INFO: Validation réussie {"validated":{"montant":"230","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:00:16] local.INFO: Calcul statut paiement {"facture_id":269,"montant_facture":"230.00","montant_actuel_paye":"230.00","nouveau_paiement":"230","nouveau_total_paye":460.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:00:16] local.INFO: Paiement créé avec succès {"paiement_id":205,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:00:38] local.INFO: marquerPayee appelée {"facture_id":270,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:00:38] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:00:38] local.INFO: Calcul statut paiement {"facture_id":270,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:00:38] local.INFO: Paiement créé avec succès {"paiement_id":206,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:01:03] local.INFO: marquerPayee appelée {"facture_id":271,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:03] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:03] local.INFO: Calcul statut paiement {"facture_id":271,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:01:04] local.INFO: Paiement créé avec succès {"paiement_id":207,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:01:29] local.INFO: marquerPayee appelée {"facture_id":272,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:29] local.INFO: Validation réussie {"validated":{"montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:29] local.INFO: Calcul statut paiement {"facture_id":272,"montant_facture":"120.00","montant_actuel_paye":"120.00","nouveau_paiement":"120","nouveau_total_paye":240.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:01:29] local.INFO: Paiement créé avec succès {"paiement_id":208,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:01:55] local.INFO: marquerPayee appelée {"facture_id":273,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:55] local.INFO: Validation réussie {"validated":{"montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:01:55] local.INFO: Calcul statut paiement {"facture_id":273,"montant_facture":"120.00","montant_actuel_paye":"120.00","nouveau_paiement":"120","nouveau_total_paye":240.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:01:55] local.INFO: Paiement créé avec succès {"paiement_id":209,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:02:17] local.INFO: marquerPayee appelée {"facture_id":274,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:02:17] local.INFO: Validation réussie {"validated":{"montant":"120","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:02:17] local.INFO: Calcul statut paiement {"facture_id":274,"montant_facture":"120.00","montant_actuel_paye":"120.00","nouveau_paiement":"120","nouveau_total_paye":240.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:02:17] local.INFO: Paiement créé avec succès {"paiement_id":210,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:02:42] local.INFO: marquerPayee appelée {"facture_id":275,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:02:42] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:02:42] local.INFO: Calcul statut paiement {"facture_id":275,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:02:42] local.INFO: Paiement créé avec succès {"paiement_id":211,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:04:11] local.INFO: marquerPayee appelée {"facture_id":276,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:04:11] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:04:11] local.INFO: Calcul statut paiement {"facture_id":276,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:04:11] local.INFO: Paiement créé avec succès {"paiement_id":212,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:06:37] local.INFO: marquerPayee appelée {"facture_id":277,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:06:37] local.INFO: Validation réussie {"validated":{"montant":"250","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:06:37] local.INFO: Calcul statut paiement {"facture_id":277,"montant_facture":"250.00","montant_actuel_paye":"250.00","nouveau_paiement":"250","nouveau_total_paye":500.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:06:37] local.INFO: Paiement créé avec succès {"paiement_id":213,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:07:05] local.INFO: marquerPayee appelée {"facture_id":278,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-15 08:07:05] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"garantie_locative","reference":null}} 
+[2025-10-15 08:07:05] local.INFO: Paiement par garantie locative {"garantie_disponible":"1000.00","montant_demande":"320","montant_facture":"320.00"} 
+[2025-10-15 08:07:05] local.INFO: Garantie locative mise à jour {"ancienne_garantie":1000.0,"nouvelle_garantie":"680.00","montant_deduit":"320"} 
+[2025-10-15 08:07:05] local.INFO: Calcul statut paiement {"facture_id":278,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:07:05] local.INFO: Paiement créé avec succès {"paiement_id":214,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:07:22] local.INFO: marquerPayee appelée {"facture_id":1,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:07:22] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:07:22] local.INFO: Calcul statut paiement {"facture_id":1,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:07:22] local.INFO: Paiement créé avec succès {"paiement_id":215,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:07:44] local.INFO: marquerPayee appelée {"facture_id":279,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:07:44] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:07:44] local.INFO: Calcul statut paiement {"facture_id":279,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:07:44] local.INFO: Paiement créé avec succès {"paiement_id":216,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:08:43] local.INFO: marquerPayee appelée {"facture_id":280,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:08:44] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:08:44] local.INFO: Calcul statut paiement {"facture_id":280,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:08:44] local.INFO: Paiement créé avec succès {"paiement_id":217,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:10:08] local.INFO: marquerPayee appelée {"facture_id":281,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:10:08] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:10:08] local.INFO: Calcul statut paiement {"facture_id":281,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:10:08] local.INFO: Paiement créé avec succès {"paiement_id":218,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:11:00] local.INFO: marquerPayee appelée {"facture_id":282,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:11:00] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:11:00] local.INFO: Calcul statut paiement {"facture_id":282,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:11:00] local.INFO: Paiement créé avec succès {"paiement_id":219,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:11:35] local.INFO: marquerPayee appelée {"facture_id":283,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:11:35] local.INFO: Validation réussie {"validated":{"montant":"320","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:11:35] local.INFO: Calcul statut paiement {"facture_id":283,"montant_facture":"320.00","montant_actuel_paye":"320.00","nouveau_paiement":"320","nouveau_total_paye":640.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:11:35] local.INFO: Paiement créé avec succès {"paiement_id":220,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:12:02] local.INFO: marquerPayee appelée {"facture_id":284,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"450","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:12:02] local.INFO: Validation réussie {"validated":{"montant":"450","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:12:03] local.INFO: Calcul statut paiement {"facture_id":284,"montant_facture":"450.00","montant_actuel_paye":"450.00","nouveau_paiement":"450","nouveau_total_paye":900.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:12:03] local.INFO: Paiement créé avec succès {"paiement_id":221,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:16:06] local.INFO: marquerPayee appelée {"facture_id":285,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"450","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:16:06] local.INFO: Validation réussie {"validated":{"montant":"450","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:16:06] local.INFO: Calcul statut paiement {"facture_id":285,"montant_facture":"450.00","montant_actuel_paye":"450.00","nouveau_paiement":"450","nouveau_total_paye":900.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:16:06] local.INFO: Paiement créé avec succès {"paiement_id":222,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 08:16:33] local.INFO: marquerPayee appelée {"facture_id":286,"request_data":{"_token":"EGqkqg0Qj4CeC8OWJeLpxG1XTmBfdrIKSQy7w1wC","montant":"400","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:16:33] local.INFO: Validation réussie {"validated":{"montant":"400","mode_paiement":"cash","reference":null}} 
+[2025-10-15 08:16:33] local.INFO: Calcul statut paiement {"facture_id":286,"montant_facture":"400.00","montant_actuel_paye":"400.00","nouveau_paiement":"400","nouveau_total_paye":800.0,"comparaison":"COMPLET"} 
+[2025-10-15 08:16:33] local.INFO: Paiement créé avec succès {"paiement_id":223,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 17:18:06] local.INFO: marquerPayee appelée {"facture_id":16,"request_data":{"_token":"GV1XO0zm422Vq09itr707jfxAViuhFyPRzXxJU3D","montant":"500","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:07] local.INFO: Validation réussie {"validated":{"montant":"500","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:07] local.INFO: Calcul statut paiement {"facture_id":16,"montant_facture":"500.00","montant_actuel_paye":"500.00","nouveau_paiement":"500","nouveau_total_paye":1000.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:18:07] local.INFO: Paiement créé avec succès {"paiement_id":16,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 17:18:17] local.INFO: marquerPayee appelée {"facture_id":18,"request_data":{"_token":"GV1XO0zm422Vq09itr707jfxAViuhFyPRzXxJU3D","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:17] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:17] local.INFO: Calcul statut paiement {"facture_id":18,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:18:17] local.INFO: Paiement créé avec succès {"paiement_id":17,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 17:18:27] local.INFO: marquerPayee appelée {"facture_id":29,"request_data":{"_token":"GV1XO0zm422Vq09itr707jfxAViuhFyPRzXxJU3D","montant":"200","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:27] local.INFO: Validation réussie {"validated":{"montant":"200","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:27] local.INFO: Calcul statut paiement {"facture_id":29,"montant_facture":"200.00","montant_actuel_paye":"200.00","nouveau_paiement":"200","nouveau_total_paye":400.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:18:27] local.INFO: Paiement créé avec succès {"paiement_id":18,"nouveau_statut":"paye","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 17:18:39] local.INFO: marquerPayee appelée {"facture_id":9,"request_data":{"_token":"GV1XO0zm422Vq09itr707jfxAViuhFyPRzXxJU3D","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:39] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:18:39] local.INFO: Calcul statut paiement {"facture_id":9,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:18:39] local.INFO: Paiement créé avec succès {"paiement_id":19,"nouveau_statut":"paye_en_retard","compte_id":1,"reste_a_payer":0.0} 
+[2025-10-15 17:19:26] local.INFO: marquerPayee appelée {"facture_id":1,"request_data":{"_token":"NePwxgPAfKwwUqyyMhQbfjyquf8T4nQ2B6NQQTzL","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:26] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:26] local.INFO: Calcul statut paiement {"facture_id":1,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:19:26] local.INFO: Paiement créé avec succès {"paiement_id":20,"nouveau_statut":"paye_en_retard","compte_id":2,"reste_a_payer":0.0} 
+[2025-10-15 17:19:36] local.INFO: marquerPayee appelée {"facture_id":27,"request_data":{"_token":"NePwxgPAfKwwUqyyMhQbfjyquf8T4nQ2B6NQQTzL","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:36] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:36] local.INFO: Calcul statut paiement {"facture_id":27,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:19:36] local.INFO: Paiement créé avec succès {"paiement_id":21,"nouveau_statut":"paye","compte_id":2,"reste_a_payer":0.0} 
+[2025-10-15 17:19:44] local.INFO: marquerPayee appelée {"facture_id":5,"request_data":{"_token":"NePwxgPAfKwwUqyyMhQbfjyquf8T4nQ2B6NQQTzL","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:44] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:19:44] local.INFO: Calcul statut paiement {"facture_id":5,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:19:44] local.INFO: Paiement créé avec succès {"paiement_id":22,"nouveau_statut":"paye_en_retard","compte_id":2,"reste_a_payer":0.0} 
+[2025-10-15 17:20:17] local.INFO: marquerPayee appelée {"facture_id":6,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:17] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:18] local.INFO: Calcul statut paiement {"facture_id":6,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:20:18] local.INFO: Paiement créé avec succès {"paiement_id":23,"nouveau_statut":"paye_en_retard","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:20:28] local.INFO: marquerPayee appelée {"facture_id":15,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"200","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:28] local.INFO: Validation réussie {"validated":{"montant":"200","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:28] local.INFO: Calcul statut paiement {"facture_id":15,"montant_facture":"200.00","montant_actuel_paye":"200.00","nouveau_paiement":"200","nouveau_total_paye":400.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:20:28] local.INFO: Paiement créé avec succès {"paiement_id":24,"nouveau_statut":"paye_en_retard","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:20:37] local.INFO: marquerPayee appelée {"facture_id":11,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:37] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:37] local.INFO: Calcul statut paiement {"facture_id":11,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:20:38] local.INFO: Paiement créé avec succès {"paiement_id":25,"nouveau_statut":"paye_en_retard","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:20:46] local.INFO: marquerPayee appelée {"facture_id":3,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:46] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:20:46] local.INFO: Calcul statut paiement {"facture_id":3,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:20:46] local.INFO: Paiement créé avec succès {"paiement_id":26,"nouveau_statut":"paye_en_retard","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:20:56] local.INFO: marquerPayee appelée {"facture_id":13,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"200","mode_paiement":"virement","reference":null}} 
+[2025-10-15 17:20:56] local.INFO: Validation réussie {"validated":{"montant":"200","mode_paiement":"virement","reference":null}} 
+[2025-10-15 17:20:56] local.INFO: Calcul statut paiement {"facture_id":13,"montant_facture":"200.00","montant_actuel_paye":"200.00","nouveau_paiement":"200","nouveau_total_paye":400.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:20:56] local.INFO: Paiement créé avec succès {"paiement_id":27,"nouveau_statut":"paye_en_retard","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:21:08] local.INFO: marquerPayee appelée {"facture_id":22,"request_data":{"_token":"LVeRqfWmI9px2dsf2TKzmq0iT2AXqHjULQMVkL0d","montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:21:08] local.INFO: Validation réussie {"validated":{"montant":"300","mode_paiement":"cash","reference":null}} 
+[2025-10-15 17:21:08] local.INFO: Calcul statut paiement {"facture_id":22,"montant_facture":"300.00","montant_actuel_paye":"300.00","nouveau_paiement":"300","nouveau_total_paye":600.0,"comparaison":"COMPLET"} 
+[2025-10-15 17:21:08] local.INFO: Paiement créé avec succès {"paiement_id":28,"nouveau_statut":"paye","compte_id":3,"reste_a_payer":0.0} 
+[2025-10-15 17:28:00] local.ERROR: Namespace declaration statement has to be the very first statement or after any declare call in the script {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Namespace declaration statement has to be the very first statement or after any declare call in the script at C:\\xampp\\htdocs\\immo\\app\\Http\\Controllers\\RapportController.php:12)
+[stacktrace]
+#0 {main}
+"} 

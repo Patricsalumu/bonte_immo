@@ -18,6 +18,18 @@
                 <option value="{{ $i }}" {{ $annee == $i ? 'selected' : '' }}>{{ $i }}</option>
             @endfor
         </select>
+            <select name="percepteur" class="form-select" style="width:150px">
+                <option value="">Tous les percepteurs</option>
+                @foreach($percepteurs as $percepteur)
+                    <option value="{{ $percepteur->id }}" {{ request('percepteur') == $percepteur->id ? 'selected' : '' }}>{{ $percepteur->nom }}</option>
+                @endforeach
+            </select>
+            <select name="statut" class="form-select" style="width:150px">
+                <option value="">Tous les statuts</option>
+                <option value="payee" {{ request('statut') == 'payee' ? 'selected' : '' }}>Payées</option>
+                <option value="non_payee" {{ request('statut') == 'non_payee' ? 'selected' : '' }}>Non payées</option>
+                <option value="partielle" {{ request('statut') == 'partielle' ? 'selected' : '' }}>Partielles</option>
+            </select>
         <button type="submit" class="btn btn-primary">Filtrer</button>
         <a href="{{ route('rapports.export', ['type'=>'mensuel','format'=>'pdf','mois'=>$mois,'annee'=>$annee]) }}" class="btn btn-success">
             <i class="fas fa-file-pdf"></i> Exporter PDF
@@ -87,6 +99,23 @@
 @endphp
 <div class="row mt-4">
     <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Montant encaissé par percepteur</h5>
+                <ul class="list-group list-group-flush">
+                    @foreach($percepteurs as $percepteur)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ $percepteur->nom }}</span>
+                            <span class="fw-bold text-success">
+                                {{ number_format($percepteur->total_encaisse ?? 0, 0, ',', ' ') }} $
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Statistiques du mois</h5>
@@ -94,6 +123,9 @@
                     <li class="list-group-item">Total à facturer : <strong>{{ number_format($totalFactures, 0, ',', ' ') }} $</strong></li>
                     <li class="list-group-item">Montant payé : <strong>{{ number_format($totalPayes, 0, ',', ' ') }} $</strong></li>
                     <li class="list-group-item">Reste à payer : <strong>{{ number_format($resteAPayer, 0, ',', ' ') }} $</strong></li>
+                    @if(request('percepteur'))
+                        <li class="list-group-item text-success">Total payé chez le percepteur : <strong>{{ number_format($totalPayesPercepteur, 0, ',', ' ') }} $</strong></li>
+                    @endif
                 </ul>
             </div>
         </div>

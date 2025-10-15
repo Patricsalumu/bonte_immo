@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\Loyer;
 use App\Models\Paiement;
 use App\Models\CompteFinancier;
@@ -29,30 +28,93 @@ class RapportController extends Controller
 
     public function mensuel(Request $request)
     {
-    $nomMois = [
-        1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
-        5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
-        9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
-    ];
+            $nomMois = [
+                1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+                5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+                9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+            ];
 
-    $mois = $request->input('mois', now()->month);
-    $annee = $request->input('annee', now()->year);
+            $mois = $request->input('mois', now()->month);
+            $annee = $request->input('annee', now()->year);
+            $percepteurId = $request->input('percepteur');
+            $statut = $request->input('statut');
 
-        // Factures du mois
-        $factures = Facture::with(['appartement.immeuble', 'locataire', 'paiements'])
-            ->where('mois', $mois)
-            ->where('annee', $annee)
-            ->get();
+            // Liste des percepteurs pour le filtre
+            $percepteurs = \App\Models\User::where('role', 'gestionnaire')->orWhere('role', 'admin')->get();
+            // Calcul du montant encaissé par percepteur pour la période
+            foreach ($percepteurs as $percepteur) {
+                $percepteur->total_encaisse = Paiement::where('utilisateur_id', $percepteur->id)
+                    ->where('est_annule', false)
+                    ->whereHas('facture', function($q) use ($mois, $annee) {
+                        $q->where('mois', $mois)->where('annee', $annee);
+                    })
+                    ->sum('montant');
+            }
 
-        // Statistiques
-        $stats = [
-            'total_factures' => $factures->sum('montant'),
-            'montant_payes' => $factures->sum('montant_paye'),
-            'reste_a_payer' => $factures->sum('montant') - $factures->sum('montant_paye'),
-            'nombre_factures' => $factures->count(),
-        ];
+            // Récupère les paiements valides du mois/année
+            $paiementsQuery = Paiement::with(['facture', 'locataire', 'utilisateur'])
+                ->whereHas('facture', function($q) use ($mois, $annee) {
+                    $q->where('mois', $mois)->where('annee', $annee);
+                })
+                ->where('est_annule', false);
 
-    return view('rapports.mensuel', compact('factures', 'stats', 'mois', 'annee', 'nomMois'));
+            if ($percepteurId) {
+                $paiementsQuery->where('utilisateur_id', $percepteurId);
+            }
+
+            // Filtre par statut de paiement
+            if ($statut === 'payee') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'paye');
+                });
+            } elseif ($statut === 'non_payee') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'non_paye');
+                });
+            } elseif ($statut === 'partielle') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'partielle');
+                });
+            }
+
+            $paiementsFiltres = $paiementsQuery->get();
+
+            // Récupère les factures du mois/année
+            $facturesQuery = Facture::with(['appartement.immeuble', 'locataire', 'paiements.utilisateur'])
+                ->where('mois', $mois)
+                ->where('annee', $annee);
+
+            // Si filtre percepteur, ne garder que les factures ayant au moins un paiement du percepteur
+            if ($percepteurId) {
+                $facturesQuery->whereHas('paiements', function($q) use ($percepteurId) {
+                    $q->where('utilisateur_id', $percepteurId)->where('est_annule', false);
+                });
+            }
+
+            // Filtre par statut de paiement
+            if ($statut === 'payee') {
+                $facturesQuery->where('statut_paiement', 'paye');
+            } elseif ($statut === 'non_payee') {
+                $facturesQuery->where('statut_paiement', 'non_paye');
+            } elseif ($statut === 'partielle') {
+                $facturesQuery->where('statut_paiement', 'partielle');
+            }
+
+            $factures = $facturesQuery->get();
+
+            // Calcul du total payé chez le percepteur sélectionné
+            $totalPayesPercepteur = $paiementsFiltres->sum('montant');
+
+            // Statistiques globales
+            $totalFactures = $factures->sum('montant');
+            $totalPayes = $factures->reduce(function($carry, $facture) {
+                return $carry + $facture->paiements->where('est_annule', false)->sum('montant');
+            }, 0);
+            $resteAPayer = $totalFactures - $totalPayes;
+
+            return view('rapports.mensuel', compact(
+                'factures', 'mois', 'annee', 'nomMois', 'percepteurs', 'totalPayesPercepteur', 'totalFactures', 'totalPayes', 'resteAPayer'
+            ));
     }
 
     public function export(Request $request)
@@ -75,42 +137,97 @@ class RapportController extends Controller
     }
 
     private function exportMensuel($format, $mois, $annee)
-    {
-        $factures = Facture::with(['appartement.immeuble', 'locataire', 'paiements.utilisateur'])
-            ->where('mois', $mois)
-            ->where('annee', $annee)
-            ->get();
+        {
+            $request = request();
+            $percepteurId = $request->input('percepteur');
+            $statut = $request->input('statut');
 
-        // Calculs dynamiques pour chaque facture
-        foreach ($factures as $facture) {
-            $paiementsValides = $facture->paiements->where('est_annule', false);
-            $facture->montant_payes_calc = $paiementsValides->sum('montant');
-            $dernierPaiement = $paiementsValides->sortByDesc('created_at')->first();
-            $facture->date_paiement_calc = $dernierPaiement ? $dernierPaiement->created_at : null;
-            $facture->percepteur_calc = $dernierPaiement && $dernierPaiement->utilisateur ? $dernierPaiement->utilisateur->name : null;
+            $nomMois = [
+                1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
+                5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
+                9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
+            ];
+
+            $percepteurs = \App\Models\User::where('role', 'gestionnaire')->orWhere('role', 'admin')->get();
+
+            // Récupère les paiements valides du mois/année
+            $paiementsQuery = Paiement::with(['facture', 'locataire', 'utilisateur'])
+                ->whereHas('facture', function($q) use ($mois, $annee) {
+                    $q->where('mois', $mois)->where('annee', $annee);
+                })
+                ->where('est_annule', false);
+
+            if ($percepteurId) {
+                $paiementsQuery->where('utilisateur_id', $percepteurId);
+            }
+
+            if ($statut === 'payee') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'paye');
+                });
+            } elseif ($statut === 'non_payee') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'non_paye');
+                });
+            } elseif ($statut === 'partielle') {
+                $paiementsQuery->whereHas('facture', function($q) {
+                    $q->where('statut_paiement', 'partielle');
+                });
+            }
+
+            $paiementsFiltres = $paiementsQuery->get();
+
+            // Récupère les factures du mois/année
+            $facturesQuery = Facture::with(['appartement.immeuble', 'locataire', 'paiements.utilisateur'])
+                ->where('mois', $mois)
+                ->where('annee', $annee);
+
+            if ($percepteurId) {
+                $facturesQuery->whereHas('paiements', function($q) use ($percepteurId) {
+                    $q->where('utilisateur_id', $percepteurId)->where('est_annule', false);
+                });
+            }
+            if ($statut === 'payee') {
+                $facturesQuery->where('statut_paiement', 'paye');
+            } elseif ($statut === 'non_payee') {
+                $facturesQuery->where('statut_paiement', 'non_paye');
+            } elseif ($statut === 'partielle') {
+                $facturesQuery->where('statut_paiement', 'partielle');
+            }
+
+            $factures = $facturesQuery->get();
+
+            // Calcul du montant encaissé par percepteur pour la période
+            foreach ($percepteurs as $percepteur) {
+                $percepteur->total_encaisse = Paiement::where('utilisateur_id', $percepteur->id)
+                    ->where('est_annule', false)
+                    ->whereHas('facture', function($q) use ($mois, $annee) {
+                        $q->where('mois', $mois)->where('annee', $annee);
+                    })
+                    ->sum('montant');
+            }
+
+            // Calcul du total payé chez le percepteur sélectionné
+            $totalPayesPercepteur = $paiementsFiltres->sum('montant');
+
+            // Statistiques globales
+            $totalFactures = $factures->sum('montant');
+            $totalPayes = $factures->reduce(function($carry, $facture) {
+                return $carry + $facture->paiements->where('est_annule', false)->sum('montant');
+            }, 0);
+            $resteAPayer = $totalFactures - $totalPayes;
+
+            $data = compact(
+                'factures', 'mois', 'annee', 'nomMois', 'percepteurs', 'totalPayesPercepteur', 'totalFactures', 'totalPayes', 'resteAPayer', 'statut', 'percepteurId'
+            );
+
+            if ($format === 'pdf') {
+                $pdf = PDF::loadView('rapports.pdf.mensuel', $data);
+                return $pdf->download("rapport_mensuel_{$mois}_{$annee}.pdf");
+            } else {
+                return Excel::download(new \App\Exports\RapportMensuelExport($data), "rapport_mensuel_{$mois}_{$annee}.xlsx");
+            }
         }
-
-        $stats = [
-            'total_factures' => $factures->sum('montant'),
-            'montant_payes' => $factures->sum('montant_payes_calc'),
-            'reste_a_payer' => $factures->sum('montant') - $factures->sum('montant_payes_calc'),
-            'nombre_factures' => $factures->count(),
-        ];
-        $nomMois = [
-            1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril',
-            5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août',
-            9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'
-        ];
-
-        $data = compact('factures', 'stats', 'mois', 'annee', 'nomMois');
-
-        if ($format === 'pdf') {
-            $pdf = PDF::loadView('rapports.pdf.mensuel', $data);
-            return $pdf->download("rapport_mensuel_{$mois}_{$annee}.pdf");
-        } else {
-            return Excel::download(new \App\Exports\RapportMensuelExport($data), "rapport_mensuel_{$mois}_{$annee}.xlsx");
-        }
-    }
 
     private function exportFacturesImpayees($format)
     {

@@ -79,7 +79,7 @@
                                                 <?php
                                                     $loyerActif = $locataire->loyers()->where('statut', 'actif')->first();
                                                 ?>
-                                                <?php echo e($loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' FC' : '-'); ?>
+                                                <?php echo e($loyerActif ? number_format($loyerActif->garantie_locative, 0, ',', ' ') . ' $' : '-'); ?>
 
                                             </td>
                                             <td>

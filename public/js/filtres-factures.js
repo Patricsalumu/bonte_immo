@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
         mettreAJourStat('stat-non-payees', statNonPayees);
         mettreAJourStat('stat-en-retard', statEnRetard);
         mettreAJourStat('stat-payees', statPayees);
-        mettreAJourStat('stat-montant-total', new Intl.NumberFormat('fr-FR').format(statMontantTotal) + ' CDF');
-        mettreAJourStat('stat-montant-paye', new Intl.NumberFormat('fr-FR').format(statMontantPaye) + ' CDF');
-        mettreAJourStat('stat-montant-non-paye', new Intl.NumberFormat('fr-FR').format(statMontantNonPaye) + ' CDF');
+        mettreAJourStat('stat-montant-total', new Intl.NumberFormat('fr-FR').format(statMontantTotal) + ' $');
+        mettreAJourStat('stat-montant-paye', new Intl.NumberFormat('fr-FR').format(statMontantPaye) + ' $');
+        mettreAJourStat('stat-montant-non-paye', new Intl.NumberFormat('fr-FR').format(statMontantNonPaye) + ' $');
         
         // Gérer le message "aucun résultat"
         let messageNoResult = document.getElementById('messageNoResult');

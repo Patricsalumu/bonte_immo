@@ -67,11 +67,11 @@
                                     name="type" 
                                     >
                                 <option value="">Sélectionner un type</option>
-                                <option value="studio" {{ old('type', $appartement->type) == 'studio' ? 'selected' : '' }}>Studio</option>
-                                <option value="1_chambre" {{ old('type', $appartement->type) == '1_chambre' ? 'selected' : '' }}>1 chambre</option>
-                                <option value="2_chambres" {{ old('type', $appartement->type) == '2_chambres' ? 'selected' : '' }}>2 chambres</option>
-                                <option value="3_chambres" {{ old('type', $appartement->type) == '3_chambres' ? 'selected' : '' }}>3 chambres</option>
-                                <option value="4_chambres_plus" {{ old('type', $appartement->type) == '4_chambres_plus' ? 'selected' : '' }}>4 chambres et plus</option>
+                                <option value="local" {{ old('type', $appartement->type) == 'studio' ? 'selected' : '' }}>Local</option>
+                                <option value="1_pièce" {{ old('type', $appartement->type) == '1_pièce' ? 'selected' : '' }}>1 Pièce</option>
+                                <option value="2_pièces" {{ old('type', $appartement->type) == '2_pièces' ? 'selected' : '' }}>2 Pièces</option>
+                                <option value="3_pièces" {{ old('type', $appartement->type) == '3_pièces' ? 'selected' : '' }}>3 Pièces</option>
+                                <option value="4_pièces_plus" {{ old('type', $appartement->type) == '4_pièces_plus' ? 'selected' : '' }}>4 Pièces et plus</option>
                                 <option value="duplex" {{ old('type', $appartement->type) == 'duplex' ? 'selected' : '' }}>Duplex</option>
                             </select>
                             @error('type')

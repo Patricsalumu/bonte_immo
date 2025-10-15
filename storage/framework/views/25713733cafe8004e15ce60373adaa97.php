@@ -47,7 +47,7 @@
                                         <th>Immeuble</th>
                                         <th>Numéro</th>
                                         <th>Type</th>
-                                        <th>Surface</th>
+                                        <th>Garantie</th>
                                         <th>Loyer</th>
                                         <th>Locataire</th>
                                         <th>Statut</th>
@@ -60,7 +60,7 @@
                                             <td><?php echo e($appartement->immeuble->nom ?? 'N/A'); ?></td>
                                             <td><strong><?php echo e($appartement->numero); ?></strong></td>
                                             <td><?php echo e(ucfirst($appartement->type)); ?></td>
-                                            <td><?php echo e($appartement->surface); ?> m²</td>
+                                            <td><?php echo e($appartement->garantie_locative); ?> $</td>
                                             <td><?php echo e(number_format($appartement->loyer_mensuel, 0, ',', ' ')); ?> $</td>
                                             <td>
                                                 <?php if($appartement->locataire): ?>

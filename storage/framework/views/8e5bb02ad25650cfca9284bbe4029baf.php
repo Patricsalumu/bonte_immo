@@ -94,11 +94,11 @@ unset($__errorArgs, $__bag); ?>"
                                     name="type" 
                                     required>
                                 <option value="">Sélectionner un type</option>
-                                <option value="studio" <?php echo e(old('type') == 'studio' ? 'selected' : ''); ?>>Studio</option>
-                                <option value="1_chambre" <?php echo e(old('type') == '1_chambre' ? 'selected' : ''); ?>>1 Chambre</option>
-                                <option value="2_chambres" <?php echo e(old('type') == '2_chambres' ? 'selected' : ''); ?>>2 Chambres</option>
-                                <option value="3_chambres" <?php echo e(old('type') == '3_chambres' ? 'selected' : ''); ?>>3 Chambres</option>
-                                <option value="4_chambres_plus" <?php echo e(old('type') == '4_chambres_plus' ? 'selected' : ''); ?>>4+ Chambres</option>
+                                <option value="local" <?php echo e(old('type') == 'local' ? 'selected' : ''); ?>>Local</option>
+                                <option value="1_pièce" <?php echo e(old('type') == '1_pièce' ? 'selected' : ''); ?>>1 Pièce</option>
+                                <option value="2_pièces" <?php echo e(old('type') == '2_pièces' ? 'selected' : ''); ?>>2 Pièces</option>
+                                <option value="3_pièces" <?php echo e(old('type') == '3_pièces' ? 'selected' : ''); ?>>3 Pièces</option>
+                                <option value="4_pièces_plus" <?php echo e(old('type') == '4_pièces_plus' ? 'selected' : ''); ?>>4+ Pièces</option>
                                 <option value="duplex" <?php echo e(old('type') == 'duplex' ? 'selected' : ''); ?>>Duplex</option>
                             </select>
                             <?php $__errorArgs = ['type'];
@@ -126,7 +126,7 @@ endif;
 unset($__errorArgs, $__bag); ?>" 
                                    id="superficie" 
                                    name="superficie" 
-                                   value="<?php echo e(old('superficie')); ?>" 
+                                   value="10" 
                                    min="0" 
                                    step="0.1">
                             <?php $__errorArgs = ['superficie'];
