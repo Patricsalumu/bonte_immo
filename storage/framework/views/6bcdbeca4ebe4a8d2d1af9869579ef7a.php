@@ -98,12 +98,12 @@
             <div class="card-header bg-warning text-white">
                 <h5 class="mb-0">
                     <i class="bi bi-exclamation-triangle"></i>
-                    Factures Impayées (<?php echo e($facturesImpayees); ?>)
+                    Factures Impayées (<?php echo e($facturesImpayees); ?> $)
                 </h5>
             </div>
             <div class="card-body">
                 <?php if($facturesImpayees > 0): ?>
-                    <p class="text-warning mb-3"><?php echo e(number_format($facturesImpayees, 0, ',', ' ')); ?> facture(s) non payée(s) ce mois.</p>
+                    <p class="text-warning mb-3"><?php echo e(number_format($facturesImpayees, 0, ',', ' ')); ?> $ facture(s) non payée(s) ce mois.</p>
                     <a href="#" class="btn btn-warning btn-custom">
                         <i class="bi bi-eye"></i> Voir les détails
                     </a>
