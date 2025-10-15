@@ -32,6 +32,27 @@
             </td>
         </tr>
     </table>
+    <?php
+        $libelleStatut = '';
+        if(isset($statut)) {
+            if($statut === 'payee') $libelleStatut = 'Payées';
+            elseif($statut === 'non_payee') $libelleStatut = 'Non payées';
+            elseif($statut === 'partielle') $libelleStatut = 'Partielles';
+        }
+        $libellePercepteur = '';
+        if(isset($percepteurId) && $percepteurId) {
+            $percepteurObj = $percepteurs->where('id', $percepteurId)->first();
+            $libellePercepteur = $percepteurObj ? $percepteurObj->nom : '';
+        }
+    ?>
+    <div style="margin-bottom:15px;">
+        <?php if($libellePercepteur): ?>
+            <span><strong>Liste filtrée pour le percepteur :</strong> <?php echo e($libellePercepteur); ?></span><br>
+        <?php endif; ?>
+        <?php if($libelleStatut): ?>
+            <span><strong>Statut des factures :</strong> <?php echo e($libelleStatut); ?></span>
+        <?php endif; ?>
+    </div>
     <?php $__currentLoopData = $factures->groupBy('appartement.immeuble.nom'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $immeuble => $facturesImmeuble): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
         <h3>Immeuble : <?php echo e($immeuble); ?></h3>
         <table>
@@ -109,6 +130,10 @@
             </td>
         </tr>
     </table>
+    <div style="margin-top:40px; text-align:right; font-size:11px; color:#555;">
+        Généré le <?php echo e(\Carbon\Carbon::now()->format('d/m/Y à H:i')); ?> par La Bonte Immo App<br>
+        &copy; <?php echo e(date('Y')); ?> La Bonte Immo. Tous droits réservés.
+    </div>
 </body>
 </html>
 <?php /**PATH C:\xampp\htdocs\immo\resources\views/rapports/pdf/mensuel.blade.php ENDPATH**/ ?>

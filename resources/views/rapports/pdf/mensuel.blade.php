@@ -32,6 +32,27 @@
             </td>
         </tr>
     </table>
+    @php
+        $libelleStatut = '';
+        if(isset($statut)) {
+            if($statut === 'payee') $libelleStatut = 'Payées';
+            elseif($statut === 'non_payee') $libelleStatut = 'Non payées';
+            elseif($statut === 'partielle') $libelleStatut = 'Partielles';
+        }
+        $libellePercepteur = '';
+        if(isset($percepteurId) && $percepteurId) {
+            $percepteurObj = $percepteurs->where('id', $percepteurId)->first();
+            $libellePercepteur = $percepteurObj ? $percepteurObj->nom : '';
+        }
+    @endphp
+    <div style="margin-bottom:15px;">
+        @if($libellePercepteur)
+            <span><strong>Liste filtrée pour le percepteur :</strong> {{ $libellePercepteur }}</span><br>
+        @endif
+        @if($libelleStatut)
+            <span><strong>Statut des factures :</strong> {{ $libelleStatut }}</span>
+        @endif
+    </div>
     @foreach($factures->groupBy('appartement.immeuble.nom') as $immeuble => $facturesImmeuble)
         <h3>Immeuble : {{ $immeuble }}</h3>
         <table>
@@ -109,5 +130,9 @@
             </td>
         </tr>
     </table>
+    <div style="margin-top:40px; text-align:right; font-size:11px; color:#555;">
+        Généré le {{ \Carbon\Carbon::now()->format('d/m/Y à H:i') }} par La Bonte Immo App<br>
+        &copy; {{ date('Y') }} La Bonte Immo. Tous droits réservés.
+    </div>
 </body>
 </html>

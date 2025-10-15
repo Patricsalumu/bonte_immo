@@ -188,7 +188,7 @@ class RapportController extends Controller
                 });
             }
             if ($statut === 'payee') {
-                $facturesQuery->where('statut_paiement', 'paye');
+                $facturesQuery->whereIn('statut_paiement', ['paye', 'paye_en_retard']);
             } elseif ($statut === 'non_payee') {
                 $facturesQuery->where('statut_paiement', 'non_paye');
             } elseif ($statut === 'partielle') {

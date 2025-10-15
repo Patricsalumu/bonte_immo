@@ -31,7 +31,14 @@
                 <option value="partielle" <?php echo e(request('statut') == 'partielle' ? 'selected' : ''); ?>>Partielles</option>
             </select>
         <button type="submit" class="btn btn-primary">Filtrer</button>
-        <a href="<?php echo e(route('rapports.export', ['type'=>'mensuel','format'=>'pdf','mois'=>$mois,'annee'=>$annee])); ?>" class="btn btn-success">
+        <a href="<?php echo e(route('rapports.export', [
+            'type'=>'mensuel',
+            'format'=>'pdf',
+            'mois'=>$mois,
+            'annee'=>$annee,
+            'percepteur'=>request('percepteur'),
+            'statut'=>request('statut')
+        ])); ?>" class="btn btn-success">
             <i class="fas fa-file-pdf"></i> Exporter PDF
         </a>
     </form>
