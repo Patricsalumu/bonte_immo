@@ -18,11 +18,27 @@ class PaiementController extends Controller
 
     public function index()
     {
-        $factures = Facture::with(['loyer.appartement.immeuble', 'loyer.locataire', 'paiements'])
-            ->orderBy('date_echeance', 'desc')
-            ->get();
-        
-        return view('paiements.index', compact('factures'));
+        // Paginer les factures côté serveur pour éviter de charger toutes les factures en mémoire
+        $query = Facture::with(['loyer.appartement.immeuble', 'loyer.locataire', 'paiements'])
+            ->orderBy('date_echeance', 'desc');
+
+        $factures = $query->paginate(10)->withQueryString();
+
+        // Calculer des statistiques globales séparément (pour les cartes en haut)
+        $montantTotalFactures = Facture::sum('montant');
+        $montantTotalPaye = Paiement::whereNotNull('facture_id')->where('est_annule', false)->sum('montant');
+        $montantImpaye = $montantTotalFactures - $montantTotalPaye;
+        $stats = [
+            'total' => Facture::count(),
+            'non_payees' => Facture::where('statut_paiement', 'non_paye')->count(),
+            'en_retard' => Facture::enRetard()->count(),
+            'payees' => Facture::payees()->count(),
+            'montant_total' => $montantTotalFactures,
+            'montant_paye' => $montantTotalPaye,
+            'montant_impaye' => $montantImpaye
+        ];
+
+        return view('paiements.index', compact('factures', 'stats'));
     }
 
     public function create()

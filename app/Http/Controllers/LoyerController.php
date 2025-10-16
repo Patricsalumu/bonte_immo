@@ -32,8 +32,8 @@ class LoyerController extends Controller
                   ->orWhere('prenom', 'like', '%' . request('client') . '%');
             });
         }
-        $loyers = $query->get();
-        return view('loyers.index', compact('loyers'));
+    $loyers = $query->paginate(10);
+    return view('loyers.index', compact('loyers'));
     }
 
     public function create()

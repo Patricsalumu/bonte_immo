@@ -209,11 +209,12 @@
 @endsection
 
 @section('scripts')
+<script id="graphique-data" type="application/json">{!! json_encode($graphiqueData) !!}</script>
 <script>
     // Graphique des loyers
     const ctx = document.getElementById('loyersChart').getContext('2d');
-    const chartData = @json($graphiqueData);
-    
+    const chartData = JSON.parse(document.getElementById('graphique-data').textContent);
+
     const loyersChart = new Chart(ctx, {
         type: 'bar',
         data: {

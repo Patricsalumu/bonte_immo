@@ -120,6 +120,30 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <p class="mb-0 text-muted">Affichage <?php echo e($loyers->firstItem()); ?> - <?php echo e($loyers->lastItem()); ?> sur <?php echo e($loyers->total()); ?> contrats</p>
+                            </div>
+                            <div>
+                                <style>
+                                    .pagination svg,
+                                    .pagination .w-5,
+                                    .pagination .h-5,
+                                    .pagination .page-link svg,
+                                    .pagination .page-link .fa,
+                                    .pagination .page-link .sr-only {
+                                        display: none !important;
+                                    }
+                                    .pagination { display: inline-flex; flex-wrap: wrap; gap: .25rem; font-size: .9rem; }
+                                    @media (max-width: 576px) {
+                                        .pagination { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+                                        .pagination li { white-space: nowrap; }
+                                    }
+                                </style>
+                                <?php echo e($loyers->appends(request()->query())->links('vendor.pagination.custom')); ?>
+
+                            </div>
+                        </div>
                     <?php else: ?>
                         <div class="text-center py-4">
                             <i class="fas fa-file-contract display-1 text-muted"></i>

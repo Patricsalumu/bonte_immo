@@ -15,7 +15,7 @@ class ImmeubleeController extends Controller
 
     public function index()
     {
-        $immeubles = Immeuble::with('appartements')->paginate(30);
+        $immeubles = Immeuble::with('appartements')->paginate(40);
         return view('immeubles.index', compact('immeubles'));
     }
 

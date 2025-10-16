@@ -240,7 +240,7 @@
                             sur {{ $mouvements->total() }} mouvements
                         </small>
                     </div>
-                    {{ $mouvements->appends(request()->query())->links() }}
+                    {{ $mouvements->appends(request()->query())->links('vendor.pagination.custom') }}
                 </div>
             @else
                 <div class="text-center py-5">

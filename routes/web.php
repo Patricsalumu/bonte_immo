@@ -52,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('ajax/locataires', [LocataireController::class, 'ajaxSearch'])->name('locataires.ajax-search');
         Route::resource('loyers', LoyerController::class)->except(['destroy']);
         Route::resource('paiements', PaiementController::class)->except(['destroy']);
+    // Endpoint AJAX pour recherche/pagination dynamique des factures
+    Route::get('factures/ajax', [FactureController::class, 'ajaxList'])->name('factures.ajax');
     Route::resource('factures', FactureController::class);
     Route::delete('factures/{facture}', [FactureController::class, 'destroy'])->name('factures.destroy');
         

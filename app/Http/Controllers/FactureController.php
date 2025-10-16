@@ -80,8 +80,9 @@ class FactureController extends Controller
         }
 
         // Tri
-        $sortField = $request->get('sort', 'date_echeance');
-        $sortDirection = $request->get('direction', 'desc');
+    // Par défaut, afficher les factures les plus récemment générées en premier
+    $sortField = $request->get('sort', 'created_at');
+    $sortDirection = $request->get('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
 
         $factures = $query->paginate(20)->withQueryString();
@@ -105,7 +106,81 @@ class FactureController extends Controller
         $locataires = Locataire::orderBy('nom')->get();
         $annees = Facture::selectRaw('DISTINCT annee')->orderBy('annee', 'desc')->pluck('annee');
 
-        return view('factures.index', compact('factures', 'stats', 'immeubles', 'locataires', 'annees'));
+    // La vue principale des factures/paiements est dans resources/views/paiements/index.blade.php
+    return view('paiements.index', compact('factures', 'stats', 'immeubles', 'locataires', 'annees'));
+    }
+
+    /**
+     * AJAX endpoint pour récupérer les lignes de la table paginée selon les filtres
+     */
+    public function ajaxList(Request $request)
+    {
+        $query = Facture::with(['locataire', 'loyer.appartement.immeuble']);
+
+        // Réutiliser les mêmes filtres que dans index
+        if ($request->filled('mois')) {
+            $query->where('mois', $request->mois);
+        }
+
+        if ($request->filled('annee')) {
+            $query->where('annee', $request->annee);
+        }
+
+        if ($request->filled('statut')) {
+            $query->where('statut_paiement', $request->statut);
+        }
+
+        if ($request->filled('immeuble_id')) {
+            $query->whereHas('loyer.appartement', function($q) use ($request) {
+                $q->where('immeuble_id', $request->immeuble_id);
+            });
+        }
+
+        if ($request->filled('locataire_id')) {
+            $query->where('locataire_id', $request->locataire_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('numero_facture', 'like', "%{$search}%")
+                  ->orWhereHas('locataire', function($subQ) use ($search) {
+                      $subQ->where('nom', 'like', "%{$search}%")
+                           ->orWhere('prenom', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+    // Par défaut, afficher les factures les plus récemment générées en premier
+    $sortField = $request->get('sort', 'created_at');
+    $sortDirection = $request->get('direction', 'desc');
+    $query->orderBy($sortField, $sortDirection);
+
+        $perPage = intval($request->get('per_page', 20));
+        $factures = $query->paginate($perPage)->appends($request->query());
+
+        // Calculer les mêmes stats que la page
+        $montantTotalFactures = Facture::sum('montant');
+        $montantTotalPaye = Paiement::whereNotNull('facture_id')->where('est_annule', false)->sum('montant');
+        $montantImpaye = $montantTotalFactures - $montantTotalPaye;
+        $stats = [
+            'total' => Facture::count(),
+            'non_payees' => Facture::where('statut_paiement', 'non_paye')->count(),
+            'en_retard' => Facture::enRetard()->count(),
+            'payees' => Facture::payees()->count(),
+            'montant_total' => $montantTotalFactures,
+            'montant_paye' => $montantTotalPaye,
+            'montant_impaye' => $montantImpaye
+        ];
+
+        // Rendre le partial des lignes
+        $html = view('factures._table_rows', compact('factures'))->render();
+
+        return response()->json([
+            'html' => $html,
+            'stats' => $stats,
+            'pagination' => (string) $factures->links('vendor.pagination.custom')
+        ]);
     }
 
     /**

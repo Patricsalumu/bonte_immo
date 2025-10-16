@@ -209,11 +209,12 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('scripts'); ?>
+<script id="graphique-data" type="application/json"><?php echo json_encode($graphiqueData); ?></script>
 <script>
     // Graphique des loyers
     const ctx = document.getElementById('loyersChart').getContext('2d');
-    const chartData = <?php echo json_encode($graphiqueData, 15, 512) ?>;
-    
+    const chartData = JSON.parse(document.getElementById('graphique-data').textContent);
+
     const loyersChart = new Chart(ctx, {
         type: 'bar',
         data: {

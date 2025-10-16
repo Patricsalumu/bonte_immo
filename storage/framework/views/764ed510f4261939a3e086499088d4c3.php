@@ -58,8 +58,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Non payées</h6>
-                        <h4 id="stat-non-payees"><?php echo e($factures->where('statut_paiement', 'non_paye')->count() 
-                            + $factures->where('statut_paiement', 'partielle')->count()); ?></h4>
+                        <h4 id="stat-non-payees"><?php echo e($stats['non_payees'] + (isset($stats['partielle']) ? $stats['partielle'] : 0)); ?></h4>
                     </div>
                     <i class="fas fa-clock fa-2x"></i>
                 </div>
@@ -72,7 +71,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">En retard</h6>
-                        <h4 id="stat-en-retard"><?php echo e($factures->filter(function($f) { return $f->estEnRetard(); })->count()); ?></h4>
+                        <h4 id="stat-en-retard"><?php echo e($stats['en_retard']); ?></h4>
                     </div>
                     <i class="fas fa-exclamation-triangle fa-2x"></i>
                 </div>
@@ -85,7 +84,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Payées</h6>
-                        <h4 id="stat-payees"><?php echo e($factures->filter(function($f) { return $f->estPayee(); })->count()); ?></h4>
+                        <h4 id="stat-payees"><?php echo e($stats['payees']); ?></h4>
                     </div>
                     <i class="fas fa-check-circle fa-2x"></i>
                 </div>
@@ -101,7 +100,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <h6 class="card-title">Montant total</h6>
-                        <h4 id="stat-montant-total"><?php echo e(number_format($factures->sum('montant'), 0, ',', ' ')); ?> $</h4>
+                        <h4 id="stat-montant-total"><?php echo e(number_format($stats['montant_total'], 0, ',', ' ')); ?> $</h4>
                     </div>
                     <i class="fas fa-dollar-sign fa-2x"></i>
                 </div>
@@ -115,7 +114,7 @@
                     <div>
                         <h6 class="card-title">Montant payé</h6>
                         <h4 id="stat-montant-paye">
-                            <?php echo e(number_format($factures->flatMap(function($f) { return $f->paiements->where('est_annule', false); })->sum('montant'), 0, ',', ' ')); ?> $
+                            <?php echo e(number_format($stats['montant_paye'], 0, ',', ' ')); ?> $
                         </h4>
                     </div>
                     <i class="fas fa-money-bill-wave fa-2x"></i>
@@ -130,7 +129,7 @@
                     <div>
                         <h6 class="card-title">Montant non payé</h6>
                         <h4 id="stat-montant-non-paye">
-                            <?php echo e(number_format($factures->sum('montant') - $factures->flatMap(function($f) { return $f->paiements->where('est_annule', false); })->sum('montant'), 0, ',', ' ')); ?> $
+                            <?php echo e(number_format($stats['montant_impaye'], 0, ',', ' ')); ?> $
                         </h4>
                     </div>
                     <i class="fas fa-money-bill-alt fa-2x"></i>
@@ -149,10 +148,11 @@
     </div>
     <div class="card-body">
         <!-- Filtres et barre de recherche -->
+        <form method="GET" action="<?php echo e(route('factures.index')); ?>" id="formFiltresFactures">
         <div class="row mb-4">
             <div class="col-md-3">
-                <label class="form-label">Filtrer par statut</label>
-                <select id="filtreStatut" class="form-select">
+                <label for="filtreStatut" class="form-label">Filtrer par statut</label>
+                <select id="filtreStatut" name="statut" class="form-select" aria-label="Filtrer par statut">
                     <option value="">Tous les statuts</option>
                     <option value="non_paye">Non payées</option>
                     <option value="partielle">Partielles</option>
@@ -161,18 +161,29 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="form-label">Rechercher</label>
+                <label for="rechercheFacture" class="form-label">Rechercher</label>
                 <div class="input-group">
-                    <input type="text" id="rechercheFacture" class="form-control" 
-                           placeholder="Numéro facture, client, téléphone, appartement...">
-                    <button class="btn btn-outline-secondary" type="button" id="btnClearSearch">
+                    <input type="text" id="rechercheFacture" name="search" class="form-control" 
+                           placeholder="Numéro facture, client, téléphone, appartement..." aria-label="Recherche de factures">
+                    <button class="btn btn-outline-secondary" type="button" id="btnClearSearch" title="Effacer la recherche">
                         <i class="fas fa-times"></i>
+                    </button>
+                    <button class="btn btn-primary" type="submit" id="btnServerSearch" title="Recherche serveur">
+                        <i class="fas fa-search"></i>
                     </button>
                 </div>
             </div>
         </div>
+        <noscript>
+            <div class="row mt-2">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                </div>
+            </div>
+        </noscript>
+        </form>
         <?php if($factures->count() > 0): ?>
-            <div class="table-responsive">
+            <div class="table-responsive" data-ajax-url="<?php echo e(route('factures.ajax')); ?>">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -185,167 +196,33 @@
                             <th width="250">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php $__currentLoopData = $factures; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $facture): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <tr class="<?php echo e($facture->estEnRetard() ? 'table-danger' : ($facture->estPayee() ? 'table-success' : '')); ?>">
-                            <td>
-                                <strong><?php echo e($facture->numero_facture); ?></strong>
-                                <br>
-                                <small class="text-muted"><?php echo e($facture->created_at->format('d/m/Y')); ?></small>
-                            </td>
-                            <td>
-                                <div>
-                                    <?php if($facture->locataire): ?>
-                                        <strong><?php echo e($facture->locataire->nom); ?> <?php echo e($facture->locataire->prenom); ?></strong>
-                                        <br>
-                                        <small class="text-muted"><?php echo e($facture->locataire->telephone); ?></small>
-                                    <?php else: ?>
-                                        <span class="text-muted">Locataire non trouvé</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    <?php if($facture->loyer && $facture->loyer->appartement && $facture->loyer->appartement->immeuble): ?>
-                                        <strong><?php echo e($facture->loyer->appartement->immeuble->nom); ?></strong>
-                                        <br>
-                                        <small class="text-muted">Apt <?php echo e($facture->loyer->appartement->numero); ?></small>
-                                    <?php else: ?>
-                                        <span class="text-muted">Appartement non trouvé</span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td>
-                                <strong><?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?></strong>
-                                <br>
-                                <small class="text-muted">Échéance: <?php echo e($facture->date_echeance->format('d/m/Y')); ?></small>
-                            </td>
-                            <td>
-                                <strong><?php echo e(number_format($facture->montant, 0, ',', ' ')); ?> $</strong>
-                                <?php if($facture->montant_paye > 0): ?>
-                                    <br>
-                                    <small class="text-success">Payé: <?php echo e(number_format($facture->montant_paye, 0, ',', ' ')); ?> $</small>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                    <?php
-                                        $montantPaye = $facture->paiements->sum('montant');
-                                    ?>
-                                    <?php if($montantPaye >= $facture->montant): ?>
-                                        <span class="badge bg-success">Payée</span>
-                                    <?php elseif($montantPaye > 0): ?>
-                                        <span class="badge bg-warning">Partielle</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-danger">Non payée</span>
-                                    <?php endif; ?>
-                            </td>
-                            
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <!-- Bouton PDF -->
-                                    <a href="<?php echo e(route('factures.export-pdf', $facture)); ?>" 
-                                       class="btn btn-outline-primary btn-sm" 
-                                       target="_blank">
-                                        <i class="fas fa-file-pdf"></i> PDF
-                                    </a>
-                                    
-                                    <!-- Bouton WhatsApp -->
-                                    <?php if($facture->locataire && $facture->locataire->telephone): ?>
-                    <button type="button" 
-                        class="btn btn-outline-success btn-sm" 
-                        data-telephone="<?php echo e($facture->locataire->telephone); ?>"
-                        data-prenom="<?php echo e($facture->locataire->prenom ?? ''); ?>"
-                        data-nom="<?php echo e($facture->locataire->nom); ?>"
-                        data-numero="<?php echo e($facture->numero_facture); ?>"
-                        data-id="<?php echo e($facture->id); ?>"
-                        data-montant="<?php echo e(number_format($facture->montant, 0, ' ', ' ')); ?>"
-                        data-mois="<?php echo e($facture->getMoisNom()); ?> <?php echo e($facture->annee); ?>"
-                        data-echeance="<?php echo e($facture->date_echeance->format('d/m/Y')); ?>"
-                        onclick="partagerWhatsAppData(this)">
-                                        <i class="fab fa-whatsapp"></i> WhatsApp
-                                    </button>
-                                    <?php endif; ?>
-                                    
-                                    <?php if($facture->peutRecevoirPaiement()): ?>
-                                        <button type="button" 
-                                                class="btn btn-success btn-sm" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#modalPaiement<?php echo e($facture->id); ?>">
-                                            <i class="fas fa-credit-card"></i> Payer
-                                            <?php if($facture->montantPaye() > 0): ?>
-                                                <small>(<?php echo e(number_format($facture->montantRestant(), 0, ',', ' ')); ?> $ restant)</small>
-                                            <?php endif; ?>
-                                        </button>
-                                    <?php endif; ?>
-                                    
-                                    <a href="<?php echo e(route('factures.show', $facture)); ?>" 
-                                       class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                </div>
-
-                                <!-- Modal de paiement -->
-                                <?php if($facture->peutRecevoirPaiement()): ?>
-                                <div class="modal fade" id="modalPaiement<?php echo e($facture->id); ?>" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Régler la facture <?php echo e($facture->numero_facture); ?></h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <form method="POST" action="<?php echo e(route('factures.marquer-payee', $facture)); ?>">
-                                                <?php echo csrf_field(); ?>
-                                                <div class="modal-body">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Montant à payer</label>
-                                                        <input type="number" class="form-control" name="montant"
-                                                               value="<?php echo e($facture->montant - $facture->montantPaye()); ?>" 
-                                                               min="1" 
-                                                               max="<?php echo e($facture->montant - $facture->montantPaye()); ?>" 
-                                                               data-montant-restant="<?php echo e($facture->montant - $facture->montantPaye()); ?>"
-                                                               step="0.01" required>
-                                                        <div class="form-text">
-                                                            Montant restant: <?php echo e(number_format($facture->montant - $facture->montantPaye(), 0, ',', ' ')); ?> $
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Mode de paiement *</label>
-                                                        <select name="mode_paiement" class="form-select" required>
-                                                            <option value="">Sélectionner...</option>
-                                                            <option value="cash">Espèces</option>
-                                                            <option value="virement">Virement bancaire</option>
-                                                            <option value="mobile_money">Mobile Money</option>
-                                                            <option value="garantie_locative">
-                                                                Garantie locative (<?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> $ disponible)
-                                                            </option>
-                                                        </select>
-                                                        <div class="form-text" id="garantie-info-<?php echo e($facture->id); ?>" style="display: none;">
-                                                            <i class="fas fa-info-circle text-info"></i>
-                                                            Garantie locative disponible : <strong><?php echo e(number_format($facture->loyer->garantie_locative ?? 0, 0, ',', ' ')); ?> $</strong>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Référence</label>
-                                                        <input type="text" name="reference" class="form-control" 
-                                                               placeholder="Numéro de transaction, référence...">
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                                    <button type="submit" class="btn btn-success">
-                                                        <i class="fas fa-check"></i> Confirmer le paiement
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </tbody>
+                    <?php echo $__env->make('factures._table_rows', ['factures' => $factures], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
                 </table>
+                <!-- Pagination -->
+                <style>
+                    /* Rendre les liens Previous/Next discrets : conserver le texte mais enlever le style 'gros bouton' */
+                    .pagination .page-item.previous .page-link,
+                    .pagination .page-item.next .page-link,
+                    .pagination .page-link[aria-label="Previous"],
+                    .pagination .page-link[aria-label="Next"] {
+                        background: transparent !important;
+                        border: none !important;
+                        padding: 0.125rem 0.25rem !important;
+                        min-width: 0 !important;
+                        width: auto !important;
+                        color: inherit !important;
+                    }
+
+                    /* Réduire l'icône si présente et masquer l'icône caret (cible aussi les svg avec classes w-5/h-5) */
+                    .pagination svg,
+                    .pagination .w-5,
+                    .pagination .h-5,
+                    .pagination .page-link svg,
+                    .pagination .page-link .fa,
+                    .pagination .page-link .sr-only {
+                        display: none !important;
+                    }
+                </style>
             </div>
         <?php else: ?>
             <div class="text-center py-5">
@@ -660,7 +537,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startPush('scripts'); ?>
-<script src="<?php echo e(asset('js/filtres-factures.js')); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Focus automatique sur le premier champ de la modal paiement à l'ouverture
@@ -668,6 +544,110 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.addEventListener('shown.bs.modal', function () {
             const input = modal.querySelector('input, select, textarea, button');
             if (input) input.focus();
+        });
+    });
+});
+</script>
+<?php $__env->stopPush(); ?>
+
+<!-- Modal unique de paiement (réutilisable) -->
+<div class="modal fade" id="modalPaiement" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Régler la facture <span id="modalFactureNumero"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="formModalPaiement" action="">
+                <?php echo csrf_field(); ?>
+                <div class="modal-body">
+                    <input type="hidden" name="_method" value="POST">
+                    <div class="mb-3">
+                        <label class="form-label">Montant à payer</label>
+                        <input type="number" class="form-control" name="montant" id="modalMontant"
+                               min="0.01" step="0.01" required>
+                        <div class="form-text" id="modalMontantInfo"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mode de paiement *</label>
+                        <select name="mode_paiement" id="modalModePaiement" class="form-select" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="cash">Espèces</option>
+                            <option value="virement">Virement bancaire</option>
+                            <option value="mobile_money">Mobile Money</option>
+                            <option value="garantie_locative">Garantie locative</option>
+                        </select>
+                        <div class="form-text d-none text-info" id="modalGarantieInfo">
+                            Garantie locative disponible : <strong id="modalGarantieDisponible"></strong>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Référence</label>
+                        <input type="text" name="reference" id="modalReference" class="form-control" placeholder="Numéro de transaction, référence...">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Confirmer le paiement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php $__env->startPush('scripts'); ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quand on clique sur un bouton 'Payer', pré-remplir le modal unique
+    document.querySelectorAll('.btn-open-modal-paiement').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            const factureId = this.dataset.factureId;
+            const loyerId = this.dataset.loyerId;
+            const numero = this.dataset.numero;
+            const montant = parseFloat(this.dataset.montant) || 0;
+            const montantRestant = parseFloat(this.dataset.montantRestant) || montant;
+            const garantie = parseFloat(this.dataset.garantie) || 0;
+
+            // Titre / numero facture
+            document.getElementById('modalFactureNumero').textContent = numero;
+
+            // Action du formulaire (route marquer-payee)
+            const form = document.getElementById('formModalPaiement');
+            form.action = '/factures/' + factureId + '/marquer-payee';
+
+            // Montant
+            const inputMontant = document.getElementById('modalMontant');
+            inputMontant.value = montantRestant.toFixed(2);
+            inputMontant.setAttribute('max', montantRestant);
+            document.getElementById('modalMontantInfo').textContent = 'Montant restant: ' + Number(montantRestant).toLocaleString() + ' $';
+
+            // Garantie
+            const garantieInfo = document.getElementById('modalGarantieInfo');
+            const garantieDisponibleEl = document.getElementById('modalGarantieDisponible');
+            if (garantie > 0) {
+                garantieInfo.classList.remove('d-none');
+                garantieDisponibleEl.textContent = Number(garantie).toLocaleString() + ' $';
+            } else {
+                garantieInfo.classList.add('d-none');
+                garantieDisponibleEl.textContent = '';
+            }
+
+            // Si l'utilisateur choisit 'garantie_locative', ajuster le max
+            const selectMode = document.getElementById('modalModePaiement');
+            selectMode.value = '';
+            selectMode.onchange = function() {
+                if (this.value === 'garantie_locative') {
+                    const maxVal = Math.min(garantie, montantRestant);
+                    inputMontant.setAttribute('max', maxVal);
+                    if (parseFloat(inputMontant.value) > maxVal) {
+                        inputMontant.value = maxVal.toFixed(2);
+                    }
+                } else {
+                    inputMontant.setAttribute('max', montantRestant);
+                }
+            };
         });
     });
 });

@@ -29,8 +29,8 @@ class LocataireController extends Controller
                   ->orWhere('numero_carte_identite', 'like', '%' . request('numero') . '%');
             });
         }
-        $locataires = $query->with('appartement')->get();
-        return view('locataires.index', compact('locataires'));
+    $locataires = $query->with('appartement')->paginate(10);
+    return view('locataires.index', compact('locataires'));
     }
 
     public function create()

@@ -25,8 +25,8 @@ class AppartementController extends Controller
         if (request('numero')) {
             $query->where('numero', 'like', '%' . request('numero') . '%');
         }
-        $appartements = $query->get();
-        return view('appartements.index', compact('appartements'));
+    $appartements = $query->paginate(10);
+    return view('appartements.index', compact('appartements'));
     }
 
     public function create()

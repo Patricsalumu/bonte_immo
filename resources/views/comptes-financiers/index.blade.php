@@ -246,7 +246,7 @@
                                 sur {{ $comptes->total() }} comptes
                             </small>
                         </div>
-                        {{ $comptes->links() }}
+                        {{ $comptes->links('vendor.pagination.custom') }}
                     </div>
                 @endif
             @else
