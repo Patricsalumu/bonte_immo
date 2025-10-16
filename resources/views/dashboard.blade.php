@@ -116,43 +116,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Paiements récents -->
-    <div class="col-md-6 mb-3">
-        <div class="card stats-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-clock-history"></i>
-                    Paiements Récents
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($paiementsRecents->count() > 0)
-                    <div class="list-group list-group-flush">
-                        @foreach($paiementsRecents->take(5) as $paiement)
-                        <div class="list-group-item border-0 px-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">{{ $paiement->locataire->nom }}</h6>
-                                    <small class="text-muted">
-                                        {{ $paiement->loyer->appartement->numero ?? 'N/A' }} - 
-                                        {{ number_format($paiement->montant, 0, ',', ' ') }} $
-                                    </small>
-                                </div>
-                                <small class="text-muted">{{ $paiement->date_paiement->format('d/m') }}</small>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    <a href="{{ route('paiements.index') }}" class="btn btn-info btn-custom btn-sm mt-2">
-                        Voir tous les paiements
-                    </a>
-                @else
-                    <p class="text-muted mb-0">Aucun paiement récent.</p>
-                @endif
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Graphiques -->
@@ -167,41 +130,6 @@
             </div>
             <div class="card-body">
                 <canvas id="loyersChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Garanties locatives -->
-    <div class="col-md-4 mb-3">
-        <div class="card stats-card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-shield-check"></i>
-                    Garanties Locatives
-                </h5>
-            </div>
-            <div class="card-body">
-                @if($contratsAvecGarantie->count() > 0)
-                    <div class="list-group list-group-flush">
-                        @foreach($contratsAvecGarantie->take(5) as $contrat)
-                        <div class="list-group-item border-0 px-0">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-1">{{ $contrat['nom'] }}</h6>
-                                    <small class="text-muted">Apt. {{ $contrat['appartement'] }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary">
-                                        {{ number_format($contrat['garantie_restante'], 0, ',', ' ') }} $
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-muted mb-0">Aucune garantie locative enregistrée.</p>
-                @endif
             </div>
         </div>
     </div>

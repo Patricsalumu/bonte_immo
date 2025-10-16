@@ -116,43 +116,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- Paiements récents -->
-    <div class="col-md-6 mb-3">
-        <div class="card stats-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="bi bi-clock-history"></i>
-                    Paiements Récents
-                </h5>
-            </div>
-            <div class="card-body">
-                <?php if($paiementsRecents->count() > 0): ?>
-                    <div class="list-group list-group-flush">
-                        <?php $__currentLoopData = $paiementsRecents->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $paiement): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="list-group-item border-0 px-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1"><?php echo e($paiement->locataire->nom); ?></h6>
-                                    <small class="text-muted">
-                                        <?php echo e($paiement->loyer->appartement->numero ?? 'N/A'); ?> - 
-                                        <?php echo e(number_format($paiement->montant, 0, ',', ' ')); ?> $
-                                    </small>
-                                </div>
-                                <small class="text-muted"><?php echo e($paiement->date_paiement->format('d/m')); ?></small>
-                            </div>
-                        </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </div>
-                    <a href="<?php echo e(route('paiements.index')); ?>" class="btn btn-info btn-custom btn-sm mt-2">
-                        Voir tous les paiements
-                    </a>
-                <?php else: ?>
-                    <p class="text-muted mb-0">Aucun paiement récent.</p>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
 </div>
 
 <!-- Graphiques -->
@@ -167,41 +130,6 @@
             </div>
             <div class="card-body">
                 <canvas id="loyersChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Garanties locatives -->
-    <div class="col-md-4 mb-3">
-        <div class="card stats-card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-shield-check"></i>
-                    Garanties Locatives
-                </h5>
-            </div>
-            <div class="card-body">
-                <?php if($contratsAvecGarantie->count() > 0): ?>
-                    <div class="list-group list-group-flush">
-                        <?php $__currentLoopData = $contratsAvecGarantie->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $contrat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="list-group-item border-0 px-0">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h6 class="mb-1"><?php echo e($contrat['nom']); ?></h6>
-                                    <small class="text-muted">Apt. <?php echo e($contrat['appartement']); ?></small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="badge bg-primary">
-                                        <?php echo e(number_format($contrat['garantie_restante'], 0, ',', ' ')); ?> $
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </div>
-                <?php else: ?>
-                    <p class="text-muted mb-0">Aucune garantie locative enregistrée.</p>
-                <?php endif; ?>
             </div>
         </div>
     </div>

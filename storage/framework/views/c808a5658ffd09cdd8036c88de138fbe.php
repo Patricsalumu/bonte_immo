@@ -241,7 +241,7 @@
                             sur <?php echo e($mouvements->total()); ?> mouvements
                         </small>
                     </div>
-                    <?php echo e($mouvements->appends(request()->query())->links()); ?>
+                    <?php echo e($mouvements->appends(request()->query())->links('vendor.pagination.custom')); ?>
 
                 </div>
             <?php else: ?>
