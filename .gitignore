@@ -1,0 +1,27 @@
+# Fichier d'environnement
+.env
+.env.*.backup
+.env.local
+.env.*.local
+
+# Dossiers Laravel à ignorer
+/vendor
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/bootstrap/cache/*.php
+/storage/debugbar
+/storage/*.log
+
+# Cache et sessions
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/views/*.php
+/storage/app/public
+
+# Logs
+/storage/logs/*
+npm-debug.log*
+yarn-error.log*
