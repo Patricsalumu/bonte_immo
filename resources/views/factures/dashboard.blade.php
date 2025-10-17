@@ -90,7 +90,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h6>Montant total à recouvrer</h6>
-                    <h3>{{ number_format($stats['montant_total'] ?? 0, 0, ',', ' ') }} FC</h3>
+                    <h3>{{ number_format($stats['montant_total'] ?? 0, 0, ',', ' ') }} $</h3>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h6>Montant déjà recouvré</h6>
-                    <h3>{{ number_format($stats['montant_paye'] ?? 0, 0, ',', ' ') }} FC</h3>
+                    <h3>{{ number_format($stats['montant_paye'] ?? 0, 0, ',', ' ') }} $</h3>
                 </div>
             </div>
         </div>
@@ -106,7 +106,7 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h6>Reste à payer</h6>
-                    <h3>{{ number_format($stats['reste_a_payer'] ?? 0, 0, ',', ' ') }} FC</h3>
+                    <h3>{{ number_format($stats['reste_a_payer'] ?? 0, 0, ',', ' ') }} $</h3>
                 </div>
             </div>
         </div>
@@ -122,7 +122,9 @@
                             <th>Période</th>
                             <th>Total</th>
                             <th>Payées</th>
-                            <th>Montant</th>
+                            <th>Montant à recouvrer</th>
+                            <th>Montant déjà recouvré</th>
+                            <th>Reste à payer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,7 +133,9 @@
                                 <td>{{ $ligne['periode'] }}</td>
                                 <td>{{ $ligne['total'] }}</td>
                                 <td>{{ $ligne['payees'] }}</td>
-                                <td>{{ number_format($ligne['montant'], 0, ',', ' ') }} FC</td>
+                                <td>{{ number_format($ligne['montant_total'] ?? 0, 0, ',', ' ') }} $</td>
+                                <td>{{ number_format($ligne['montant_paye'] ?? 0, 0, ',', ' ') }} $</td>
+                                <td>{{ number_format($ligne['reste_a_payer'] ?? 0, 0, ',', ' ') }} $</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -841,12 +841,29 @@ class FactureController extends Controller
             $date = now()->subMonths($i);
             $mois = $date->month;
             $annee = $date->year;
-            
+            $facturesQuery = Facture::pourMois($mois, $annee);
+            $factures = $facturesQuery->get();
+
+            $montantTotal = $factures->sum('montant');
+
+            // Somme des paiements associés (exclure paiements annulés)
+            $factureIds = $factures->pluck('id')->toArray();
+            $montantPaye = 0;
+            if (!empty($factureIds)) {
+                $montantPaye = Paiement::whereIn('facture_id', $factureIds)
+                                        ->where('est_annule', false)
+                                        ->sum('montant');
+            }
+
+            $reste = $montantTotal - $montantPaye;
+
             $evolution[] = [
                 'periode' => $date->format('M Y'),
-                'total' => Facture::pourMois($mois, $annee)->count(),
+                'total' => $factures->count(),
                 'payees' => Facture::pourMois($mois, $annee)->payees()->count(),
-                'montant' => Facture::pourMois($mois, $annee)->sum('montant')
+                'montant_total' => $montantTotal,
+                'montant_paye' => $montantPaye,
+                'reste_a_payer' => $reste,
             ];
         }
         
