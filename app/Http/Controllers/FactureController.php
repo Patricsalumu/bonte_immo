@@ -776,32 +776,59 @@ class FactureController extends Controller
     /**
      * Dashboard des factures avec statistiques
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        $moisCourant = now()->month;
-        $anneeCourante = now()->year;
+        // Récupérer les filtres month/year depuis la requête (GET)
+        $mois = $request->filled('mois') ? intval($request->mois) : now()->month;
+        $annee = $request->filled('annee') ? intval($request->annee) : now()->year;
+
+        // Base de factures pour la période
+        $facturesQuery = Facture::pourMois($mois, $annee);
+
+        // Identifiants des factures de la période (utiles pour sommer les paiements)
+        $factureIds = $facturesQuery->pluck('id')->toArray();
+
+        // Calcul des statistiques
+        $total = Facture::pourMois($mois, $annee)->count();
+        $payees = Facture::pourMois($mois, $annee)->payees()->count();
+        $nonPayees = Facture::pourMois($mois, $annee)->nonPayees()->count();
+        $partielles = Facture::pourMois($mois, $annee)->where('statut_paiement', 'partielle')->count();
+
+        $montantTotal = Facture::pourMois($mois, $annee)->sum('montant');
+
+        // Somme des paiements liés aux factures de la période (exclure paiements annulés)
+        $montantPaye = 0;
+        if (!empty($factureIds)) {
+            $montantPaye = Paiement::whereIn('facture_id', $factureIds)
+                                    ->where('est_annule', false)
+                                    ->sum('montant');
+        }
+
+        $resteAPayer = $montantTotal - $montantPaye;
 
         $stats = [
-            // Statistiques du mois courant
-            'mois_courant' => [
-                'total' => Facture::pourMois($moisCourant, $anneeCourante)->count(),
-                'payees' => Facture::pourMois($moisCourant, $anneeCourante)->payees()->count(),
-                'non_payees' => Facture::pourMois($moisCourant, $anneeCourante)->nonPayees()->count(),
-                'montant_total' => Facture::pourMois($moisCourant, $anneeCourante)->sum('montant'),
-                'montant_paye' => Facture::pourMois($moisCourant, $anneeCourante)->sum('montant_paye')
+            'periode' => [
+                'mois' => $mois,
+                'annee' => $annee
             ],
-            
-            // Factures en retard
+            'total' => $total,
+            'payees' => $payees,
+            'non_payees' => $nonPayees,
+            'partielles' => $partielles,
+            'montant_total' => $montantTotal,
+            'montant_paye' => $montantPaye,
+            'reste_a_payer' => $resteAPayer,
             'en_retard' => [
                 'count' => Facture::enRetard()->count(),
                 'montant' => Facture::enRetard()->sum('montant')
             ],
-            
-            // Évolution sur 12 mois
             'evolution' => $this->getEvolutionFactures()
         ];
 
-        return view('factures.dashboard', compact('stats'));
+        // Options pour les selects
+        $annees = Facture::selectRaw('DISTINCT annee')->orderBy('annee', 'desc')->pluck('annee');
+
+        return view('factures.dashboard', compact('stats', 'annees'));
     }
 
     /**

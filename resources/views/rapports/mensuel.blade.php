@@ -3,6 +3,17 @@
 @section('title', 'Rapport Mensuel des Loyers')
 
 @section('content')
+<div class="mb-3">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('factures.dashboard') }}">Dashboard Factures</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="#">Rapport Mensuel</a>
+        </li>
+    </ul>
+</div>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3 mb-0">
         <i class="fas fa-file-invoice-dollar"></i> Rapport Mensuel des Loyers

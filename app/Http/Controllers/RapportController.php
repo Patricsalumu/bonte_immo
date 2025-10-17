@@ -20,10 +20,8 @@ class RapportController extends Controller
 
     public function index()
     {
-        // Redirige vers la vue mensuelle par défaut (mois/année courants)
-        $mois = now()->month;
-        $annee = now()->year;
-        return redirect()->route('rapports.mensuel', ['mois' => $mois, 'annee' => $annee]);
+        // Redirige vers le dashboard des factures par défaut
+        return redirect()->route('factures.dashboard');
     }
 
     public function mensuel(Request $request)

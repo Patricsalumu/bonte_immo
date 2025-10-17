@@ -191,7 +191,7 @@
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('rapports.*') ? 'active' : '' }}" href="{{ route('rapports.index') }}">
+                    <a class="nav-link {{ request()->routeIs('factures.*') || request()->routeIs('rapports.*') ? 'active' : '' }}" href="{{ route('factures.dashboard') }}">
                         <i class="bi bi-graph-up"></i>
                         <span class="sidebar-text">Rapports</span>
                     </a>
