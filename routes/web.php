@@ -66,6 +66,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('ajax/locataires', [LocataireController::class, 'ajaxSearch'])->name('locataires.ajax-search');
         Route::resource('paiements', PaiementController::class)->except(['destroy']);
 
+        // Permettre aux gestionnaires de désactiver un contrat de loyer
+        Route::patch('loyers/{loyer}/desactiver', [LoyerController::class, 'desactiver'])->name('loyers.desactiver');
+
     // Rapports (lecture pour gestionnaire)
     Route::get('rapports', [RapportController::class, 'index'])->name('rapports.index');
         // Dashboard des factures accessible aux gestionnaires
