@@ -38,6 +38,63 @@ class FactureController extends Controller
         $filename = "facture_{$facture->numero_facture}.pdf";
         return $pdf->download($filename);
     }
+
+    /**
+     * Vérifier si une facture existe déjà pour un loyer donné (mois/année)
+     */
+    public function verifierDoublonsPourLoyer(Request $request)
+    {
+        $request->validate([
+            'loyer_id' => 'required|exists:loyers,id',
+            'mois' => 'required|integer|min:1|max:12',
+            'annee' => 'required|integer|min:2020|max:2030'
+        ]);
+
+        $exists = Facture::where('loyer_id', $request->loyer_id)
+                         ->where('mois', $request->mois)
+                         ->where('annee', $request->annee)
+                         ->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+
+    /**
+     * Générer une facture pour un loyer (contrat) spécifique
+     */
+    public function genererPourLoyer(Request $request)
+    {
+        $request->validate([
+            'loyer_id' => 'required|exists:loyers,id',
+            'mois' => 'required|integer|min:1|max:12',
+            'annee' => 'required|integer|min:2020|max:2030',
+            'date_echeance' => 'required|date'
+        ]);
+
+        $loyer = Loyer::findOrFail($request->loyer_id);
+
+        // Vérifier doublon
+        $existante = Facture::where('loyer_id', $loyer->id)
+                            ->where('mois', $request->mois)
+                            ->where('annee', $request->annee)
+                            ->first();
+
+        if ($existante) {
+            return response()->json(['created' => false, 'message' => 'Une facture existe déjà pour cette période.'], 409);
+        }
+
+        // Créer la facture
+        $facture = Facture::create([
+            'loyer_id' => $loyer->id,
+            'locataire_id' => $loyer->locataire_id,
+            'mois' => $request->mois,
+            'annee' => $request->annee,
+            'montant' => $loyer->montant ?? $loyer->montant_mensuel ?? 0,
+            'date_echeance' => $request->date_echeance,
+            'statut_paiement' => 'non_paye'
+        ]);
+
+        return response()->json(['created' => true, 'facture_id' => $facture->id]);
+    }
     /**
      * Display a listing of the resource.
      */

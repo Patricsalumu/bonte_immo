@@ -9,40 +9,11 @@
     </div>
 </div>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if(session('whatsapp_url'))
-    <div class="alert alert-info alert-dismissible fade show" role="alert">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <i class="fab fa-whatsapp me-2"></i>
-                <strong>Message WhatsApp prêt !</strong>
-                <p class="mb-0 mt-2">Cliquez sur le bouton ci-dessous pour envoyer la confirmation de paiement au locataire :</p>
-            </div>
-            <div>
-                <a href="{{ session('whatsapp_url') }}" target="_blank" class="btn btn-success btn-sm me-2">
-                    <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
-                </a>
-                <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappMessageModal">
-                    <i class="fas fa-eye"></i> Voir le message
-                </button>
-            </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
+<!-- Session messages: stocker dans des inputs cachés pour lecture JS (évite les injections Blade->JS directes) -->
+<input type="hidden" id="session_success" value="{{ session('success') ? e(session('success')) : '' }}">
+<input type="hidden" id="session_error" value="{{ session('error') ? e(session('error')) : '' }}">
+<input type="hidden" id="session_whatsapp_url" value="{{ session('whatsapp_url') ? e(session('whatsapp_url')) : '' }}">
+<input type="hidden" id="session_whatsapp_message" value="{{ session('whatsapp_message') ? e(session('whatsapp_message')) : '' }}">
 
 
 
@@ -445,6 +416,57 @@ document.addEventListener('DOMContentLoaded', function() {
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Lecture sécurisée des messages de session stockés dans inputs cachés
+    const msgSuccess = document.getElementById('session_success') ? document.getElementById('session_success').value : '';
+    const msgError = document.getElementById('session_error') ? document.getElementById('session_error').value : '';
+    const whatsappUrl = document.getElementById('session_whatsapp_url') ? document.getElementById('session_whatsapp_url').value : '';
+    const whatsappMessage = document.getElementById('session_whatsapp_message') ? document.getElementById('session_whatsapp_message').value : '';
+
+    if (msgSuccess) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show';
+        alert.role = 'alert';
+        alert.innerHTML = msgSuccess + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        document.querySelector('.container')?.prepend(alert);
+    }
+
+    if (msgError) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-danger alert-dismissible fade show';
+        alert.role = 'alert';
+        alert.innerHTML = msgError + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        document.querySelector('.container')?.prepend(alert);
+    }
+
+    if (whatsappUrl) {
+        const info = document.createElement('div');
+        info.className = 'alert alert-info alert-dismissible fade show';
+        info.role = 'alert';
+        info.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fab fa-whatsapp me-2"></i>
+                    <strong>Message WhatsApp prêt !</strong>
+                </div>
+                <div>
+                    <a href="${whatsappUrl}" target="_blank" class="btn btn-success btn-sm me-2">
+                        <i class="fab fa-whatsapp"></i> Envoyer via WhatsApp
+                    </a>
+                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#whatsappMessageModal">
+                        <i class="fas fa-eye"></i> Voir le message
+                    </button>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.container')?.prepend(info);
+    }
+
+    // Si on a un message WhatsApp complet, ouvrir le modal automatiquement
+    if (whatsappMessage && document.getElementById('whatsappMessageModal')) {
+        const modal = new bootstrap.Modal(document.getElementById('whatsappMessageModal'));
+        modal.show();
+    }
     // Focus automatique sur le premier champ de la modal paiement à l'ouverture
     document.querySelectorAll('[id^="modalPaiement"]').forEach(function(modal) {
         modal.addEventListener('shown.bs.modal', function () {

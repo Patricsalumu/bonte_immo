@@ -154,11 +154,6 @@
         <div class="card mt-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Historique des loyers</h5>
-                @if($appartement->locataire)
-                <a href="{{ route('loyers.create', ['appartement_id' => $appartement->id]) }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus"></i> Nouveau loyer
-                </a>
-                @endif
             </div>
             <div class="card-body">
                 @php
@@ -276,9 +271,19 @@
                         <i class="fas fa-edit"></i> Modifier l'appartement
                     </a>
                     @if($appartement->locataire)
-                    <a href="{{ route('loyers.create', ['appartement_id' => $appartement->id]) }}" class="btn btn-outline-primary">
-                        <i class="fas fa-plus"></i> Nouveau loyer
-                    </a>
+                    <!-- Bouton générer facture pour le contrat en cours -->
+                    @php
+                        // Chercher un loyer 'actif' sinon prendre le plus récent comme fallback
+                        $contratActif = $appartement->loyers->firstWhere('statut', 'actif')
+                            ?? $appartement->loyers->sortByDesc('created_at')->first();
+                    @endphp
+                    @if($contratActif)
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genererFactureLoyerModal"
+                        data-loyer-id="{{ $contratActif->id }}"
+                        data-montant="{{ $contratActif->montant ?? $contratActif->montant_mensuel ?? $appartement->loyer_mensuel }}">
+                        <i class="fas fa-file-invoice"></i> Générer facture (contrat)
+                    </button>
+                    @endif
                     <a href="{{ route('locataires.show', $appartement->locataire) }}" class="btn btn-outline-info">
                         <i class="fas fa-user"></i> Voir le locataire
                     </a>
@@ -312,3 +317,157 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('genererFactureLoyerModal');
+    if (!modal) return;
+
+    // Préremplir mois/année (mois précédent suggéré)
+    const moisSelect = modal.querySelector('#gen_mois');
+    const anneeSelect = modal.querySelector('#gen_annee');
+    const dateEcheance = modal.querySelector('#gen_date_echeance');
+    const verifierBtn = modal.querySelector('#gen_verifier_loyer');
+    const genererBtn = modal.querySelector('#gen_generer_loyer');
+    const resultat = modal.querySelector('#gen_resultat');
+
+    // Quand le modal s'ouvre, récupérer info depuis le bouton qui a déclenché l'ouverture
+    modal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const loyerId = button ? button.getAttribute('data-loyer-id') : '';
+        const montant = button ? button.getAttribute('data-montant') : '';
+
+        // stocker dans dataset du modal pour usage par les handlers
+        modal.dataset.loyerId = loyerId || '';
+        modal.dataset.montant = montant || '';
+    });
+
+    const maintenant = new Date();
+    let moisPrev = maintenant.getMonth();
+    if (moisPrev === 0) moisPrev = 12; // janvier -> 12
+    moisSelect.value = moisPrev;
+    anneeSelect.value = maintenant.getFullYear();
+
+    verifierBtn.addEventListener('click', function() {
+        resultat.className = 'alert alert-info';
+        resultat.textContent = 'Vérification en cours...';
+
+    const loyerId = modal.dataset.loyerId || '';
+    fetch('/factures/verifier-doublons-loyer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ loyer_id: loyerId, mois: moisSelect.value, annee: anneeSelect.value })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.exists) {
+                resultat.className = 'alert alert-warning';
+                resultat.textContent = 'Une facture existe déjà pour ce contrat et cette période.';
+                genererBtn.disabled = true;
+            } else {
+                resultat.className = 'alert alert-success';
+                resultat.textContent = 'Aucune facture trouvée. Vous pouvez générer une nouvelle facture.';
+                genererBtn.disabled = false;
+            }
+        })
+        .catch(() => {
+            resultat.className = 'alert alert-danger';
+            resultat.textContent = 'Erreur lors de la vérification.';
+        });
+    });
+
+    genererBtn.addEventListener('click', function() {
+        genererBtn.disabled = true;
+        resultat.className = 'alert alert-info';
+        resultat.textContent = 'Génération en cours...';
+
+    const loyerId2 = modal.dataset.loyerId || '';
+    fetch('/factures/generer-pour-loyer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ loyer_id: loyerId2, mois: moisSelect.value, annee: anneeSelect.value, date_echeance: dateEcheance.value })
+        })
+        .then(response => {
+            if (!response.ok) throw response;
+            return response.json();
+        })
+        .then(data => {
+            if (data.created) {
+                resultat.className = 'alert alert-success';
+                resultat.textContent = 'Facture générée. Redirection...';
+                window.location.href = '/factures/' + data.facture_id;
+            } else {
+                resultat.className = 'alert alert-warning';
+                resultat.textContent = data.message || 'Impossible de créer la facture.';
+                genererBtn.disabled = false;
+            }
+        })
+        .catch(async (err) => {
+            let msg = 'Erreur lors de la création.';
+            try { const j = await err.json(); msg = j.message || msg; } catch(e){}
+            resultat.className = 'alert alert-danger';
+            resultat.textContent = msg;
+            genererBtn.disabled = false;
+        });
+    });
+});
+</script>
+@endpush
+
+
+<!-- Modal génération pour le loyer -->
+@if(isset($contratActif) && $contratActif)
+<div class="modal fade" id="genererFactureLoyerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Générer facture pour ce contrat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Montant</label>
+                    <input type="text" class="form-control" value="{{ number_format(optional($contratActif)->montant ?? optional($contratActif)->montant_mensuel ?? $appartement->loyer_mensuel, 0, ',', ' ') }}" readonly>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Mois</label>
+                        <select id="gen_mois" class="form-select">
+                            @for($m = 1; $m <= 12; $m++)
+                                <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Année</label>
+                        <select id="gen_annee" class="form-select">
+                            @for($y = now()->year - 1; $y <= now()->year + 1; $y++)
+                                <option value="{{ $y }}" {{ $y == now()->year ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Date d'échéance</label>
+                    <input type="date" id="gen_date_echeance" class="form-control" value="{{ now()->addDays(12)->format('Y-m-d') }}">
+                </div>
+
+                <div id="gen_resultat" class="d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="gen_verifier_loyer" class="btn btn-info">Vérifier doublons</button>
+                <button type="button" id="gen_generer_loyer" class="btn btn-primary" disabled>Générer</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif

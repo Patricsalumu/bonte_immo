@@ -61,6 +61,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('factures/{facture}/marquer-payee', [FactureController::class, 'marquerPayee'])->name('factures.marquer-payee');
         Route::post('factures/generer-mois', [FactureController::class, 'genererFacturesMois'])->name('factures.generer-mois');
         Route::post('factures/verifier-doublons', [FactureController::class, 'verifierDoublons'])->name('factures.verifier-doublons');
+    // Vérifier et générer une facture pour un seul loyer (contrat)
+    Route::post('factures/verifier-doublons-loyer', [FactureController::class, 'verifierDoublonsPourLoyer'])->name('factures.verifier-doublons-loyer');
+    Route::post('factures/generer-pour-loyer', [FactureController::class, 'genererPourLoyer'])->name('factures.generer-pour-loyer');
         Route::get('factures/{facture}/pdf', [FactureController::class, 'exportPdf'])->name('factures.export-pdf');
         Route::get('factures-dashboard', [FactureController::class, 'dashboard'])->name('factures.dashboard');
         
