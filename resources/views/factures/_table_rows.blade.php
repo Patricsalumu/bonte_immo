@@ -76,16 +76,20 @@
                     </button>
                     @endif
                     @if($facture->peutRecevoirPaiement())
-                        <button type="button"
-                                class="btn btn-success btn-sm btn-open-modal-paiement"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalPaiement"
-                                data-facture-id="{{ $facture->id }}"
-                                data-loyer-id="{{ $facture->loyer_id }}"
-                                data-numero="{{ $facture->numero_facture }}"
-                                data-montant="{{ $facture->montant }}"
-                                data-montant-restant="{{ $facture->montant - $facture->montantPaye() }}"
-                                data-garantie="{{ $facture->loyer->garantie_locative ?? 0 }}">
+            <button type="button"
+                class="btn btn-success btn-sm btn-open-modal-paiement"
+                data-bs-toggle="modal"
+                data-bs-target="#modalPaiement"
+                data-facture-id="{{ $facture->id }}"
+                data-loyer-id="{{ $facture->loyer_id }}"
+                data-numero="{{ $facture->numero_facture }}"
+                data-montant="{{ $facture->montant }}"
+                data-montant-restant="{{ $facture->montant - $facture->montantPaye() }}"
+                data-garantie="{{ $facture->loyer->garantie_locative ?? 0 }}"
+                data-locataire="{{ $facture->locataire ? $facture->locataire->nom . ' ' . $facture->locataire->prenom : '' }}"
+                data-immeuble="{{ $facture->loyer && $facture->loyer->appartement && $facture->loyer->appartement->immeuble ? $facture->loyer->appartement->immeuble->nom : '' }}"
+                data-appartement="{{ $facture->loyer && $facture->loyer->appartement ? $facture->loyer->appartement->numero : '' }}"
+                data-mois="{{ $facture->getMoisNom() }} {{ $facture->annee }}">
                             <i class="fas fa-credit-card"></i> Payer
 
                             @if($facture->montantPaye() > 0)

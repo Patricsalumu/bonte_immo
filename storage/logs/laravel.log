@@ -808,3 +808,7 @@
 #52 C:\\xampp\\htdocs\\immo\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(16): require_once('C:\\\\xampp\\\\htdocs...')
 #53 {main}
 "} 
+[2025-10-17 01:16:36] local.INFO: Tentative de transfert {"input":{"_token":"fIxSRn8CUitHnOXZVeqqhhEb4B4LMTghfRuLSPpu","compte_source_id":"1","compte_destination_id":"5","montant":"500","description":"ras","date_operation":"2025-10-17"}} 
+[2025-10-17 01:16:36] local.INFO: Validation OK {"compte_source_id":"1","compte_destination_id":"5","montant":"500","description":"ras","date_operation":"2025-10-17"} 
+[2025-10-17 01:16:36] local.INFO: Comptes trouvés {"source":{"id":1,"nom_compte":"Caisse Principale","type_compte":"caisse","solde_actuel":"10270.00","description":"Caisse principale de l'entreprise","created_at":"2025-10-13T20:34:03.000000Z","updated_at":"2025-10-16T17:49:48.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"caisse"},"destination":{"id":5,"nom_compte":"Banque","type_compte":"caisse","solde_actuel":"178450.00","description":"Compte banque","created_at":"2025-10-13T20:37:02.000000Z","updated_at":"2025-10-15T14:57:08.000000Z","gestionnaire_id":1,"actif":true,"autoriser_decouvert":false,"type":"banque"}} 
+[2025-10-17 01:16:36] local.INFO: Transfert effectué (double écriture) {"source_id":1,"destination_id":5,"montant":"500"} 

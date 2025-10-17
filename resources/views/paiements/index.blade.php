@@ -1,10 +1,6 @@
 @extends('layouts.app')
-
-@section('title', 'Factures et Paiements')
-
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Factures et Paiements</h1>
     <div class="d-flex gap-2">
         <!-- Bouton pour générer les factures -->
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#genererFacturesModal">
@@ -48,94 +44,7 @@
     </div>
 @endif
 
-<!-- Statistiques rapides -->
-<div class="row mb-3">
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Non payées</h6>
-                        <h4 id="stat-non-payees">{{ $stats['non_payees'] + (isset($stats['partielle']) ? $stats['partielle'] : 0) }}</h4>
-                    </div>
-                    <i class="fas fa-clock fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-danger text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">En retard</h6>
-                        <h4 id="stat-en-retard">{{ $stats['en_retard'] }}</h4>
-                    </div>
-                    <i class="fas fa-exclamation-triangle fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Payées</h6>
-                        <h4 id="stat-payees">{{ $stats['payees'] }}</h4>
-                    </div>
-                    <i class="fas fa-check-circle fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Montant total</h6>
-                        <h4 id="stat-montant-total">{{ number_format($stats['montant_total'], 0, ',', ' ') }} $</h4>
-                    </div>
-                    <i class="fas fa-dollar-sign fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Montant payé</h6>
-                        <h4 id="stat-montant-paye">
-                            {{ number_format($stats['montant_paye'], 0, ',', ' ') }} $
-                        </h4>
-                    </div>
-                    <i class="fas fa-money-bill-wave fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card bg-secondary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h6 class="card-title">Montant non payé</h6>
-                        <h4 id="stat-montant-non-paye">
-                            {{ number_format($stats['montant_impaye'], 0, ',', ' ') }} $
-                        </h4>
-                    </div>
-                    <i class="fas fa-money-bill-alt fa-2x"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Liste des factures -->
 <div class="card">
@@ -558,6 +467,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <form method="POST" id="formModalPaiement" action="">
                 @csrf
                 <div class="modal-body">
+                    <!-- Bloc infos facture -->
+                    <div class="alert alert-secondary mb-3 p-2">
+                        <div><strong>Numéro :</strong> <span id="modalInfoNumero"></span></div>
+                        <div><strong>Locataire :</strong> <span id="modalInfoLocataire"></span></div>
+                        <div><strong>Immeuble :</strong> <span id="modalInfoImmeuble"></span></div>
+                        <div><strong>Appartement :</strong> <span id="modalInfoAppartement"></span></div>
+                        <div><strong>Mois :</strong> <span id="modalInfoMois"></span></div>
+                    </div>
                     <input type="hidden" name="_method" value="POST">
                     <div class="mb-3">
                         <label class="form-label">Montant à payer</label>
@@ -606,9 +523,19 @@ document.addEventListener('DOMContentLoaded', function() {
             const montant = parseFloat(this.dataset.montant) || 0;
             const montantRestant = parseFloat(this.dataset.montantRestant) || montant;
             const garantie = parseFloat(this.dataset.garantie) || 0;
+            const locataire = this.dataset.locataire || '';
+            const immeuble = this.dataset.immeuble || '';
+            const appartement = this.dataset.appartement || '';
+            const mois = this.dataset.mois || '';
 
             // Titre / numero facture
             document.getElementById('modalFactureNumero').textContent = numero;
+            // Bloc infos
+            document.getElementById('modalInfoNumero').textContent = numero || '(inconnu)';
+            document.getElementById('modalInfoLocataire').textContent = locataire || '(inconnu)';
+            document.getElementById('modalInfoImmeuble').textContent = immeuble || '(inconnu)';
+            document.getElementById('modalInfoAppartement').textContent = appartement || '(inconnu)';
+            document.getElementById('modalInfoMois').textContent = mois || '(inconnu)';
 
             // Action du formulaire (route marquer-payee)
             const form = document.getElementById('formModalPaiement');
@@ -633,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Si l'utilisateur choisit 'garantie_locative', ajuster le max
             const selectMode = document.getElementById('modalModePaiement');
-            selectMode.value = '';
+            selectMode.value = 'cash';
             selectMode.onchange = function() {
                 if (this.value === 'garantie_locative') {
                     const maxVal = Math.min(garantie, montantRestant);
