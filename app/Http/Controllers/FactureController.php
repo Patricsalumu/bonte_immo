@@ -21,9 +21,25 @@ class FactureController extends Controller
      */
     public function exportPdfPublic(Facture $facture)
     {
-        $facture->load(['locataire', 'loyer.appartement.immeuble']);
+        // Eager-load relations nécessaires : locataire et ses factures + paiements, ainsi que paiements de la facture courante
+        $facture->load(['locataire.factures.paiements', 'loyer.appartement.immeuble', 'paiements']);
+
+        // Calculer autres factures du même locataire non soldées (hors facture courante)
+        $autresFactures = collect();
+        try {
+            if (isset($facture->locataire) && $facture->locataire) {
+                $autresFactures = $facture->locataire->factures->where('id', '!=', $facture->id)->filter(function($f) {
+                    $paye = $f->paiements ? $f->paiements->sum('montant') : 0;
+                    return ($f->montant - $paye) > 0;
+                })->values();
+            }
+        } catch (\Exception $e) {
+            $autresFactures = collect();
+        }
+
         $data = [
             'facture' => $facture,
+            'autresFactures' => $autresFactures,
             'entreprise' => [
                 'nom' => config('company.name'),
                 'adresse' => config('company.address'),

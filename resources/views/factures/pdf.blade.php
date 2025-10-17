@@ -277,6 +277,59 @@
         </table>
     @endif
 
+    {{-- Autres factures impayées ou partielles du même locataire --}}
+    @php
+        // Utiliser la variable fournie par le contrôleur si disponible, sinon fallback
+        if (!isset($autresFactures)) {
+            $autresFactures = collect();
+            try {
+                if(isset($facture->locataire) && $facture->locataire) {
+                    $autresFactures = $facture->locataire->factures->where('id', '!=', $facture->id)->filter(function($f) {
+                        $paye = $f->paiements ? $f->paiements->sum('montant') : 0;
+                        return ($f->montant - $paye) > 0;
+                    })->values();
+                }
+            } catch (\Exception $e) {
+                $autresFactures = collect();
+            }
+        }
+    @endphp
+
+    @if($autresFactures && $autresFactures->count() > 0)
+        <table class="details-table">
+            <tr>
+                <th colspan="6" style="background: #ffc107; color: #212529; text-align: center;">Autres factures en souffrance</th>
+            </tr>
+            <tr>
+                <th>N° Facture</th>
+                <th>Période (mois/année)</th>
+                <th>Échéance</th>
+                <th>Montant</th>
+                <th>Payé</th>
+                <th>Restant</th>
+            </tr>
+            @foreach($autresFactures as $f)
+                @php
+                    $totalPaye = $f->paiements ? $f->paiements->sum('montant') : 0;
+                    $restant = $f->montant - $totalPaye;
+                    $etat = $totalPaye <= 0 ? 'NON PAYÉ' : ($restant > 0 ? 'PARTIEL' : 'PAYÉ');
+                @endphp
+                <tr>
+                    <td>{{ $f->numero_facture }}</td>
+                    @php
+                        $nomsMois = [1 => 'Janvier',2=>'Février',3=>'Mars',4=>'Avril',5=>'Mai',6=>'Juin',7=>'Juillet',8=>'Août',9=>'Septembre',10=>'Octobre',11=>'Novembre',12=>'Décembre'];
+                        $periode = isset($f->mois) && isset($f->annee) ? ($nomsMois[intval($f->mois)] . ' ' . $f->annee) : ($f->created_at ? $f->created_at->format('d/m/Y') : '-');
+                    @endphp
+                    <td>{{ $periode }}</td>
+                    <td>{{ $f->date_echeance ? $f->date_echeance->format('d/m/Y') : '-' }}</td>
+                    <td>{{ number_format($f->montant, 0, ',', ' ') }} $</td>
+                    <td>{{ number_format($totalPaye, 0, ',', ' ') }} $</td>
+                    <td>{{ number_format($restant, 0, ',', ' ') }} $</td>
+                </tr>
+            @endforeach
+        </table>
+    @endif
+
 <div class="guarantee-section">
      <div class="guarantee-title">🛡️ GARANTIE LOCATIVE</div> 
      <div class="guarantee-text">
