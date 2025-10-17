@@ -125,6 +125,12 @@
                 <span class="sidebar-text">{{ config('company.name') }}</span>
             </h4>
             
+            @php
+                $user = auth()->user();
+                $isAdmin = $user && ($user->role === 'admin' || (method_exists($user, 'isAdmin') && $user->isAdmin()));
+                $isGestionnaire = $user && $user->role === 'gestionnaire';
+            @endphp
+
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
@@ -133,70 +139,86 @@
                     </a>
                 </li>
                 
+                @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('immeubles.*') ? 'active' : '' }}" href="{{ route('immeubles.index') }}">
                         <i class="bi bi-buildings"></i>
                         <span class="sidebar-text">Immeubles</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin || $isGestionnaire)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('appartements.*') ? 'active' : '' }}" href="{{ route('appartements.index') }}">
                         <i class="bi bi-house-door"></i>
                         <span class="sidebar-text">Appartements</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin || $isGestionnaire)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('locataires.*') ? 'active' : '' }}" href="{{ route('locataires.index') }}">
                         <i class="bi bi-people"></i>
                         <span class="sidebar-text">Locataires</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('loyers.*') ? 'active' : '' }}" href="{{ route('loyers.index') }}">
                         <i class="bi bi-receipt"></i>
                         <span class="sidebar-text">Loyers</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin || $isGestionnaire)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('paiements.*') ? 'active' : '' }}" href="{{ route('paiements.index') }}">
                         <i class="bi bi-credit-card"></i>
                         <span class="sidebar-text">Paiements</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('caisse.*') ? 'active' : '' }}" href="{{ route('caisse.index') }}">
                         <i class="bi bi-bank"></i>
                         <span class="sidebar-text">Caisse</span>
                     </a>
                 </li>
+                @endif
                 
+                @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}" href="{{ route('notifications.index') }}">
                         <i class="fas fa-bell"></i>
                         <span class="sidebar-text">Notifications</span>
                     </a>
                 </li>
+                @endif
                 
-                @if(auth()->user()->isAdmin())
+                @if($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">
                         <i class="bi bi-person-gear"></i>
                         <span class="sidebar-text">Utilisateurs</span>
                     </a>
                 </li>
-                
+                @endif
+
+                @auth
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('factures.*') || request()->routeIs('rapports.*') ? 'active' : '' }}" href="{{ route('factures.dashboard') }}">
+                    <a class="nav-link {{ request()->routeIs('rapports.*') ? 'active' : '' }}" href="{{ route('rapports.mensuel') }}">
                         <i class="bi bi-graph-up"></i>
                         <span class="sidebar-text">Rapports</span>
                     </a>
                 </li>
-                @endif
+                @endauth
             </ul>
         </div>
         

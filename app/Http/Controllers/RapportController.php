@@ -15,7 +15,12 @@ class RapportController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('admin');
+        // Require authentication for all methods, but only apply the admin
+        // middleware to admin-only actions. Leave `mensuel`, `export` and
+        // `facturePdf` accessible to any authenticated user (they were
+        // requested to be available to gestionnaires / users).
+        $this->middleware('admin')->except(['mensuel', 'export', 'facturePdf']);
+        $this->middleware('auth');
     }
 
     public function index()
