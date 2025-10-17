@@ -149,15 +149,15 @@
                                 Informations de l'entreprise
                             </h6>
                             <p class="mb-1 small">
-                                <strong>La Bonte Immo</strong>
+                                <strong>{{ config('company.name') }}</strong>
                             </p>
                             <p class="mb-1 small">
                                 <i class="bi bi-geo-alt me-1"></i>
-                                Avenue de la révolution, Q. Industriel C. Lshi
+                                {{ config('company.address') }}
                             </p>
                             <p class="mb-0 small">
                                 <i class="bi bi-telephone me-1"></i>
-                                Contactez-nous pour plus d'informations
+                                Contactez-nous : {{ config('company.phone') }}
                             </p>
                         </div>
                     </div>

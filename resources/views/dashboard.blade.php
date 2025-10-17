@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tableau de bord - La Bonte Immo')
+@section('title', 'Tableau de bord - ' . config('company.name'))
 
 @section('content')
 <div class="row mb-4">

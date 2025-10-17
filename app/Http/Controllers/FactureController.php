@@ -25,10 +25,10 @@ class FactureController extends Controller
         $data = [
             'facture' => $facture,
             'entreprise' => [
-                'nom' => 'La Bonte Immo',
-                'adresse' => 'Avenue de la révolution, Q. Industriel C. Lshi',
-                'telephone' => '+243 000 000 000',
-                'email' => 'contact@labonteimmo.cd'
+                'nom' => config('company.name'),
+                'adresse' => config('company.address'),
+                'telephone' => config('company.phone'),
+                'email' => config('company.email')
             ],
             'date_generation' => now()->format('d/m/Y H:i')
         ];
@@ -290,7 +290,7 @@ class FactureController extends Controller
         $messageWhatsApp .= "Date d'échéance : {$facture->date_echeance->format('d/m/Y')}\n\n";
         $messageWhatsApp .= "Vous pouvez télécharger votre facture à tout moment sur le lien suivant :\n{$pdfUrl}\n\n";
         $messageWhatsApp .= "Merci de procéder au règlement avant la date d'échéance.\n\n";
-        $messageWhatsApp .= "Cordialement,\nL'équipe La Bonte Immo";
+    $messageWhatsApp .= "Cordialement,\n" . config('company.name');
         // ... Générer le lien WhatsApp et l'envoyer au locataire ...
         */
 
@@ -629,7 +629,7 @@ class FactureController extends Controller
                 $messageWhatsApp .= "Votre facture est partiellement réglée.\n\n";
             }
 
-            $messageWhatsApp .= "Cordialement,\nL'équipe La Bonte Immo";
+            $messageWhatsApp .= "Cordialement,\n" . config('company.name');
 
             // Encoder le message pour WhatsApp
             $messageEncoded = urlencode($messageWhatsApp);

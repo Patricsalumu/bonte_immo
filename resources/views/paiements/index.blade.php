@@ -288,7 +288,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Construction du lien PDF public avec l'ID
         const pdfUrl = `${window.location.origin}/public/factures/${factureId}/pdf`;
 
-        const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\nLa Bonte Immo`;
+    const companyName = "{{ e(config('company.name')) }}";
+    const message = `Bonjour ${civilite} ${nomComplet},\n\nUne facture de loyer a été générée à votre nom.\n\n📄 Numéro de facture : ${numeroFacture}\n💰 Montant : ${montant} $\n📅 Mois du loyer : ${mois}\n⏰ Date d'échéance : ${echeance}\n\nVous pouvez télécharger votre facture PDF ici : ${pdfUrl}\n\nMerci de procéder au règlement avant la date d'échéance.\n\nCordialement,\n${companyName}`;
 
         const urlWhatsApp = `https://wa.me/${numeroClean}?text=${encodeURIComponent(message)}`;
         window.open(urlWhatsApp, '_blank');

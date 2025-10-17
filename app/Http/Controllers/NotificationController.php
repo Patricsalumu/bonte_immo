@@ -125,7 +125,7 @@ class NotificationController extends Controller
         // Simulation d'envoi SMS
         // Dans un vrai projet, intégrer avec un service SMS comme Twilio, Nexmo, etc.
         
-        $messageComplet = "{$objet}\n\n{$message}\n\nCordialement,\nLa Bonte Immo";
+    $messageComplet = "{$objet}\n\n{$message}\n\nCordialement,\n" . config('company.name');
         
         // Log pour simulation
         \Log::info("SMS envoyé à {$locataire->telephone}: {$messageComplet}");
@@ -165,7 +165,7 @@ class NotificationController extends Controller
         // Simulation d'envoi WhatsApp
         // Dans un vrai projet, intégrer avec l'API WhatsApp Business
         
-        $messageComplet = "{$objet}\n\n{$message}\n\nCordialement,\nLa Bonte Immo";
+    $messageComplet = "{$objet}\n\n{$message}\n\nCordialement,\n" . config('company.name');
         
         // Log pour simulation
         \Log::info("WhatsApp envoyé à {$locataire->telephone}: {$messageComplet}");

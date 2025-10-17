@@ -21,10 +21,10 @@
                 <img src="{{ public_path('logo.png') }}" alt="Logo" style="max-width:100px; max-height:80px;">
             </td>
             <td style="vertical-align:top;">
-                <strong>La Bonte Immo</strong><br>
-                Avenue de la révolution, Q. Industriel C. Lshi<br>
-                Tél : +243 970 000 000<br>
-                Email : contact@labonteimmo.com<br>
+                <strong>{{ config('company.name') }}</strong><br>
+                {{ config('company.address') }}<br>
+                Tél : {{ config('company.phone') }}<br>
+                Email : {{ config('company.email') }}<br>
             </td>
             <td style="text-align:right; vertical-align:top;">
                 <h2 style="margin:0; color:#007bff;">Rapport Mensuel des Loyers</h2>
@@ -154,8 +154,8 @@
         </tr>
     </table>
     <div style="margin-top:40px; text-align:right; font-size:11px; color:#555;">
-        Généré le {{ \Carbon\Carbon::now()->format('d/m/Y à H:i') }} par La Bonte Immo App<br>
-        &copy; {{ date('Y') }} La Bonte Immo. Tous droits réservés.
+        Généré le {{ \Carbon\Carbon::now()->format('d/m/Y à H:i') }} par {{ config('company.name') }}<br>
+        &copy; {{ date('Y') }} {{ config('company.name') }}. Tous droits réservés.
     </div>
 </body>
 </html>

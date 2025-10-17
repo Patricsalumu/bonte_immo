@@ -222,8 +222,8 @@
                     <strong>Signature automatique:</strong>
                     <div class="border p-2 bg-light">
                         Cordialement,<br>
-                        La Bonte Immo<br>
-                        Avenue de la révolution, Q. Industriel C. Lshi
+                        {{ config('company.name') }}<br>
+                        {{ config('company.address') }}
                     </div>
                 </div>
             </div>

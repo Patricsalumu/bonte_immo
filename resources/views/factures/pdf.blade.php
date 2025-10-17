@@ -202,12 +202,20 @@
     <!-- En-tête -->
     <div class="header clearfix">
         <div class="company-info">
-            <div class="company-name">{{ $entreprise['nom'] }}</div>
+            {{-- Logo --}}
+            @php $logoPath = public_path(config('company.logo')) @endphp
+            @if(file_exists($logoPath))
+                <div style="float:right; width:35%; text-align:right;">
+                    <img src="{{ $logoPath }}" alt="{{ config('company.name') }}" style="max-width:140px; max-height:80px;" />
+                </div>
+            @endif
+
+            <div class="company-name">{{ config('company.name') }}</div>
             <div class="company-slogan">Votre partenaire immobilier de confiance</div>
             <div class="company-details">
-                <strong>Adresse :</strong> {{ $entreprise['adresse'] }}<br>
-                <strong>Téléphone :</strong> {{ $entreprise['telephone'] }}<br>
-                <strong>Email :</strong> {{ $entreprise['email'] }}
+                <strong>Adresse :</strong> {{ config('company.address') }}<br>
+                <strong>Téléphone :</strong> {{ config('company.phone') }}<br>
+                <strong>Email :</strong> {{ config('company.email') }}
             </div>
         </div>
         <div class="invoice-info">
@@ -272,7 +280,7 @@
 <div class="guarantee-section">
      <div class="guarantee-title">🛡️ GARANTIE LOCATIVE</div> 
      <div class="guarantee-text">
-         <strong>Montant de la garantie :</strong> {{ number_format($facture->loyer->garantie_locative, 0, ',', ' ') }} $<br> 
+         <!-- <strong>Montant de la garantie :</strong> {{ number_format($facture->loyer->garantie_locative, 0, ',', ' ') }} $<br>  -->
          <strong>CONDITIONS IMPORTANTES :</strong><br> 
          • Si cette facture dépasse la date d'échéance sans être réglée, 
          le gestionnaire sera dans l'obligation de la régler en utilisant la garantie locative.<br> 
@@ -282,7 +290,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        Document généré le {{ $date_generation }} par <strong>La Bonté Immo App</strong>.
+        Document généré le {{ $date_generation }} par <strong>{{ config('company.name') }}</strong>.
     </div>
 
 </body>
