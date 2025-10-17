@@ -50,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('rapports/export', [RapportController::class, 'export'])->name('rapports.export');
     // Télécharger PDF d'une facture (auth)
     Route::get('factures/{facture}/pdf', [FactureController::class, 'exportPdf'])->name('factures.export-pdf');
+    // Voir une facture (accessible aux utilisateurs authentifiés)
+    Route::get('factures/{facture}', [FactureController::class, 'show'])->name('factures.show');
     // Actions factures pour utilisateurs authentifiés
     Route::post('factures/{facture}/marquer-payee', [FactureController::class, 'marquerPayee'])->name('factures.marquer-payee');
     Route::post('factures/generer-mois', [FactureController::class, 'genererFacturesMois'])->name('factures.generer-mois');
@@ -110,10 +112,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('register', [AuthController::class, 'showRegisterForm'])->name('register');
         Route::post('register', [AuthController::class, 'register']);
 
-        // Factures et fonctions avancées (admin)
-    Route::get('factures/ajax', [FactureController::class, 'ajaxList'])->name('factures.ajax');
-    Route::resource('factures', FactureController::class);
-    Route::delete('factures/{facture}', [FactureController::class, 'destroy'])->name('factures.destroy');
+            // Factures et fonctions avancées (admin)
+            Route::get('factures/ajax', [FactureController::class, 'ajaxList'])->name('factures.ajax');
+            // Ressource factures pour admin, sans la vue 'show' qui est accessible aux utilisateurs authentifiés
+            Route::resource('factures', FactureController::class)->except(['show']);
+            Route::delete('factures/{facture}', [FactureController::class, 'destroy'])->name('factures.destroy');
 
 
     });
