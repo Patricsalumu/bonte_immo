@@ -100,6 +100,28 @@ class RapportController extends Controller
 
             $factures = $facturesQuery->get();
 
+            // Si un filtre de statut est demandé, filtrer la collection en mémoire
+            // en se basant sur la somme des paiements valides pour éviter les cas
+            // où le champ `statut_paiement` n'a pas été mis à jour correctement.
+            if ($statut) {
+                if ($statut === 'payee') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme >= $f->montant;
+                    })->values();
+                } elseif ($statut === 'non_payee') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme == 0;
+                    })->values();
+                } elseif ($statut === 'partielle') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme > 0 && $somme < $f->montant;
+                    })->values();
+                }
+            }
+
             // Calcul du total payé chez le percepteur sélectionné
             $totalPayesPercepteur = $paiementsFiltres->sum('montant');
 
@@ -160,8 +182,9 @@ class RapportController extends Controller
             }
 
             if ($statut === 'payee') {
+                // Inclure les factures payées et payées en retard
                 $paiementsQuery->whereHas('facture', function($q) {
-                    $q->where('statut_paiement', 'paye');
+                    $q->whereIn('statut_paiement', ['paye', 'paye_en_retard']);
                 });
             } elseif ($statut === 'non_payee') {
                 $paiementsQuery->whereHas('facture', function($q) {
@@ -186,7 +209,8 @@ class RapportController extends Controller
                 });
             }
             if ($statut === 'payee') {
-                $facturesQuery->where('statut_paiement', 'paye');
+                // Inclure les factures payées et payées en retard
+                $facturesQuery->whereIn('statut_paiement', ['paye', 'paye_en_retard']);
             } elseif ($statut === 'non_payee') {
                 $facturesQuery->where('statut_paiement', 'non_paye');
             } elseif ($statut === 'partielle') {
@@ -194,6 +218,26 @@ class RapportController extends Controller
             }
 
             $factures = $facturesQuery->get();
+
+            // Même filtrage robuste pour l'export — filtrer sur les sommes de paiements
+            if ($statut) {
+                if ($statut === 'payee') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme >= $f->montant;
+                    })->values();
+                } elseif ($statut === 'non_payee') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme == 0;
+                    })->values();
+                } elseif ($statut === 'partielle') {
+                    $factures = $factures->filter(function($f) {
+                        $somme = $f->paiements->where('est_annule', false)->sum('montant');
+                        return $somme > 0 && $somme < $f->montant;
+                    })->values();
+                }
+            }
 
             // Calcul du montant encaissé par percepteur pour la période
             foreach ($percepteurs as $percepteur) {

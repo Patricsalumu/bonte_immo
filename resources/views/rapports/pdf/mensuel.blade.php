@@ -53,6 +53,11 @@
             <span><strong>Statut des factures :</strong> {{ $libelleStatut }}</span>
         @endif
     </div>
+    @if(isset($factures) && $factures->isEmpty())
+        <div style="margin-top:10px; color:#dc3545;">
+            <strong>Aucune facture trouvée pour les filtres sélectionnés.</strong>
+        </div>
+    @endif
     @foreach($factures->groupBy('appartement.immeuble.nom') as $immeuble => $facturesImmeuble)
         <h3>Immeuble : {{ $immeuble }}</h3>
         <table>
@@ -62,6 +67,7 @@
                     <th>Client</th>
                     <th>Montant Facture</th>
                     <th>Montant Payé</th>
+                    <th>Statut</th>
                     <th>Date Paiement</th>
                     <th>Percepteur</th>
                 </tr>
@@ -74,12 +80,22 @@
                     $dernierPaiement = $paiementsValides->sortByDesc('created_at')->first();
                     $datePaiement = $dernierPaiement ? \Carbon\Carbon::parse($dernierPaiement->created_at)->format('d/m/Y') : '-';
                     $percepteurNom = $dernierPaiement && $dernierPaiement->utilisateur ? $dernierPaiement->utilisateur->nom : '-';
+                    // Statut lisible
+                    $statutLisible = '';
+                    if ($facture->statut_paiement === 'paye' || $facture->statut_paiement === 'paye_en_retard') {
+                        $statutLisible = 'Payée';
+                    } elseif ($facture->statut_paiement === 'partielle') {
+                        $statutLisible = 'Partielle';
+                    } else {
+                        $statutLisible = 'Non payée';
+                    }
                 @endphp
                 <tr>
                     <td>{{ $facture->appartement->numero ?? 'N/A' }}</td>
                     <td>{{ $facture->locataire->nom ?? 'N/A' }}</td>
                     <td>{{ number_format($facture->montant, 0, ',', ' ') }} $</td>
                     <td>{{ number_format($montantPayes, 0, ',', ' ') }} $</td>
+                    <td>{{ $statutLisible }}</td>
                     <td>{{ $datePaiement }}</td>
                     <td>{{ $percepteurNom }}</td>
                 </tr>
@@ -88,8 +104,15 @@
             <tfoot>
                 <tr>
                     <th colspan="2">Sous-total immeuble</th>
-                    <th>{{ number_format($facturesImmeuble->sum('montant'), 0, ',', ' ') }} $</th>
-                    <th>{{ number_format($facturesImmeuble->sum('montant_payes_calc'), 0, ',', ' ') }} $</th>
+                    @php
+                        $sousTotalFactures = $facturesImmeuble->sum('montant');
+                        $sousTotalPayes = $facturesImmeuble->reduce(function($carry, $facture) {
+                            $paiementsValides = $facture->paiements->where('est_annule', false);
+                            return $carry + $paiementsValides->sum('montant');
+                        }, 0);
+                    @endphp
+                    <th>{{ number_format($sousTotalFactures, 0, ',', ' ') }} $</th>
+                    <th>{{ number_format($sousTotalPayes, 0, ',', ' ') }} $</th>
                     <th colspan="2"></th>
                 </tr>
             </tfoot>
