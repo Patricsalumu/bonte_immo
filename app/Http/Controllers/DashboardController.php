@@ -9,6 +9,7 @@ use App\Models\Paiement;
 use App\Models\Facture;
 use App\Models\Immeuble;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -27,15 +28,42 @@ class DashboardController extends Controller
         $moisCourant = now()->month;
         $anneeCourante = now()->year;
         
-        $recettesMois = Facture::where('mois', $moisCourant)
-            ->where('annee', $anneeCourante)
-            ->sum('montant_paye');
+        // Recettes du mois = somme des paiements enregistrés pendant le mois courant
+        // Recettes du mois = somme des paiements enregistrés pendant le mois courant et liés à des factures
+        $recettesMois = Paiement::whereNotNull('facture_id')
+            ->whereMonth('date_paiement', $moisCourant)
+            ->whereYear('date_paiement', $anneeCourante)
+            ->where('est_annule', false)
+            ->sum('montant');
+
+    // Recettes totales : somme de tous les paiements valides liés à des factures (exclut garanties)
+    $recettesTotales = Paiement::whereNotNull('facture_id')->where('est_annule', false)->sum('montant');
         
-        // Factures non payées du mois
+        // Factures non payées du mois (conserve si besoin)
         $facturesImpayees = Facture::where('mois', $moisCourant)
             ->where('annee', $anneeCourante)
             ->where('statut_paiement', '!=', 'paye')
             ->count();
+
+        // --- Nouvelles métriques : factures impayées (toutes périodes) ---
+        // Compter les factures dont le statut indique non payée ou partielle
+        $facturesImpayeesCountAll = Facture::whereIn('statut_paiement', ['non_paye', 'partielle'])->count();
+
+        // Calculer le montant total restant à payer pour ces factures (montant - paiements valides)
+        // Optimisation : effectuer le calcul en SQL via une sous-requête qui somme les paiements non annulés par facture,
+        // puis sommer les (montant - paiements) en évitant les chargements Eloquent en mémoire.
+        $paidSub = DB::table('paiements')
+            ->select('facture_id', DB::raw('SUM(montant) as paid'))
+            ->where('est_annule', false)
+            ->groupBy('facture_id');
+
+        $facturesImpayeesAmountAll = (float) DB::table('factures as f')
+            ->leftJoinSub($paidSub, 'p', function($join) {
+                $join->on('p.facture_id', '=', 'f.id');
+            })
+            ->whereIn('f.statut_paiement', ['non_paye', 'partielle'])
+            ->selectRaw('COALESCE(SUM(GREATEST(f.montant - COALESCE(p.paid, 0), 0)), 0) as total')
+            ->value('total');
         
         // Paiements récents (7 derniers jours)
         $paiementsRecents = Paiement::with(['locataire', 'facture'])
@@ -45,9 +73,9 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
         
-        // Données pour graphiques - 6 derniers mois (basées sur les factures)
+        // Données pour graphiques - 12 derniers mois (basées sur les factures)
         $graphiqueData = [];
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $mois = $date->month;
             $annee = $date->year;
@@ -90,7 +118,10 @@ class DashboardController extends Controller
             'contratsActifs',
             'contratsInactifs',
             'recettesMois',
+            'recettesTotales',
             'facturesImpayees',
+            'facturesImpayeesCountAll',
+            'facturesImpayeesAmountAll',
             'paiementsRecents',
             'graphiqueData',
             'contratsAvecGarantie'

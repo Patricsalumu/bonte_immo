@@ -54,8 +54,9 @@
         <div class="stats-card p-4 text-center">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h3 class="text-success mb-1">{{ number_format($recettesMois, 0, ',', ' ') }} $</h3>
-                    <p class="text-muted mb-0">Recettes du Mois</p>
+                        <h3 class="text-success mb-1">{{ number_format($recettesTotales, 0, ',', ' ') }} $</h3>
+                        <p class="text-muted mb-0">Recettes totales</p>
+                        <p class="text-muted small mb-0">Recettes du mois : {{ number_format($recettesMois, 0, ',', ' ') }} $</p>
                 </div>
                 <i class="bi bi-currency-dollar text-success" style="font-size: 2.5rem;"></i>
             </div>
@@ -98,19 +99,23 @@
             <div class="card-header bg-warning text-white">
                 <h5 class="mb-0">
                     <i class="bi bi-exclamation-triangle"></i>
-                    Factures Impayées ({{ $facturesImpayees }} $)
+                    Factures Impayées
                 </h5>
             </div>
             <div class="card-body">
-                @if($facturesImpayees > 0)
-                    <p class="text-warning mb-3">{{ number_format($facturesImpayees, 0, ',', ' ') }} $ facture(s) non payée(s) ce mois.</p>
-                    <a href="#" class="btn btn-warning btn-custom">
-                        <i class="bi bi-eye"></i> Voir les détails
+                @if($facturesImpayeesCountAll > 0)
+                    <p class="text-warning mb-2">Total factures impayées (toutes périodes) : <strong>{{ number_format($facturesImpayeesCountAll, 0, ',', ' ') }}</strong></p>
+                    <p class="text-warning mb-3">Montant restant total : <strong>{{ number_format($facturesImpayeesAmountAll, 0, ',', ' ') }} $</strong></p>
+                    <a href="{{ route('rapports.index') }}" class="btn btn-warning btn-custom">
+                        <i class="bi bi-eye"></i> Voir les factures impayées
+                    </a>
+                    <a href="{{ route('rapports.export', ['type' => 'factures_impayees', 'format' => 'pdf']) }}" class="btn btn-outline-light btn-custom ms-2">
+                        <i class="bi bi-download"></i> Export PDF
                     </a>
                 @else
                     <p class="text-success mb-0">
                         <i class="bi bi-check-circle"></i>
-                        Toutes les factures du mois sont payées !
+                        Il n'y a pas de factures impayées.
                     </p>
                 @endif
             </div>
@@ -120,16 +125,16 @@
 
 <!-- Graphiques -->
 <div class="row mb-4">
-    <div class="col-md-8 mb-3">
+    <div class="col-12 mb-3">
         <div class="card stats-card">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="bi bi-bar-chart"></i>
-                    Évolution des Loyers (6 derniers mois)
+                    Évolution des Loyers (12 derniers mois)
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="loyersChart" height="300"></canvas>
+                <canvas id="loyersChart" height="400"></canvas>
             </div>
         </div>
     </div>
