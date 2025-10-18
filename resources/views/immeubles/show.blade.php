@@ -99,7 +99,7 @@
                                 <tr>
                                     <td><strong>{{ $appartement->numero }}</strong></td>
                                     <td>{{ ucfirst(str_replace('_', ' ', $appartement->type)) }}</td>
-                                    <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} CDF</td>
+                                    <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>
                                     <td>
                                         @if($appartement->locataire)
                                             <a href="{{ route('locataires.show', $appartement->locataire) }}">
@@ -173,7 +173,7 @@
                     <div class="col-6 mb-3">
                         <div class="border rounded p-3">
                             <h4 class="text-info mb-0">{{ number_format($immeuble->appartements->sum('loyer_mensuel'), 0, ',', ' ') }}</h4>
-                            <small class="text-muted">CDF/mois</small>
+                            <small class="text-muted">$/mois</small>
                         </div>
                     </div>
                 </div>

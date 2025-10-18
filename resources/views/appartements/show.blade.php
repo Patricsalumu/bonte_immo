@@ -51,11 +51,11 @@
                         <table class="table table-borderless">
                             <tr>
                                 <td><strong>Loyer mensuel :</strong></td>
-                                <td><span class="text-success fw-bold">{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} CDF</span></td>
+                                <td><span class="text-success fw-bold">{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</span></td>
                             </tr>
                             <tr>
                                 <td><strong>Garantie locative :</strong></td>
-                                <td>{{ number_format($appartement->garantie_locative, 0, ',', ' ') }} CDF</td>
+                                <td>{{ number_format($appartement->garantie_locative, 0, ',', ' ') }} $</td>
                             </tr>
                             <tr>
                                 <td><strong>Statut :</strong></td>
@@ -127,7 +127,7 @@
                                 <td><strong>Revenu mensuel :</strong></td>
                                 <td>
                                     @if($appartement->locataire->revenu_mensuel)
-                                        {{ number_format($appartement->locataire->revenu_mensuel, 0, ',', ' ') }} CDF
+                                        {{ number_format($appartement->locataire->revenu_mensuel, 0, ',', ' ') }} $
                                     @else
                                         Non renseigné
                                     @endif
