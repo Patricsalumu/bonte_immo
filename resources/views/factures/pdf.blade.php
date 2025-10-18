@@ -232,7 +232,7 @@
     <div class="client-info" style="align-items: flex-start;">
         <div class="client-col" style="vertical-align: top;">
             <div class="client-title">FACTURÉ À :</div>
-            <strong>{{ $facture->locataire->nom }} {{ $facture->locataire->prenom }}</strong><br>
+            <strong>Mr(Mme). {{ $facture->locataire->nom }} {{ $facture->locataire->prenom }}</strong><br>
             Tél : {{ $facture->locataire->telephone }}<br>
             @if($facture->locataire->email) Email : {{ $facture->locataire->email }}<br> @endif
             @if($facture->locataire->adresse) {{ $facture->locataire->adresse }} @endif
