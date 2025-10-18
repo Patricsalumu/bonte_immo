@@ -103,7 +103,6 @@
                                                 <th>Type</th>
                                                 <th>Solde</th>
                                                 <th>Description</th>
-                                                <th>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -131,94 +130,8 @@
                                                         </strong>
                                                     </td>
                                                     <td>{{ $compte->description }}</td>
-                                                    <td>
-                                                        <div class="btn-group" role="group">
-                                                            <a href="{{ route('comptes-financiers.show', $compte) }}" class="btn btn-sm btn-outline-info" title="Voir">
-                                                                <i class="bi bi-eye"></i>
-                                                            </a>
-                                                            <a href="{{ route('comptes-financiers.edit', $compte) }}" class="btn btn-sm btn-outline-warning" title="Modifier">
-                                                                <i class="bi bi-pencil"></i>
-                                                            </a>
-                                                            <form method="POST" action="{{ route('comptes-financiers.destroy', $compte) }}" class="d-inline">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce compte ?')" title="Supprimer">
-                                                                    <i class="bi bi-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </td>
                                                 </tr>
                                             @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Mouvements récents -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Mouvements Récents</h5>
-                        </div>
-                        <div class="card-body">
-                            @if($mouvementsRecents->count() > 0)
-                                <div class="table-responsive">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Type</th>
-                                                <th>Compte Source</th>
-                                                <th>Compte Destination</th>
-                                                <th>Montant</th>
-                                                <th>Description</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($mouvementsRecents as $mouvement)
-                                                <tr>
-                                                    <td>{{ \Carbon\Carbon::parse($mouvement->date_operation)->format('d/m/Y H:i') }}</td>
-                                                    <td>
-                                                        @switch($mouvement->type_mouvement)
-                                                            @case('entree')
-                                                                <span class="badge bg-success">Entrée</span>
-                                                                @break
-                                                            @case('sortie')
-                                                                <span class="badge bg-danger">Sortie</span>
-                                                                @break
-                                                            @case('transfert')
-                                                                <span class="badge bg-info">Transfert</span>
-                                                                @break
-                                                            @default
-                                                                <span class="badge bg-secondary">{{ ucfirst($mouvement->type_mouvement) }}</span>
-                                                        @endswitch
-                                                    </td>
-                                                    <td>{{ $mouvement->compteSource->nom ?? '-' }}</td>
-                                                    <td>{{ $mouvement->compteDestination->nom ?? '-' }}</td>
-                                                    <td>
-                                                        <strong class="{{ $mouvement->type_mouvement === 'entree' ? 'text-success' : ($mouvement->type_mouvement === 'sortie' ? 'text-danger' : 'text-info') }}">
-                                                            {{ number_format($mouvement->montant, 0, ',', ' ') }} $
-                                                        </strong>
-                                                    </td>
-                                                    <td>{{ $mouvement->description }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="text-center mt-3">
-                                    <a href="{{ route('caisse.journal') }}" class="btn btn-outline-primary">
-                                        Voir tous les mouvements
-                                    </a>
-                                </div>
-                            @else
-                                <div class="text-center py-4">
-                                    <i class="bi bi-activity display-1 text-muted"></i>
-                                    <p class="text-muted mt-3">Aucun mouvement enregistré</p>
                                 </div>
                             @endif
                         </div>

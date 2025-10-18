@@ -64,7 +64,8 @@
                             <label for="type" class="form-label">Type d'appartement <span class="text-danger">*</span></label>
                             <select class="form-select @error('type') is-invalid @enderror" 
                                     id="type" 
-                                    name="type" 
+                                    name="type"
+                                    required
                                     >
                                 <option value="">Sélectionner un type</option>
                                 <option value="local" {{ old('type', $appartement->type) == 'studio' ? 'selected' : '' }}>Local</option>
