@@ -144,9 +144,60 @@
 @section('scripts')
 <script id="graphique-data" type="application/json">{!! json_encode($graphiqueData) !!}</script>
 <script>
-    // Graphique des loyers
+    // Graphique des loyers + étiquettes de pourcentage au-dessus de chaque barre
     const ctx = document.getElementById('loyersChart').getContext('2d');
     const chartData = JSON.parse(document.getElementById('graphique-data').textContent);
+
+    // Plugin local Chart.js pour dessiner les pourcentages (payé / impayé) au-dessus des barres
+    const percentPlugin = {
+        id: 'percentPlugin',
+        afterDatasetsDraw(chart, args, options) {
+            const { ctx, chartArea } = chart;
+            ctx.save();
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+
+            const datasets = chart.data.datasets;
+            // Pour chaque index (mois), calculer total et pourcentages
+            const length = datasets[0].data.length;
+            for (let i = 0; i < length; i++) {
+                const value0 = Number(datasets[0].data[i] || 0);
+                const value1 = Number(datasets[1].data[i] || 0);
+                const total = value0 + value1;
+
+                // éviter division par zéro
+                const pct0 = total > 0 ? Math.round((value0 / total) * 100) : 0;
+                const pct1 = total > 0 ? Math.round((value1 / total) * 100) : 0;
+
+                // Récupérer les objets bar pour chaque dataset afin d'obtenir position
+                const meta0 = chart.getDatasetMeta(0);
+                const meta1 = chart.getDatasetMeta(1);
+                const bar0 = meta0.data[i];
+                const bar1 = meta1.data[i];
+
+                if (bar0) {
+                    const x = bar0.x;
+                    // placer petit peu au-dessus du sommet de la barre
+                    const y = bar0.y - 6;
+                    // si la barre est suffisamment haute, écrire en blanc, sinon en noir
+                    const height0 = Math.abs(bar0.base - bar0.y) || 0;
+                    ctx.fillStyle = height0 > 18 ? '#ffffff' : '#000000';
+                    ctx.fillText(pct0 + '%', x, y);
+                }
+
+                if (bar1) {
+                    const x = bar1.x;
+                    const y = bar1.y - 6;
+                    const height1 = Math.abs(bar1.base - bar1.y) || 0;
+                    ctx.fillStyle = height1 > 18 ? '#ffffff' : '#000000';
+                    ctx.fillText(pct1 + '%', x, y);
+                }
+            }
+
+            ctx.restore();
+        }
+    };
 
     const loyersChart = new Chart(ctx, {
         type: 'bar',
@@ -187,15 +238,27 @@
                     position: 'top',
                 },
                 tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.85)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
                     callbacks: {
                         label: function(context) {
-                            return context.dataset.label + ': ' + 
-                                   new Intl.NumberFormat('fr-FR').format(context.parsed.y) + ' $';
+                            // valeur courante
+                            const idx = context.dataIndex;
+                            const datasets = context.chart.data.datasets;
+                            const value = Number(context.parsed.y || 0);
+                            // autre dataset (payé vs impayé)
+                            const otherIdx = context.datasetIndex === 0 ? 1 : 0;
+                            const otherValue = Number(datasets[otherIdx].data[idx] || 0);
+                            const total = value + otherValue;
+                            const pct = total > 0 ? Math.round((value / total) * 100) : 0;
+                            return context.dataset.label + ': ' + new Intl.NumberFormat('fr-FR').format(value) + ' $ (' + pct + '%)';
                         }
                     }
                 }
             }
-        }
+        },
+        plugins: [percentPlugin]
     });
 </script>
 @endsection
