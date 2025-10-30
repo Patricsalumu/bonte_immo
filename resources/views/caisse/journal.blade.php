@@ -122,10 +122,13 @@
                             <input type="date" class="form-control form-control-sm" id="date_fin" name="date_fin" value="{{ request('date_fin') }}">
                         </div>
                         <div class="col-12 col-md-2">
-                            <label class="form-label d-none d-md-block">&nbsp;</label>
-                            <button type="submit" class="btn btn-primary btn-sm w-100">
-                                <i class="bi bi-search"></i> Filtrer
-                            </button>
+                            <label for="q" class="form-label">Recherche</label>
+                            <div class="input-group input-group-sm">
+                                <input type="search" name="q" id="q" class="form-control" placeholder="Description, montant, référence" value="{{ request('q') }}" aria-label="Recherche">
+                                <button class="btn btn-outline-secondary" type="submit" title="Rechercher">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-12 col-md-2">
                             <label class="form-label d-none d-md-block">&nbsp;</label>
@@ -170,8 +173,21 @@
 
     <!-- Journal des mouvements -->
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Journal des Mouvements</h5>
+            <form method="GET" action="{{ route('caisse.journal') }}" class="d-flex ms-3" style="max-width:420px; width:100%;">
+                {{-- Préserver les filtres existants via inputs cachés --}}
+                <input type="hidden" name="compte_id" value="{{ request('compte_id') }}">
+                <input type="hidden" name="type_mouvement" value="{{ request('type_mouvement') }}">
+                <input type="hidden" name="date_debut" value="{{ request('date_debut') }}">
+                <input type="hidden" name="date_fin" value="{{ request('date_fin') }}">
+                <div class="input-group input-group-sm w-100">
+                    <input type="search" name="q" id="q_header" class="form-control" placeholder="Recherche (description, montant, référence)" value="{{ request('q') }}" aria-label="Recherche journal">
+                    <button class="btn btn-outline-secondary" type="submit" title="Rechercher">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
         <div class="card-body">
             @if($mouvements->count() > 0)

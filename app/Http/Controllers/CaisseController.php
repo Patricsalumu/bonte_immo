@@ -54,6 +54,15 @@ class CaisseController extends Controller
             $query->where('date_operation', '<=', $request->date_fin);
         }
 
+        // Recherche libre (description, reference, montant)
+        if ($request->filled('q')) {
+            $qTerm = $request->q;
+            $query->where(function($sub) use ($qTerm) {
+                $sub->where('description', 'like', '%' . $qTerm . '%')
+                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+            });
+        }
+
         $mouvements = $query->orderBy('created_at', 'desc')->paginate(20);
 
         // Appliquer les mêmes filtres pour les statistiques
@@ -72,6 +81,15 @@ class CaisseController extends Controller
         }
         if ($request->filled('date_fin')) {
             $baseStatsQuery = $baseStatsQuery->where('date_operation', '<=', $request->date_fin);
+        }
+
+        // Appliquer la même recherche libre aux statistiques si fournie
+        if ($request->filled('q')) {
+            $qTerm = $request->q;
+            $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm) {
+                $sub->where('description', 'like', '%' . $qTerm . '%')
+                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+            });
         }
 
         $statistiques = [
