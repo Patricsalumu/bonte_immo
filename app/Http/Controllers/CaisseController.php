@@ -54,12 +54,21 @@ class CaisseController extends Controller
             $query->where('date_operation', '<=', $request->date_fin);
         }
 
-        // Recherche libre (description, reference, montant)
+        // Recherche libre (description, reference, montant) — n'inclure montant que si q est numérique
         if ($request->filled('q')) {
             $qTerm = $request->q;
-            $query->where(function($sub) use ($qTerm) {
+            // Normaliser la chaîne pour tester si elle représente un nombre
+            $qNumericCandidate = preg_replace('/[^0-9,\.\-]/', '', $qTerm);
+            $qNumericCandidate = str_replace(' ', '', $qNumericCandidate);
+            $isNumeric = is_numeric(str_replace(',', '.', $qNumericCandidate));
+
+            $query->where(function($sub) use ($qTerm, $isNumeric, $qNumericCandidate) {
                 $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+                    ->orWhere('reference', 'like', '%' . $qTerm . '%');
+                if ($isNumeric) {
+                    // si numérique, rechercher aussi dans montant (CAST en CHAR)
+                    $sub->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qNumericCandidate . '%']);
+                }
             });
         }
 
@@ -86,9 +95,16 @@ class CaisseController extends Controller
         // Appliquer la même recherche libre aux statistiques si fournie
         if ($request->filled('q')) {
             $qTerm = $request->q;
-            $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm) {
+            $qNumericCandidate = preg_replace('/[^0-9,\.\-]/', '', $qTerm);
+            $qNumericCandidate = str_replace(' ', '', $qNumericCandidate);
+            $isNumeric = is_numeric(str_replace(',', '.', $qNumericCandidate));
+
+            $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm, $isNumeric, $qNumericCandidate) {
                 $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+                    ->orWhere('reference', 'like', '%' . $qTerm . '%');
+                if ($isNumeric) {
+                    $sub->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qNumericCandidate . '%']);
+                }
             });
         }
 
@@ -100,7 +116,171 @@ class CaisseController extends Controller
         ];
         $statistiques['solde_net'] = $statistiques['total_entrees'] - $statistiques['total_sorties'];
         $comptes = CompteFinancier::where('actif', true)->get();
-        return view('caisse.journal', compact('mouvements', 'comptes', 'statistiques'));
+
+        // Calculer la répartition des entrées par période trouvée dans la description (ex: 10/2025 ou octobre 2025)
+        $periodeStats = [];
+        // Récupérer les mouvements de type 'entree' correspondant aux mêmes filtres
+        $entries = (clone $baseStatsQuery)->where('type_mouvement', 'entree')->get();
+        $monthsFr = [1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril', 5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août', 9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'];
+        foreach ($entries as $e) {
+            $found = false;
+            $desc = $e->description ?? '';
+            // Chercher format MM/YYYY
+            if (preg_match('/\b(0?[1-9]|1[0-2])\/(\d{4})\b/', $desc, $m)) {
+                $mm = intval($m[1]); $yy = intval($m[2]);
+                $key = sprintf('%04d-%02d', $yy, $mm);
+                $label = $monthsFr[$mm] . ' ' . $yy;
+                $periodeStats[$key]['label'] = $label;
+                $periodeStats[$key]['amount'] = ($periodeStats[$key]['amount'] ?? 0) + $e->montant;
+                $found = true;
+            }
+            // Chercher format mois en lettres + année (ex: octobre 2025)
+            if (!$found && preg_match('/\b(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre)\s+(\d{4})\b/i', $desc, $m2)) {
+                $moisName = strtolower(str_replace(['é','è','ê','à','ù'], ['e','e','e','a','u'], $m2[1]));
+                $moisMap = ['janvier'=>1,'fevrier'=>2,'fevrier'=>2,'mars'=>3,'avril'=>4,'mai'=>5,'juin'=>6,'juillet'=>7,'aout'=>8,'aôut'=>8,'aout'=>8,'septembre'=>9,'octobre'=>10,'novembre'=>11,'decembre'=>12];
+                $yy = intval($m2[2]);
+                $mm = $moisMap[$moisName] ?? null;
+                if ($mm) {
+                    $key = sprintf('%04d-%02d', $yy, $mm);
+                    $label = $monthsFr[$mm] . ' ' . $yy;
+                    $periodeStats[$key]['label'] = $label;
+                    $periodeStats[$key]['amount'] = ($periodeStats[$key]['amount'] ?? 0) + $e->montant;
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                $periodeStats['unspecified']['label'] = 'Non spécifié';
+                $periodeStats['unspecified']['amount'] = ($periodeStats['unspecified']['amount'] ?? 0) + $e->montant;
+            }
+        }
+        // Trier par clé (période décroissante)
+        uksort($periodeStats, function($a, $b) {
+            if ($a === 'unspecified') return 1;
+            if ($b === 'unspecified') return -1;
+            return strcmp($b, $a);
+        });
+
+        return view('caisse.journal', compact('mouvements', 'comptes', 'statistiques', 'periodeStats'));
+    }
+
+    /**
+     * Exporter le journal de caisse en PDF selon les mêmes filtres/recherche
+     */
+    public function exportPdf(Request $request)
+    {
+        // Reprendre la même construction de query que dans journal()
+        $query = MouvementCaisse::with(['compteSource', 'compteDestination', 'utilisateur'])
+            ->where('est_annule', false);
+
+        if ($request->filled('compte_id')) {
+            $query->where(function($q) use ($request) {
+                $q->where('compte_source_id', $request->compte_id)
+                  ->orWhere('compte_destination_id', $request->compte_id);
+            });
+        }
+
+        if ($request->filled('type_mouvement')) {
+            $query->where('type_mouvement', $request->type_mouvement);
+        }
+
+        if ($request->filled('date_debut')) {
+            $query->where('date_operation', '>=', $request->date_debut);
+        }
+
+        if ($request->filled('date_fin')) {
+            $query->where('date_operation', '<=', $request->date_fin);
+        }
+
+        if ($request->filled('q')) {
+            $qTerm = $request->q;
+            $query->where(function($sub) use ($qTerm) {
+                $sub->where('description', 'like', '%' . $qTerm . '%')
+                    ->orWhere('reference', 'like', '%' . $qTerm . '%')
+                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+            });
+        }
+
+        $mouvements = $query->orderBy('created_at', 'desc')->get();
+
+        // Calculer les statistiques (mêmes règles que dans journal)
+        $baseStatsQuery = MouvementCaisse::where('est_annule', false);
+        if ($request->filled('compte_id')) {
+            $baseStatsQuery = $baseStatsQuery->where(function($q) use ($request) {
+                $q->where('compte_source_id', $request->compte_id)
+                  ->orWhere('compte_destination_id', $request->compte_id);
+            });
+        }
+        if ($request->filled('type_mouvement')) {
+            $baseStatsQuery = $baseStatsQuery->where('type_mouvement', $request->type_mouvement);
+        }
+        if ($request->filled('date_debut')) {
+            $baseStatsQuery = $baseStatsQuery->where('date_operation', '>=', $request->date_debut);
+        }
+        if ($request->filled('date_fin')) {
+            $baseStatsQuery = $baseStatsQuery->where('date_operation', '<=', $request->date_fin);
+        }
+        if ($request->filled('q')) {
+            $qTerm = $request->q;
+            $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm) {
+                $sub->where('description', 'like', '%' . $qTerm . '%')
+                    ->orWhere('reference', 'like', '%' . $qTerm . '%')
+                    ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
+            });
+        }
+
+        $statistiques = [
+            'total_entrees' => (clone $baseStatsQuery)->where('type_mouvement', 'entree')->sum('montant'),
+            'total_sorties' => (clone $baseStatsQuery)->where('type_mouvement', 'sortie')->sum('montant'),
+            'total_transferts' => (clone $baseStatsQuery)->where('type_mouvement', 'transfert')->sum('montant'),
+            'solde_net' => 0
+        ];
+        $statistiques['solde_net'] = $statistiques['total_entrees'] - $statistiques['total_sorties'];
+
+        // Générer le PDF via Dompdf
+        // Calculer la répartition des entrées par période pour le PDF aussi
+        $periodeStats = [];
+        $entriesPdf = (clone $baseStatsQuery)->where('type_mouvement', 'entree')->get();
+        $monthsFr = [1 => 'Janvier', 2 => 'Février', 3 => 'Mars', 4 => 'Avril', 5 => 'Mai', 6 => 'Juin', 7 => 'Juillet', 8 => 'Août', 9 => 'Septembre', 10 => 'Octobre', 11 => 'Novembre', 12 => 'Décembre'];
+        foreach ($entriesPdf as $e) {
+            $found = false;
+            $desc = $e->description ?? '';
+            if (preg_match('/\b(0?[1-9]|1[0-2])\/(\d{4})\b/', $desc, $m)) {
+                $mm = intval($m[1]); $yy = intval($m[2]);
+                $key = sprintf('%04d-%02d', $yy, $mm);
+                $label = $monthsFr[$mm] . ' ' . $yy;
+                $periodeStats[$key]['label'] = $label;
+                $periodeStats[$key]['amount'] = ($periodeStats[$key]['amount'] ?? 0) + $e->montant;
+                $found = true;
+            }
+            if (!$found && preg_match('/\b(janvier|fevrier|février|mars|avril|mai|juin|juillet|aout|août|septembre|octobre|novembre|decembre)\s+(\d{4})\b/i', $desc, $m2)) {
+                $moisName = strtolower(str_replace(['é','è','ê','à','ù'], ['e','e','e','a','u'], $m2[1]));
+                $moisMap = ['janvier'=>1,'fevrier'=>2,'fevrier'=>2,'mars'=>3,'avril'=>4,'mai'=>5,'juin'=>6,'juillet'=>7,'aout'=>8,'aôut'=>8,'aout'=>8,'septembre'=>9,'octobre'=>10,'novembre'=>11,'decembre'=>12];
+                $yy = intval($m2[2]);
+                $mm = $moisMap[$moisName] ?? null;
+                if ($mm) {
+                    $key = sprintf('%04d-%02d', $yy, $mm);
+                    $label = $monthsFr[$mm] . ' ' . $yy;
+                    $periodeStats[$key]['label'] = $label;
+                    $periodeStats[$key]['amount'] = ($periodeStats[$key]['amount'] ?? 0) + $e->montant;
+                    $found = true;
+                }
+            }
+            if (!$found) {
+                $periodeStats['unspecified']['label'] = 'Non spécifié';
+                $periodeStats['unspecified']['amount'] = ($periodeStats['unspecified']['amount'] ?? 0) + $e->montant;
+            }
+        }
+        uksort($periodeStats, function($a, $b) {
+            if ($a === 'unspecified') return 1;
+            if ($b === 'unspecified') return -1;
+            return strcmp($b, $a);
+        });
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('caisse.journal_pdf', compact('mouvements', 'statistiques', 'request', 'periodeStats'));
+
+        $filename = 'journal_caisse_' . now()->format('Y_m_d') . '.pdf';
+        return $pdf->download($filename);
     }
 
     public function create()

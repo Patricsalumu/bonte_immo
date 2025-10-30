@@ -97,6 +97,7 @@ Route::middleware(['auth'])->group(function () {
         // Caisse (gestion complète)
         Route::get('caisse', [CaisseController::class, 'index'])->name('caisse.index');
         Route::get('caisse/journal', [CaisseController::class, 'journal'])->name('caisse.journal');
+    Route::get('caisse/journal/export', [CaisseController::class, 'exportPdf'])->name('caisse.journal.export');
         Route::get('caisse/create', [CaisseController::class, 'create'])->name('caisse.create');
         Route::post('caisse', [CaisseController::class, 'store'])->name('caisse.store');
         Route::get('caisse/transfert', [CaisseController::class, 'transfert'])->name('caisse.transfert');

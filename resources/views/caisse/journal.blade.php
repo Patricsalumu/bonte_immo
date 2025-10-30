@@ -169,6 +169,24 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title">Entrées par période</h6>
+                    @if(!empty($periodeStats))
+                        <ul class="list-unstyled mb-0">
+                            @foreach($periodeStats as $ps)
+                                <li>
+                                    <strong>{{ $ps['label'] }}</strong>: {{ number_format($ps['amount'], 0, ',', ' ') }} $
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <div class="small text-muted">Aucune entrée catégorisée</div>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Journal des mouvements -->
@@ -188,6 +206,9 @@
                     </button>
                 </div>
             </form>
+            <a href="{{ route('caisse.journal.export') . '?' . http_build_query(request()->query()) }}" class="btn btn-outline-danger btn-sm ms-2" title="Exporter PDF">
+                <i class="bi bi-download"></i> PDF
+            </a>
         </div>
         <div class="card-body">
             @if($mouvements->count() > 0)
