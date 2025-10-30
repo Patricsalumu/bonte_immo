@@ -17,6 +17,15 @@ class AppartementController extends Controller
     public function index()
     {
         $query = Appartement::with(['immeuble', 'locataire']);
+        // Ajouter un sous-select pour compter les factures impayées (statut non_paye ou partielle)
+        $query->select('appartements.*');
+        $query->selectSub(function($sub) {
+            $sub->from('factures')
+                ->join('loyers', 'factures.loyer_id', '=', 'loyers.id')
+                ->whereColumn('loyers.appartement_id', 'appartements.id')
+                ->whereIn('factures.statut_paiement', ['non_paye', 'partielle'])
+                ->selectRaw('COUNT(*)');
+        }, 'factures_impayees_count');
         if (request('immeuble')) {
             $query->whereHas('immeuble', function($q) {
                 $q->where('nom', 'like', '%' . request('immeuble') . '%');
@@ -25,8 +34,21 @@ class AppartementController extends Controller
         if (request('numero')) {
             $query->where('numero', 'like', '%' . request('numero') . '%');
         }
-    $appartements = $query->paginate(10);
-    return view('appartements.index', compact('appartements'));
+        // Tri par factures impayées si demandé
+        $sort = request('sort');
+        $direction = request('direction') === 'asc' ? 'asc' : 'desc';
+        if ($sort === 'factures_impayees') {
+            $query->orderBy('factures_impayees_count', $direction);
+        } else {
+            // tri par défaut : ordre d'enregistrement en base (id asc)
+            $query->orderBy('id', 'asc');
+        }
+
+        $appartements = $query->paginate(10);
+        // Conserver les paramètres de requête dans la pagination
+        $appartements->appends(request()->query());
+
+        return view('appartements.index', compact('appartements'));
     }
 
     public function create()

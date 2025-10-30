@@ -40,12 +40,43 @@
                     </form>
                     @if($appartements->count() > 0)
                         <div class="table-responsive">
+                            <style>
+                                /* Indicateur visuel pour tri actif */
+                                .active-sort-link {
+                                    background: rgba(255, 193, 7, 0.15);
+                                    padding: .25rem .4rem;
+                                    border-radius: .35rem;
+                                }
+                                .active-sort-link .badge {
+                                    font-size: .65rem;
+                                    vertical-align: middle;
+                                }
+                            </style>
                             <table class="table table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Immeuble</th>
                                         <th>Numéro</th>
                                         <th>Type</th>
+                                        <th>
+                                            @php
+                                                $currentSort = request('sort');
+                                                $currentDir = request('direction') === 'asc' ? 'asc' : 'desc';
+                                                $nextDir = ($currentSort === 'factures_impayees' && $currentDir === 'asc') ? 'desc' : 'asc';
+                                                $isActiveSort = $currentSort === 'factures_impayees';
+                                            @endphp
+                                            <a href="{{ route('appartements.index', array_merge(request()->query(), ['sort' => 'factures_impayees', 'direction' => $nextDir])) }}" class="text-white text-decoration-none {{ $isActiveSort ? 'active-sort-link' : '' }}">
+                                                Factures impayées
+                                                @if($isActiveSort)
+                                                    @if($currentDir === 'asc')
+                                                        <i class="bi bi-arrow-up"></i>
+                                                    @else
+                                                        <i class="bi bi-arrow-down"></i>
+                                                    @endif
+                                                    <span class="badge bg-light text-dark ms-2">Tri actif</span>
+                                                @endif
+                                            </a>
+                                        </th>
                                         <th>Garantie</th>
                                         <th>Loyer</th>
                                         <th>Locataire</th>
@@ -59,6 +90,9 @@
                                             <td>{{ $appartement->immeuble->nom ?? 'N/A' }}</td>
                                             <td><strong>{{ $appartement->numero }}</strong></td>
                                             <td>{{ ucfirst($appartement->type) }}</td>
+                                            <td>
+                                                <span class="badge bg-danger">{{ $appartement->factures_impayees_count ?? 0 }}</span>
+                                            </td>
                                             <td>{{ $appartement->garantie_locative }} $</td>
                                             <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>
                                             <td>
