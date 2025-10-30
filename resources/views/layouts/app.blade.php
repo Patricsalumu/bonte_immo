@@ -114,6 +114,16 @@
                 display: none !important;
             }
         }
+        /* Indicateur visuel pour tri actif (global) */
+        .active-sort-link {
+            background: rgba(255, 193, 7, 0.15);
+            padding: .25rem .4rem;
+            border-radius: .35rem;
+        }
+        .active-sort-link .badge {
+            font-size: .65rem;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>

@@ -40,18 +40,6 @@
                     </form>
                     @if($appartements->count() > 0)
                         <div class="table-responsive">
-                            <style>
-                                /* Indicateur visuel pour tri actif */
-                                .active-sort-link {
-                                    background: rgba(255, 193, 7, 0.15);
-                                    padding: .25rem .4rem;
-                                    border-radius: .35rem;
-                                }
-                                .active-sort-link .badge {
-                                    font-size: .65rem;
-                                    vertical-align: middle;
-                                }
-                            </style>
                             <table class="table table-striped table-hover">
                                 <thead class="table-dark">
                                     <tr>
@@ -91,7 +79,12 @@
                                             <td><strong>{{ $appartement->numero }}</strong></td>
                                             <td>{{ ucfirst($appartement->type) }}</td>
                                             <td>
-                                                <span class="badge bg-danger">{{ $appartement->factures_impayees_count ?? 0 }}</span>
+                                                @php
+                                                    $badgeCount = $appartement->factures_impayees_count ?? 0;
+                                                @endphp
+                                                <a href="{{ route('factures.index', array_merge(request()->query(), ['appartement_id' => $appartement->id, 'impayees' => 1])) }}" class="text-decoration-none">
+                                                    <span class="badge bg-danger">{{ $badgeCount }}</span>
+                                                </a>
                                             </td>
                                             <td>{{ $appartement->garantie_locative }} $</td>
                                             <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>

@@ -137,6 +137,18 @@ class FactureController extends Controller
             });
         }
 
+        // Filtrer par appartement si fourni
+        if ($request->filled('appartement_id')) {
+            $query->whereHas('loyer.appartement', function($q) use ($request) {
+                $q->where('id', $request->appartement_id);
+            });
+        }
+
+        // Filtrer les factures impayées (non_paye ou partielle) si demandé
+        if ($request->filled('impayees')) {
+            $query->whereIn('statut_paiement', ['non_paye', 'partielle']);
+        }
+
         if ($request->filled('locataire_id')) {
             $query->where('locataire_id', $request->locataire_id);
         }
@@ -150,6 +162,18 @@ class FactureController extends Controller
                            ->orWhere('prenom', 'like', "%{$search}%");
                   });
             });
+        }
+
+        // Filtrer par appartement si fourni
+        if ($request->filled('appartement_id')) {
+            $query->whereHas('loyer.appartement', function($q) use ($request) {
+                $q->where('id', $request->appartement_id);
+            });
+        }
+
+        // Filtrer les factures impayées (non_paye ou partielle) si demandé
+        if ($request->filled('impayees')) {
+            $query->whereIn('statut_paiement', ['non_paye', 'partielle']);
         }
 
         // Tri
