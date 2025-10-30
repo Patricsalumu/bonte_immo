@@ -622,7 +622,7 @@ class FactureController extends Controller
                 'type_mouvement' => 'entree',
                 'montant' => $montantPaye,
                 'mode_paiement' => $validated['mode_paiement'],
-                'description' => 'Paiement facture ' . $facture->numero_facture . ' - ' . $facture->locataire->nom . ' ' . $facture->locataire->prenom,
+                'description' => 'Paiement facture ' . $facture->numero_facture . ' - ' . $facture->locataire->nom . '-' . $facture->mois.'/'.$facture->annee,
                 'categorie' => 'paiement_facture',
                 'utilisateur_id' => auth()->id(),
                 'date_operation' => now(),
