@@ -23,7 +23,7 @@
     <table class="company-table">
         <tr>
             <td style="width:120px;">
-                @php $logoPath = public_path(config('company.logo')) @endphp    
+                @php $logoPath = public_path(config('company.logo')) @endphp
                 @if(file_exists($logoPath))
                     <img src="{{ $logoPath }}" alt="{{ config('company.name') }}" style="max-width:120px; max-height:80px;">
                 @endif

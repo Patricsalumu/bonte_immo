@@ -63,8 +63,7 @@ class CaisseController extends Controller
             $isNumeric = is_numeric(str_replace(',', '.', $qNumericCandidate));
 
             $query->where(function($sub) use ($qTerm, $isNumeric, $qNumericCandidate) {
-                $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhere('reference', 'like', '%' . $qTerm . '%');
+                $sub->where('description', 'like', '%' . $qTerm . '%');
                 if ($isNumeric) {
                     // si numérique, rechercher aussi dans montant (CAST en CHAR)
                     $sub->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qNumericCandidate . '%']);
@@ -100,8 +99,7 @@ class CaisseController extends Controller
             $isNumeric = is_numeric(str_replace(',', '.', $qNumericCandidate));
 
             $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm, $isNumeric, $qNumericCandidate) {
-                $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhere('reference', 'like', '%' . $qTerm . '%');
+                $sub->where('description', 'like', '%' . $qTerm . '%');
                 if ($isNumeric) {
                     $sub->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qNumericCandidate . '%']);
                 }
@@ -195,7 +193,6 @@ class CaisseController extends Controller
             $qTerm = $request->q;
             $query->where(function($sub) use ($qTerm) {
                 $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhere('reference', 'like', '%' . $qTerm . '%')
                     ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
             });
         }
@@ -223,7 +220,6 @@ class CaisseController extends Controller
             $qTerm = $request->q;
             $baseStatsQuery = $baseStatsQuery->where(function($sub) use ($qTerm) {
                 $sub->where('description', 'like', '%' . $qTerm . '%')
-                    ->orWhere('reference', 'like', '%' . $qTerm . '%')
                     ->orWhereRaw('CAST(montant AS CHAR) LIKE ?', ['%' . $qTerm . '%']);
             });
         }
