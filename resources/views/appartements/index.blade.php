@@ -143,27 +143,6 @@
                                                 <a href="{{ route('factures.index', array_merge(request()->query(), ['appartement_id' => $appartement->id, 'impayees' => 1])) }}" class="text-decoration-none">
                                                     <span class="badge bg-danger">{{ $badgeCount }}</span>
                                                 </a>
-                                                @if(request()->has('debug') || app()->environment('local'))
-                                                    <div class="mt-1 small text-muted">
-                                                        Loyers total: {{ $appartement->loyers->count() }}, actifs: {{ $activeLeases->count() }}
-                                                        <ul class="mb-0">
-                                                            @foreach($appartement->loyers as $l)
-                                                                @php
-                                                                    $debutRaw = isset($l->date_debut) ? trim((string)$l->date_debut) : '';
-                                                                    try { $debut = $debutRaw === '' ? null : \Carbon\Carbon::parse($debutRaw); } catch (\Exception $e) { $debut = null; }
-                                                                    $finRaw = isset($l->date_fin) ? trim((string)$l->date_fin) : '';
-                                                                    if ($finRaw === '' || in_array($finRaw, ['0000-00-00', '0000-00-00 00:00:00'])) {
-                                                                        $fin = null;
-                                                                    } else {
-                                                                        try { $fin = \Carbon\Carbon::parse($finRaw); } catch (\Exception $e) { $fin = null; }
-                                                                    }
-                                                                    $isActive = ($l->statut ?? '') === 'actif' && $debut && $debut->lte(now()) && (is_null($fin) || $fin->gte(now()));
-                                                                @endphp
-                                                                <li>#{{ $l->id }} — statut="{{ $l->statut ?? 'null' }}" debut="{{ $debutRaw ?: 'null' }}" fin="{{ $finRaw ?: 'null' }}" active={{ $isActive ? '1' : '0' }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                @endif
                                             </td>
                                             <td>{{ $appartement->garantie_locative }} $</td>
                                             <td>{{ number_format($appartement->loyer_mensuel, 0, ',', ' ') }} $</td>
