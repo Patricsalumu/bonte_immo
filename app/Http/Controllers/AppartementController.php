@@ -16,7 +16,8 @@ class AppartementController extends Controller
 
     public function index()
     {
-        $query = Appartement::with(['immeuble', 'locataire']);
+    // Charger aussi les loyers pour éviter des requêtes lazy et garantir les données utilisées en vue
+    $query = Appartement::with(['immeuble', 'locataire', 'loyers']);
         // Ajouter un sous-select pour compter les factures impayées (statut non_paye ou partielle)
         $query->select('appartements.*');
         $query->selectSub(function($sub) {
@@ -34,7 +35,48 @@ class AppartementController extends Controller
         if (request('numero')) {
             $query->where('numero', 'like', '%' . request('numero') . '%');
         }
-        // Tri par factures impayées si demandé
+        if (request('statut')) {
+            $statut = request('statut');
+
+            // Définition d'un loyer actif : statut = 'actif' AND date_debut <= today AND (date_fin IS NULL OR date_fin >= today)
+            $activeLeaseConstraint = function ($q) {
+                $q->where('statut', 'actif')
+                  ->where('date_debut', '<=', now())
+                  ->where(function ($sub) {
+                      $sub->whereNull('date_fin')
+                          ->orWhere('date_fin', '>=', now());
+                  });
+            };
+
+            if ($statut === 'libre') {
+                // Libre : soit pas de loyer du tout, soit il y a des loyers mais aucun loyer actif
+                $query->where(function($q) use ($activeLeaseConstraint) {
+                    $q->whereDoesntHave('loyers')
+                      ->orWhere(function($q2) use ($activeLeaseConstraint) {
+                          $q2->whereDoesntHave('loyers', $activeLeaseConstraint);
+                      });
+                });
+            } elseif ($statut === 'occupe') {
+                // Occupé : loyer actif ET (date_fin IS NULL OR date_fin > now + 3 mois)
+                $query->whereHas('loyers', function ($q) {
+                    $q->where('statut', 'actif')
+                      ->where('date_debut', '<=', now())
+                      ->where(function ($sub) {
+                          $sub->whereNull('date_fin')
+                              ->orWhere('date_fin', '>', now()->addMonths(3));
+                      });
+                });
+            } elseif ($statut === 'preavis') {
+                // Préavis : loyer actif ET date_fin NOT NULL ET date_fin between today and now+3 months
+                                $query->whereHas('loyers', function ($q) {
+                                        $q->where('statut', 'actif')
+                                            ->where('date_debut', '<=', now())
+                                            ->whereNotNull('date_fin')
+                                            ->where('date_fin', '>=', now())
+                                            ->where('date_fin', '<=', now()->addMonths(3));
+                                });
+            }
+        }
         $sort = request('sort');
         $direction = request('direction') === 'asc' ? 'asc' : 'desc';
         if ($sort === 'factures_impayees') {
